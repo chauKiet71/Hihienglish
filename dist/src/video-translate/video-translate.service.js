@@ -25,13 +25,14 @@ const ffmpeg_static_1 = __importDefault(require("ffmpeg-static"));
 const openai_1 = __importDefault(require("openai"));
 const youtube_transcript_1 = require("youtube-transcript");
 const prisma_service_1 = require("../prisma/prisma.service");
+const featured_video_captions_1 = require("./featured-video-captions");
 const youtube_util_1 = require("./youtube.util");
 exports.FREE_VIDEO_TRANSLATE_PER_DAY = 3;
 exports.DEFAULT_MAX_SECONDS_FREE = 600;
 exports.DEFAULT_MAX_SECONDS_PREMIUM = 1200;
 const DEFAULT_TRANSLATION_BATCH_SIZE = 24;
 const DEFAULT_TRANSLATION_CONCURRENCY = 3;
-exports.DUBBED_PIPELINE_VERSION = 12;
+exports.DUBBED_PIPELINE_VERSION = 13;
 const TRANSCRIPT_RULES = {
     pauseBreakSec: 0.5,
     timestampEpsilonSec: 0.001,
@@ -43,7 +44,6 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
     logger = new common_1.Logger(VideoTranslateService_1.name);
     openai = null;
     processing = new Set();
-    rapidApiCache = new Map();
     constructor(prisma, config) {
         this.prisma = prisma;
         this.config = config;
@@ -79,8 +79,9 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             orderBy: { createdAt: 'desc' },
             take: 20,
         });
+        const repairedJobs = await Promise.all(jobs.map((job) => this.repairLegacyYoutubeDuration(job)));
         return {
-            jobs: jobs.map((job) => this.serializeJob(job)),
+            jobs: repairedJobs.map((job) => this.serializeJob(job)),
             quota: await this.getQuota(userId),
         };
     }
@@ -184,7 +185,72 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         };
     }
     async createJob(userId, rawUrl) {
-        throw new common_1.BadRequestException('Tính năng đã chuyển sang upload file. Hãy tải video/audio lên thay vì dán link.');
+        const videoId = (0, youtube_util_1.extractYoutubeVideoId)(rawUrl);
+        if (!videoId) {
+            throw new common_1.BadRequestException('Link YouTube không hợp lệ. Hãy dùng link youtube.com/watch?v=..., youtu.be/... hoặc YouTube Shorts.');
+        }
+        const youtubeUrl = (0, youtube_util_1.youtubeWatchUrl)(videoId);
+        const cached = await this.prisma.videoTranslateJob.findFirst({
+            where: {
+                youtubeVideoId: videoId,
+                status: client_1.VideoTranslateStatus.READY,
+                segmentsJson: { not: client_1.Prisma.DbNull },
+                pipelineVersion: { gte: exports.DUBBED_PIPELINE_VERSION },
+            },
+            orderBy: { completedAt: 'desc' },
+        });
+        if (cached) {
+            const repairedCached = await this.repairLegacyYoutubeDuration(cached);
+            const cloned = await this.prisma.videoTranslateJob.create({
+                data: {
+                    userId,
+                    youtubeVideoId: videoId,
+                    youtubeUrl,
+                    title: repairedCached.title,
+                    thumbnailUrl: repairedCached.thumbnailUrl ?? (0, youtube_util_1.youtubeThumbnailUrl)(videoId),
+                    durationSec: repairedCached.durationSec,
+                    status: client_1.VideoTranslateStatus.READY,
+                    source: repairedCached.source,
+                    segmentsJson: repairedCached.segmentsJson ?? client_1.Prisma.JsonNull,
+                    dubbedAudioUrl: null,
+                    pipelineVersion: repairedCached.pipelineVersion,
+                    fromCache: true,
+                    completedAt: new Date(),
+                },
+            });
+            return {
+                job: this.serializeJob(cloned),
+                quota: await this.getQuota(userId),
+                fromCache: true,
+            };
+        }
+        this.ensureOpenAi();
+        await this.assertAndReserveQuota(userId);
+        let job;
+        try {
+            job = await this.prisma.videoTranslateJob.create({
+                data: {
+                    userId,
+                    youtubeVideoId: videoId,
+                    youtubeUrl,
+                    thumbnailUrl: (0, youtube_util_1.youtubeThumbnailUrl)(videoId),
+                    status: client_1.VideoTranslateStatus.PENDING,
+                    pipelineVersion: exports.DUBBED_PIPELINE_VERSION,
+                },
+            });
+        }
+        catch (error) {
+            await this.releaseQuotaReservation(userId);
+            throw error;
+        }
+        void this.processJob(job.id).catch((error) => {
+            this.logger.error(`Video translate job ${job.id} failed: ${error instanceof Error ? error.message : String(error)}`);
+        });
+        return {
+            job: this.serializeJob(job),
+            quota: await this.getQuota(userId),
+            fromCache: false,
+        };
     }
     async processJob(jobId) {
         if (this.processing.has(jobId))
@@ -207,25 +273,64 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                 where: { id: jobId },
                 data: { status: client_1.VideoTranslateStatus.PROCESSING, errorMessage: null },
             });
+            const user = await this.prisma.user.findUniqueOrThrow({
+                where: { id: job.userId },
+                select: { isPremium: true, premiumExpiresAt: true },
+            });
+            const isPremium = this.resolvePremium(user);
+            const maxSeconds = isPremium
+                ? this.maxSecondsPremium()
+                : this.maxSecondsFree();
+            if (job.youtubeVideoId && job.youtubeUrl) {
+                const meta = await this.fetchVideoMeta(job.youtubeVideoId, job.youtubeUrl);
+                if (meta.durationSec != null && meta.durationSec > maxSeconds) {
+                    throw new common_1.BadRequestException(`Video dài ${Math.ceil(meta.durationSec / 60)} phút — tối đa ${Math.floor(maxSeconds / 60)} phút cho tài khoản ${isPremium ? 'Premium' : 'miễn phí'}.`);
+                }
+                await this.prisma.videoTranslateJob.update({
+                    where: { id: jobId },
+                    data: {
+                        title: meta.title,
+                        durationSec: meta.durationSec,
+                        thumbnailUrl: meta.thumbnailUrl ?? (0, youtube_util_1.youtubeThumbnailUrl)(job.youtubeVideoId),
+                    },
+                });
+                logStage('metadata ready');
+                const { segments: timed, source } = await this.getTimedTranscript(job.youtubeVideoId, job.youtubeUrl, workDir, meta.durationSec ?? maxSeconds);
+                logStage('transcript ready');
+                if (!timed.length) {
+                    throw new common_1.BadRequestException('Không tìm thấy lời thoại tiếng Anh trong video này');
+                }
+                const durationSec = meta.durationSec ?? this.inferTranscriptDuration(timed);
+                if (durationSec > maxSeconds) {
+                    throw new common_1.BadRequestException(`Video dài ${Math.ceil(durationSec / 60)} phút - tối đa ${Math.floor(maxSeconds / 60)} phút cho tài khoản ${isPremium ? 'Premium' : 'miễn phí'}.`);
+                }
+                const translated = await this.translateSegments(timed);
+                logStage('translations ready');
+                await this.prisma.videoTranslateJob.update({
+                    where: { id: jobId },
+                    data: {
+                        status: client_1.VideoTranslateStatus.READY,
+                        source,
+                        durationSec,
+                        segmentsJson: translated,
+                        dubbedAudioUrl: null,
+                        pipelineVersion: exports.DUBBED_PIPELINE_VERSION,
+                        completedAt: new Date(),
+                        errorMessage: null,
+                    },
+                });
+                logStage('completed');
+                return;
+            }
             if (!job.mediaUrl) {
-                throw new common_1.BadRequestException('Job thiếu file media tải lên');
+                throw new common_1.BadRequestException('Job thiếu nguồn video hoặc audio');
             }
             const sourcePath = this.resolveMediaPath(job.mediaUrl);
             if (!sourcePath || !(0, fs_1.existsSync)(sourcePath)) {
                 throw new common_1.BadRequestException('Không tìm thấy file đã tải lên');
             }
-            const [probedDurationSec, user] = await Promise.all([
-                this.probeDurationSec(sourcePath),
-                this.prisma.user.findUniqueOrThrow({
-                    where: { id: job.userId },
-                    select: { isPremium: true, premiumExpiresAt: true },
-                }),
-            ]);
+            const probedDurationSec = await this.probeDurationSec(sourcePath);
             const durationSec = Math.max(1, Math.round(probedDurationSec));
-            const isPremium = this.resolvePremium(user);
-            const maxSeconds = isPremium
-                ? this.maxSecondsPremium()
-                : this.maxSecondsFree();
             if (durationSec > maxSeconds) {
                 throw new common_1.BadRequestException(`Video dài ${Math.ceil(durationSec / 60)} phút — tối đa ${Math.floor(maxSeconds / 60)} phút cho tài khoản ${isPremium ? 'Premium' : 'miễn phí'}.`);
             }
@@ -439,11 +544,62 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         }
         return outPath;
     }
+    async prepareFeaturedTranscript(videoId, durationSec, workDir) {
+        this.ensureOpenAi();
+        const readTrack = () => {
+            for (const language of ['en-US', 'en-GB', 'en-orig', 'en']) {
+                const path = (0, path_1.join)(workDir, `captions.${language}.json3`);
+                if (!(0, fs_1.existsSync)(path))
+                    continue;
+                try {
+                    const cues = (0, featured_video_captions_1.parseFeaturedCaptions)(JSON.parse((0, fs_1.readFileSync)(path, 'utf8')), durationSec);
+                    if (cues.length)
+                        return this.finalizeSegments(cues, durationSec, this.buildCaptionWordTimings(cues, durationSec))
+                            .map((segment) => ({
+                            ...segment,
+                            end: Math.min(durationSec, segment.end),
+                        }))
+                            .filter((segment) => segment.end > segment.start);
+                }
+                catch {
+                }
+            }
+            return [];
+        };
+        let timed = readTrack();
+        if (!timed.length) {
+            try {
+                await execFileAsync(this.resolveYtDlpPath(), [
+                    '--js-runtimes',
+                    'node',
+                    ...this.ytDlpConnectionArgs(),
+                    '--skip-download',
+                    '--no-playlist',
+                    '--write-subs',
+                    '--write-auto-subs',
+                    '--sub-langs',
+                    'en,en-US,en-GB,en-orig',
+                    '--sub-format',
+                    'json3',
+                    '--output',
+                    (0, path_1.join)(workDir, 'captions.%(ext)s'),
+                    (0, youtube_util_1.youtubeWatchUrl)(videoId),
+                ], { timeout: 90_000, maxBuffer: 4 * 1024 * 1024 });
+            }
+            catch {
+            }
+            timed = readTrack();
+        }
+        if (!timed.length) {
+            timed = (await this.getTimedTranscript(videoId, (0, youtube_util_1.youtubeWatchUrl)(videoId), workDir, durationSec)).segments;
+        }
+        return this.translateSegments(timed);
+    }
     async getTimedTranscript(videoId, youtubeUrl, workDir, durationSec) {
-        const captionSegments = await this.tryFetchCaptions(videoId, durationSec);
-        if (captionSegments.length > 0) {
+        const captionTranscript = await this.tryFetchCaptions(videoId, durationSec);
+        if (captionTranscript.segments.length > 0) {
             return {
-                segments: this.finalizeSegments(captionSegments, durationSec),
+                segments: this.finalizeSegments(captionTranscript.segments, durationSec, captionTranscript.words),
                 source: 'captions',
             };
         }
@@ -467,10 +623,10 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                 items = await (0, youtube_transcript_1.fetchTranscript)(videoId);
             }
             if (!items?.length)
-                return [];
+                return { segments: [], words: [] };
             const maxOffset = Math.max(...items.map((item) => Number(item.offset) || 0));
             const unitIsMs = maxOffset > durationSec * 1.5 + 5;
-            return items
+            const segments = items
                 .map((item) => {
                 const rawStart = Number(item.offset) || 0;
                 const rawDur = Number(item.duration) || 0;
@@ -491,10 +647,14 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             })
                 .filter((seg) => seg != null && seg.en.length > 0)
                 .sort((a, b) => a.start - b.start || a.end - b.end);
+            return {
+                segments,
+                words: this.buildCaptionWordTimings(segments, durationSec),
+            };
         }
         catch (error) {
             this.logger.warn(`Caption fetch failed for ${videoId}: ${error instanceof Error ? error.message : String(error)}`);
-            return [];
+            return { segments: [], words: [] };
         }
     }
     cleanCaptionText(text) {
@@ -503,6 +663,31 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             .replace(/\(.*?\)/g, ' ')
             .replace(/\s+/g, ' ')
             .trim();
+    }
+    buildCaptionWordTimings(segments, durationSec) {
+        const words = [];
+        const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+        segments.forEach((segment, index) => {
+            const nextStart = segments[index + 1]?.start;
+            const clippedEnd = nextStart != null && nextStart > segment.start + 0.05
+                ? Math.min(segment.end, nextStart)
+                : segment.end;
+            const end = Math.min(durationSec, Math.max(segment.start + 0.12, clippedEnd));
+            const estimated = this.estimateWordTimings({ ...segment, end }).map((word) => ({ start: word.start, end: word.end, en: word.text }));
+            const maxOverlap = Math.min(words.length, estimated.length);
+            let overlap = maxOverlap;
+            while (overlap > 0) {
+                const tail = words.slice(-overlap);
+                const head = estimated.slice(0, overlap);
+                if (tail.every((word, wordIndex) => normalize(word.en).length > 0 &&
+                    normalize(word.en) === normalize(head[wordIndex].en))) {
+                    break;
+                }
+                overlap -= 1;
+            }
+            words.push(...estimated.slice(overlap));
+        });
+        return words;
     }
     finalizeSegments(segments, durationSec, wordTimings = []) {
         const sorted = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);
@@ -662,13 +847,14 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
     }
     attachWordTimings(segments, rawWords) {
         const words = [...rawWords].sort((a, b) => a.start - b.start || a.end - b.end);
-        return segments.map((segment, index) => {
-            const nextStart = segments[index + 1]?.start;
-            const lowerBound = segment.start - 0.1;
-            const upperBound = nextStart ?? segment.end + 0.1;
+        const mappedSegments = segments.map((segment, index) => {
+            const previousStart = segments[index - 1]?.start;
+            const nextEnd = segments[index + 1]?.end;
+            const lowerBound = (previousStart ?? segment.start - 1) - 0.1;
+            const upperBound = (nextEnd ?? segment.end + 1) + 0.1;
             const candidates = words.filter((word) => {
                 const midpoint = (word.start + word.end) / 2;
-                return midpoint >= lowerBound && midpoint < upperBound;
+                return midpoint >= lowerBound && midpoint <= upperBound;
             });
             const mapped = this.mapWordsToSegment(segment, candidates);
             return {
@@ -678,11 +864,26 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                     : this.estimateWordTimings(segment),
             };
         });
+        return mappedSegments.map((segment, index) => {
+            if (!segment.words?.length)
+                return segment;
+            const firstWordStart = segment.words[0].start;
+            const lastWordEnd = segment.words[segment.words.length - 1].end;
+            const nextWordStart = mappedSegments[index + 1]?.words?.[0]?.start;
+            const end = nextWordStart != null
+                ? Math.max(lastWordEnd, nextWordStart - 0.04)
+                : Math.max(lastWordEnd, segment.end);
+            return {
+                ...segment,
+                start: firstWordStart,
+                end: Math.max(firstWordStart + 0.12, end),
+            };
+        });
     }
     mapWordsToSegment(segment, candidates) {
         const displayWords = segment.en.split(/\s+/).filter(Boolean);
         const normalize = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
-        for (let startOffset = 0; startOffset <= Math.min(3, candidates.length - 1); startOffset += 1) {
+        for (let startOffset = 0; startOffset <= candidates.length - 1; startOffset += 1) {
             const mapped = [];
             let candidateIndex = startOffset;
             let failed = false;
@@ -1061,62 +1262,53 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         }
     }
     async downloadAudio(youtubeUrl, workDir) {
-        if (this.isRapidApiConfigured()) {
-            try {
-                const path = await this.downloadAudioViaRapidApi(youtubeUrl, workDir);
-                this.logger.log(`Audio downloaded via RapidAPI: ${path}`);
-                return path;
-            }
-            catch (error) {
-                this.logger.warn(`RapidAPI audio download failed, falling back to yt-dlp: ${error instanceof Error ? error.message : String(error)}`);
-            }
-        }
-        return this.downloadAudioViaYtDlp(youtubeUrl, workDir);
-    }
-    async downloadAudioViaRapidApi(youtubeUrl, workDir) {
-        const payload = await this.fetchRapidApiMedia(youtubeUrl);
-        const audio = this.pickBestAudioMedia(payload.medias ?? []);
-        if (!audio) {
-            throw new common_1.ServiceUnavailableException('RapidAPI không trả về stream audio cho video này');
-        }
-        const sourceUrl = (audio.download_url || audio.url || '').trim();
-        if (!sourceUrl) {
-            throw new common_1.ServiceUnavailableException('RapidAPI audio thiếu download_url');
-        }
-        const ext = this.normalizeAudioExt(audio.ext) || 'm4a';
-        const outPath = (0, path_1.join)(workDir, `audio.${ext}`);
-        await this.downloadBinaryToFile(sourceUrl, outPath);
-        return outPath;
-    }
-    async downloadAudioViaYtDlp(youtubeUrl, workDir) {
         const ytDlp = this.resolveYtDlpPath();
         const ffmpeg = this.resolveFfmpegPath();
         const outTemplate = (0, path_1.join)(workDir, 'audio.%(ext)s');
         const connectionArgs = this.ytDlpConnectionArgs();
+        const usingProxy = connectionArgs.includes('--proxy');
+        const runDownload = (args) => execFileAsync(ytDlp, [
+            '--js-runtimes',
+            'node',
+            ...args,
+            '-f',
+            'bestaudio/best',
+            '-x',
+            '--audio-format',
+            'mp3',
+            '--audio-quality',
+            '5',
+            '--ffmpeg-location',
+            ffmpeg,
+            '--no-playlist',
+            '-o',
+            outTemplate,
+            youtubeUrl,
+        ], { timeout: 180_000, maxBuffer: 10 * 1024 * 1024 });
         try {
-            await execFileAsync(ytDlp, [
-                '--js-runtimes',
-                'node',
-                ...connectionArgs,
-                '-f',
-                'bestaudio/best',
-                '-x',
-                '--audio-format',
-                'mp3',
-                '--audio-quality',
-                '5',
-                '--ffmpeg-location',
-                ffmpeg,
-                '--no-playlist',
-                '-o',
-                outTemplate,
-                youtubeUrl,
-            ], { timeout: 180_000, maxBuffer: 10 * 1024 * 1024 });
+            await runDownload(connectionArgs);
         }
         catch (error) {
             const detail = this.commandErrorDetail(error);
             this.logger.error(`yt-dlp download failed: ${this.commandErrorLog(error)}`);
-            throw new common_1.ServiceUnavailableException(this.ytDlpUserFacingError(detail));
+            if (usingProxy && this.isProxyParseError(detail)) {
+                this.logger.warn('YT_DLP_PROXY không hợp lệ; đang thử tải lại bằng kết nối trực tiếp.');
+                try {
+                    await runDownload(this.ytDlpConnectionArgs(false));
+                }
+                catch (retryError) {
+                    const retryDetail = this.commandErrorDetail(retryError);
+                    this.logger.error(`yt-dlp direct retry failed: ${this.commandErrorLog(retryError)}`);
+                    throw new common_1.ServiceUnavailableException(this.ytDlpInvalidProxyError(retryDetail, true));
+                }
+            }
+            else if (this.hasConfiguredYtDlpProxy() &&
+                !this.normalizedYtDlpProxy()) {
+                throw new common_1.ServiceUnavailableException(this.ytDlpInvalidProxyError(detail));
+            }
+            else {
+                throw new common_1.ServiceUnavailableException(this.ytDlpUserFacingError(detail));
+            }
         }
         const files = (0, fs_1.readdirSync)(workDir).filter((name) => /^audio\.(mp3|m4a|webm|opus|wav)$/i.test(name));
         if (!files.length) {
@@ -1245,20 +1437,6 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         return out;
     }
     async fetchVideoMeta(videoId, youtubeUrl) {
-        if (this.isRapidApiConfigured()) {
-            try {
-                const payload = await this.fetchRapidApiMedia(youtubeUrl);
-                const durationSec = this.resolveDurationSec(payload);
-                return {
-                    title: payload.title?.trim() || `YouTube ${videoId}`,
-                    durationSec,
-                    thumbnailUrl: payload.thumbnail || (0, youtube_util_1.youtubeThumbnailUrl)(videoId),
-                };
-            }
-            catch (error) {
-                this.logger.warn(`RapidAPI meta failed, falling back: ${error instanceof Error ? error.message : String(error)}`);
-            }
-        }
         try {
             const ytDlp = this.resolveYtDlpPath();
             const { stdout } = await execFileAsync(ytDlp, [
@@ -1277,197 +1455,78 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             };
         }
         catch {
+            const durationSec = await this.fetchYoutubeWatchDuration(youtubeUrl);
+            let title = `YouTube ${videoId}`;
+            let thumbnailUrl = (0, youtube_util_1.youtubeThumbnailUrl)(videoId);
             try {
                 const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`);
                 if (res.ok) {
                     const data = (await res.json());
-                    return {
-                        title: data.title?.trim() || `YouTube ${videoId}`,
-                        durationSec: this.maxSecondsFree(),
-                        thumbnailUrl: data.thumbnail_url || (0, youtube_util_1.youtubeThumbnailUrl)(videoId),
-                    };
+                    title = data.title?.trim() || title;
+                    thumbnailUrl = data.thumbnail_url || thumbnailUrl;
                 }
             }
             catch {
             }
             return {
-                title: `YouTube ${videoId}`,
-                durationSec: this.maxSecondsFree(),
-                thumbnailUrl: (0, youtube_util_1.youtubeThumbnailUrl)(videoId),
+                title,
+                durationSec,
+                thumbnailUrl,
             };
         }
     }
-    isRapidApiConfigured() {
-        return Boolean(this.config.get('RAPIDAPI_KEY')?.trim());
+    parseYoutubeWatchDuration(content) {
+        const match = content.match(/"lengthSeconds"\s*:\s*"?(\d+)"?/);
+        const durationSec = Number(match?.[1]);
+        return Number.isFinite(durationSec) && durationSec > 0
+            ? Math.round(durationSec)
+            : null;
     }
-    rapidApiHost() {
-        return (this.config.get('RAPIDAPI_YT_HOST')?.trim() ||
-            'youtube-video-downloader-fast.p.rapidapi.com');
-    }
-    async fetchRapidApiMedia(youtubeUrl) {
-        const cached = this.rapidApiCache.get(youtubeUrl);
-        if (cached && Date.now() - cached.at < 120_000) {
-            return cached.data;
-        }
-        const apiKey = this.config.get('RAPIDAPI_KEY')?.trim();
-        if (!apiKey) {
-            throw new common_1.ServiceUnavailableException('RAPIDAPI_KEY chưa cấu hình');
-        }
-        const host = this.rapidApiHost();
-        const path = this.config.get('RAPIDAPI_YT_PATH')?.trim() || '/download.php';
-        const url = `https://${host}${path}?url=${encodeURIComponent(youtubeUrl)}`;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 90_000);
+    async fetchYoutubeWatchDuration(youtubeUrl) {
         try {
-            const res = await fetch(url, {
-                method: 'POST',
+            const response = await fetch(youtubeUrl, {
                 headers: {
-                    'x-rapidapi-key': apiKey,
-                    'x-rapidapi-host': host,
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/127 Safari/537.36',
+                    'accept-language': 'en-US,en;q=0.9',
                 },
-                signal: controller.signal,
+                signal: AbortSignal.timeout(15_000),
             });
-            const text = await res.text();
-            let data = {};
-            try {
-                data = JSON.parse(text);
-            }
-            catch {
-                throw new common_1.ServiceUnavailableException(`RapidAPI trả về dữ liệu không hợp lệ (HTTP ${res.status})`);
-            }
-            if (!res.ok) {
-                throw new common_1.ServiceUnavailableException(data.message || data.error || `RapidAPI lỗi HTTP ${res.status}`);
-            }
-            if (!Array.isArray(data.medias) || data.medias.length === 0) {
-                throw new common_1.ServiceUnavailableException('RapidAPI không trả về danh sách media');
-            }
-            this.rapidApiCache.set(youtubeUrl, { at: Date.now(), data });
-            return data;
-        }
-        catch (error) {
-            if (error instanceof common_1.ServiceUnavailableException)
-                throw error;
-            if (error instanceof Error && error.name === 'AbortError') {
-                throw new common_1.ServiceUnavailableException('RapidAPI hết thời gian chờ');
-            }
-            throw new common_1.ServiceUnavailableException(error instanceof Error
-                ? `RapidAPI thất bại: ${error.message}`
-                : 'RapidAPI thất bại');
-        }
-        finally {
-            clearTimeout(timer);
-        }
-    }
-    pickBestAudioMedia(medias) {
-        const audios = medias.filter((item) => String(item.type || '').toLowerCase() === 'audio');
-        if (!audios.length)
-            return null;
-        const rankExt = (ext) => {
-            const value = String(ext || '').toLowerCase();
-            if (value === 'm4a' || value === 'mp4')
-                return 3;
-            if (value === 'mp3')
-                return 2;
-            if (value === 'webm' || value === 'opus')
-                return 1;
-            return 0;
-        };
-        const rankQuality = (quality) => {
-            const value = String(quality || '').toUpperCase();
-            if (value.includes('HIGH'))
-                return 3;
-            if (value.includes('MEDIUM'))
-                return 2;
-            if (value.includes('LOW'))
-                return 1;
-            return 0;
-        };
-        return [...audios].sort((a, b) => {
-            const extDiff = rankExt(b.ext) - rankExt(a.ext);
-            if (extDiff)
-                return extDiff;
-            const qDiff = rankQuality(b.audioQuality) - rankQuality(a.audioQuality);
-            if (qDiff)
-                return qDiff;
-            return (Number(b.bitrate) || 0) - (Number(a.bitrate) || 0);
-        })[0];
-    }
-    resolveDurationSec(payload) {
-        const medias = payload.medias ?? [];
-        for (const item of medias) {
-            const fromUrl = this.extractDurationFromUrl(item.url || item.download_url || '');
-            if (fromUrl && fromUrl >= 5)
-                return Math.round(fromUrl);
-        }
-        let best = 0;
-        for (const item of medias) {
-            const value = Number(item.duration) || 0;
-            if (value > best)
-                best = value;
-        }
-        if (best >= 5)
-            return Math.round(best);
-        return this.maxSecondsFree();
-    }
-    extractDurationFromUrl(rawUrl) {
-        if (!rawUrl)
-            return null;
-        try {
-            const decoded = decodeURIComponent(rawUrl);
-            const match = decoded.match(/[?&]dur=([0-9]+(?:\.[0-9]+)?)/);
-            if (!match)
+            if (!response.ok)
                 return null;
-            const value = Number(match[1]);
-            return Number.isFinite(value) ? value : null;
+            return this.parseYoutubeWatchDuration(await response.text());
         }
         catch {
             return null;
         }
     }
-    normalizeAudioExt(ext) {
-        const value = String(ext || '')
-            .toLowerCase()
-            .replace(/^\./, '');
-        if (['mp3', 'm4a', 'webm', 'opus', 'wav'].includes(value))
-            return value;
-        if (value === 'mp4')
-            return 'm4a';
-        return null;
+    inferTranscriptDuration(segments) {
+        const lastTimestamp = segments.reduce((max, segment) => Math.max(max, segment.end, segment.start), 0);
+        return Math.max(1, Math.ceil(lastTimestamp));
     }
-    async downloadBinaryToFile(sourceUrl, outPath) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 180_000);
-        try {
-            const res = await fetch(sourceUrl, {
-                signal: controller.signal,
-                redirect: 'follow',
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                    Accept: '*/*',
-                },
-            });
-            if (!res.ok) {
-                throw new common_1.ServiceUnavailableException(`Không tải được audio (HTTP ${res.status})`);
-            }
-            const buffer = Buffer.from(await res.arrayBuffer());
-            if (buffer.length < 1024) {
-                throw new common_1.ServiceUnavailableException('File audio tải về quá nhỏ hoặc rỗng');
-            }
-            (0, fs_1.writeFileSync)(outPath, buffer);
+    async repairLegacyYoutubeDuration(job) {
+        if (job.status !== client_1.VideoTranslateStatus.READY ||
+            !job.youtubeVideoId ||
+            !job.youtubeUrl ||
+            job.durationSec == null) {
+            return job;
         }
-        catch (error) {
-            if (error instanceof common_1.ServiceUnavailableException)
-                throw error;
-            if (error instanceof Error && error.name === 'AbortError') {
-                throw new common_1.ServiceUnavailableException('Hết thời gian tải audio');
-            }
-            throw new common_1.ServiceUnavailableException(error instanceof Error
-                ? `Tải audio thất bại: ${error.message}`
-                : 'Tải audio thất bại');
-        }
-        finally {
-            clearTimeout(timer);
-        }
+        const knownFallbackDurations = new Set([
+            this.maxSecondsFree(),
+            this.maxSecondsPremium(),
+        ]);
+        if (!knownFallbackDurations.has(job.durationSec))
+            return job;
+        const transcriptDuration = this.inferTranscriptDuration(this.parseSegments(job.segmentsJson));
+        if (transcriptDuration >= job.durationSec - 2)
+            return job;
+        const durationSec = await this.fetchYoutubeWatchDuration(job.youtubeUrl);
+        if (durationSec == null || durationSec === job.durationSec)
+            return job;
+        await this.prisma.videoTranslateJob.update({
+            where: { id: job.id },
+            data: { durationSec },
+        });
+        return { ...job, durationSec };
     }
     resolveYtDlpPath() {
         const configured = this.config.get('YT_DLP_PATH')?.trim();
@@ -1492,16 +1551,23 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         }
         return 'ffmpeg';
     }
-    ytDlpConnectionArgs() {
+    ytDlpConnectionArgs(includeProxy = true) {
         const args = [];
-        const proxy = this.config.get('YT_DLP_PROXY')?.trim();
+        const configuredProxy = this.config.get('YT_DLP_PROXY')?.trim();
+        const proxy = includeProxy
+            ? this.normalizeYtDlpProxy(configuredProxy)
+            : null;
         const cookiesPath = this.resolveYtDlpCookiesPath();
         const forceIpv4 = this.config.get('YT_DLP_FORCE_IPV4')?.trim().toLowerCase() ===
             'true';
         const extractorArgs = this.config.get('YT_DLP_EXTRACTOR_ARGS')?.trim() ||
             'youtube:player_client=android,tv,web';
-        if (proxy)
+        if (proxy) {
             args.push('--proxy', proxy);
+        }
+        else if (includeProxy && configuredProxy) {
+            this.logger.warn('YT_DLP_PROXY không đúng định dạng; sẽ thử kết nối trực tiếp.');
+        }
         if (cookiesPath) {
             args.push('--cookies', cookiesPath);
         }
@@ -1514,6 +1580,71 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         if (extractorArgs)
             args.push('--extractor-args', extractorArgs);
         return args;
+    }
+    hasConfiguredYtDlpProxy() {
+        return Boolean(this.config.get('YT_DLP_PROXY')?.trim());
+    }
+    normalizedYtDlpProxy() {
+        return this.normalizeYtDlpProxy(this.config.get('YT_DLP_PROXY')?.trim());
+    }
+    normalizeYtDlpProxy(raw) {
+        let value = raw?.trim();
+        if (!value)
+            return null;
+        if (/^YT_DLP_PROXY\s*=/i.test(value)) {
+            value = value.replace(/^YT_DLP_PROXY\s*=\s*/i, '').trim();
+        }
+        if ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1).trim();
+        }
+        if (!value || /[\r\n\t ]/.test(value))
+            return null;
+        const prefixedProviderFormat = value.match(/^(https?|socks4|socks5|socks5h):\/\/([^:/@]+):([^:/@]+):([^:/@]+):(\d+)$/i);
+        if (prefixedProviderFormat) {
+            const [, scheme, username, password, host, port] = prefixedProviderFormat;
+            value = `${scheme.toLowerCase()}://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}`;
+        }
+        else if (!/^[a-z][a-z\d+.-]*:\/\//i.test(value)) {
+            const providerFormat = value.match(/^([^:@/]+):(\d+):([^:]+):(.+)$/);
+            if (providerFormat) {
+                const [, host, port, username, password] = providerFormat;
+                value = `http://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}`;
+            }
+            else {
+                value = `http://${value}`;
+            }
+        }
+        try {
+            const parsed = new URL(value);
+            const supportedProtocols = new Set([
+                'http:',
+                'https:',
+                'socks4:',
+                'socks5:',
+                'socks5h:',
+            ]);
+            if (!supportedProtocols.has(parsed.protocol) ||
+                !parsed.hostname ||
+                parsed.search ||
+                parsed.hash ||
+                (parsed.pathname && parsed.pathname !== '/')) {
+                return null;
+            }
+            return value;
+        }
+        catch {
+            return null;
+        }
+    }
+    isProxyParseError(detail) {
+        const lower = detail.toLowerCase();
+        return lower.includes('failed to parse') || lower.includes('invalid proxy');
+    }
+    ytDlpInvalidProxyError(detail, directRetryFailed = false) {
+        return ('YT_DLP_PROXY không hợp lệ. Hãy dùng định dạng ' +
+            'http://user:password@host:port (không đặt trong dấu ngoặc kép). ' +
+            `${directRetryFailed ? 'Kết nối trực tiếp cũng thất bại' : 'Chi tiết'}: ${detail.slice(0, 350)}`);
     }
     resolveYtDlpCookiesPath() {
         const configured = this.config.get('YT_DLP_COOKIES_PATH')?.trim();
@@ -1544,6 +1675,9 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
     }
     ytDlpUserFacingError(detail) {
         const lower = detail.toLowerCase();
+        if (this.isProxyParseError(detail)) {
+            return this.ytDlpInvalidProxyError(detail);
+        }
         if (lower.includes('sign in to confirm') ||
             lower.includes("you're not a bot") ||
             lower.includes('not a bot') ||
@@ -1575,8 +1709,11 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             (error instanceof Error ? error.message : String(error)));
     }
     redactCommandSecrets(value) {
-        const proxy = this.config.get('YT_DLP_PROXY')?.trim();
-        return proxy ? value.split(proxy).join('[redacted proxy]') : value;
+        const configuredProxy = this.config.get('YT_DLP_PROXY')?.trim();
+        const normalizedProxy = this.normalizeYtDlpProxy(configuredProxy);
+        return [configuredProxy, normalizedProxy]
+            .filter((proxy) => Boolean(proxy))
+            .reduce((redacted, proxy) => redacted.split(proxy).join('[redacted proxy]'), value);
     }
     commandOutput(output) {
         return output ? String(output).trim() : '';

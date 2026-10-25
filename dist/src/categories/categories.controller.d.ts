@@ -4,6 +4,15 @@ export declare class CategoriesController {
     constructor(categoriesService: CategoriesService);
     findAll(): Promise<{
         id: string;
+        name: string;
+        description: string;
+        icon: string;
+        iconColor: string;
+        imageUrl: string;
+        lessonCount: number;
+        isPopular: boolean;
+    }[] | {
+        id: string;
         createdAt: Date;
         name: string;
         description: string | null;
@@ -14,6 +23,15 @@ export declare class CategoriesController {
         isPopular: boolean;
     }[]>;
     findPopular(): Promise<{
+        id: string;
+        name: string;
+        description: string;
+        icon: string;
+        iconColor: string;
+        imageUrl: string;
+        lessonCount: number;
+        isPopular: boolean;
+    }[] | {
         id: string;
         createdAt: Date;
         name: string;

@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { VocabularyLookupDetail } from '../lib/api';
 
 const CLOSE_ANIMATION_MS = 240;
-const ENABLE_LESSON_WORD_SAVING = false;
 
 interface LessonWordDetailSheetProps {
   detail: VocabularyLookupDetail | null;
@@ -19,7 +18,7 @@ interface LessonWordDetailSheetProps {
   saving: boolean;
   onClose: () => void;
   onRetry: () => void;
-  onSave: () => void;
+  onSave?: () => void;
   onSpeak: (text: string) => void;
   onLookupRelated: (word: string) => void;
 }
@@ -35,7 +34,7 @@ export default function LessonWordDetailSheet({
   onSpeak,
   onLookupRelated,
 }: LessonWordDetailSheetProps) {
-  const saved = !!detail?.progress;
+  const saved = !!detail?.savedWordId;
   const [closing, setClosing] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
 
@@ -208,7 +207,7 @@ export default function LessonWordDetailSheet({
               </p>
             </div>
 
-            {ENABLE_LESSON_WORD_SAVING && (
+            {onSave && (
               <footer className="sticky bottom-0 mt-auto shrink-0 border-t border-slate-100 bg-white/95 p-4 backdrop-blur dark:border-white/10 dark:bg-neutral-950/95">
                 <button
                   data-testid="save-lesson-word"

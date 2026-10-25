@@ -24,6 +24,7 @@ import ffmpegStaticPath from 'ffmpeg-static';
 import OpenAI from 'openai';
 import { fetchTranscript } from 'youtube-transcript';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseFeaturedCaptions } from './featured-video-captions';
 import {
   extractYoutubeVideoId,
   youtubeThumbnailUrl,
@@ -717,6 +718,80 @@ export class VideoTranslateService {
       );
     }
     return outPath;
+  }
+
+  /** Public catalogue lessons share one transcript and do not consume personal import quota. */
+  async prepareFeaturedTranscript(
+    videoId: string,
+    durationSec: number,
+    workDir: string,
+  ) {
+    this.ensureOpenAi();
+    const readTrack = () => {
+      for (const language of ['en-US', 'en-GB', 'en-orig', 'en']) {
+        const path = join(workDir, `captions.${language}.json3`);
+        if (!existsSync(path)) continue;
+        try {
+          const cues = parseFeaturedCaptions(
+            JSON.parse(readFileSync(path, 'utf8')),
+            durationSec,
+          );
+          if (cues.length)
+            return this.finalizeSegments(
+              cues,
+              durationSec,
+              this.buildCaptionWordTimings(cues, durationSec),
+            )
+              .map((segment) => ({
+                ...segment,
+                end: Math.min(durationSec, segment.end),
+              }))
+              .filter((segment) => segment.end > segment.start);
+        } catch {
+          // Try the next original English track.
+        }
+      }
+      return [];
+    };
+    let timed: TimedEnglishSegment[] = readTrack();
+    if (!timed.length) {
+      try {
+        await execFileAsync(
+          this.resolveYtDlpPath(),
+          [
+            '--js-runtimes',
+            'node',
+            ...this.ytDlpConnectionArgs(),
+            '--skip-download',
+            '--no-playlist',
+            '--write-subs',
+            '--write-auto-subs',
+            '--sub-langs',
+            'en,en-US,en-GB,en-orig',
+            '--sub-format',
+            'json3',
+            '--output',
+            join(workDir, 'captions.%(ext)s'),
+            youtubeWatchUrl(videoId),
+          ],
+          { timeout: 90_000, maxBuffer: 4 * 1024 * 1024 },
+        );
+      } catch {
+        // A subtitle may have downloaded even when another English track failed.
+      }
+      timed = readTrack();
+    }
+    if (!timed.length) {
+      timed = (
+        await this.getTimedTranscript(
+          videoId,
+          youtubeWatchUrl(videoId),
+          workDir,
+          durationSec,
+        )
+      ).segments;
+    }
+    return this.translateSegments(timed);
   }
 
   private async getTimedTranscript(

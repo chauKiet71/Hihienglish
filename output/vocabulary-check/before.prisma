@@ -1,0 +1,536 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+}
+
+enum LessonLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum HistoryStatus {
+  LEARNING
+  COMPLETED
+}
+
+enum PackageStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum DurationUnit {
+  DAY
+  MONTH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentEventStatus {
+  RECEIVED
+  COMPLETED
+  REJECTED
+}
+
+enum CefrLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum ChatMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum VocabularyProgressStatus {
+  LEARNING
+  MASTERED
+}
+
+enum SpeakingSessionStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum SpeakingDialect {
+  EN_US
+  EN_GB
+}
+
+model User {
+  id               String     @id @default(uuid())
+  email            String     @unique
+  password         String?
+  fullName         String     @map("full_name")
+  avatarUrl        String?    @map("avatar_url")
+  role             UserRole   @default(USER)
+  status           UserStatus @default(ACTIVE)
+  xp               Int        @default(0)
+  level            Int        @default(1)
+  streakDays       Int        @default(0) @map("streak_days")
+  isPremium        Boolean    @default(false) @map("is_premium")
+  premiumExpiresAt DateTime?  @map("premium_expires_at")
+  packageId        String?    @map("package_id")
+  package          Package?   @relation(fields: [packageId], references: [id])
+  chatMessagesUsed Int        @default(0) @map("chat_messages_used")
+  googleId         String?    @unique @map("google_id")
+  lastActivity     DateTime?  @map("last_activity")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  histories         UserLessonHistory[]
+  favorites         UserFavorite[]
+  categoryFavs      CategoryFavorite[]
+  paymentOrders     PaymentOrder[]
+  chatConversations ChatConversation[]
+  vocabularyProgress UserVocabularyProgress[]
+  vocabularySets     UserVocabularySet[]
+  speakingSessions   SpeakingSession[]
+  speakingDailyUsage SpeakingDailyUsage[]
+  videoTranslateJobs VideoTranslateJob[]
+  videoTranslateDailyUsage VideoTranslateDailyUsage[]
+
+  @@map("users")
+}
+
+model PasswordReset {
+  id         String   @id @default(uuid())
+  email      String
+  codeHash   String   @map("code_hash")
+  resetToken String?  @unique @map("reset_token")
+  expiresAt  DateTime @map("expires_at")
+  verified   Boolean  @default(false)
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("password_resets")
+}
+
+model Package {
+  id            String        @id @default(uuid())
+  name          String
+  description   String?
+  price         Int
+  duration      String
+  durationUnit  DurationUnit  @default(MONTH) @map("duration_unit")
+  days          Int           @default(0)
+  months        Int           @default(1)
+  monthlyPrice  Int           @map("monthly_price")
+  originalPrice Int?          @map("original_price")
+  badge         String?
+  sortOrder     Int           @default(0) @map("sort_order")
+  icon          String        @default("crown")
+  status        PackageStatus @default(ACTIVE)
+  isVisible     Boolean       @default(true) @map("is_visible")
+  benefits      Json?
+  limits        Json?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  users         User[]
+  paymentOrders PaymentOrder[]
+
+  @@map("packages")
+}
+
+model PaymentOrder {
+  id          String        @id @default(uuid())
+  paymentCode String        @unique @map("payment_code")
+  userId      String        @map("user_id")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId   String        @map("package_id")
+  package     Package       @relation(fields: [packageId], references: [id])
+  amount      Int
+  status      PaymentStatus @default(PENDING)
+  paidAmount  Int?          @map("paid_amount")
+  paidAt      DateTime?     @map("paid_at")
+  expiresAt   DateTime      @map("expires_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  transactions PaymentTransaction[]
+
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("payment_orders")
+}
+
+model PaymentTransaction {
+  id                 String             @id @default(uuid())
+  sepayTransactionId String             @unique @map("sepay_transaction_id")
+  orderId            String?            @map("order_id")
+  order              PaymentOrder?      @relation(fields: [orderId], references: [id])
+  status             PaymentEventStatus @default(RECEIVED)
+  reason             String?
+  payload            Json
+  createdAt          DateTime           @default(now()) @map("created_at")
+  processedAt        DateTime?          @map("processed_at")
+
+  @@index([orderId])
+  @@map("payment_transactions")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  icon        String
+  iconColor   String   @map("icon_color")
+  imageUrl    String?  @map("image_url")
+  lessonCount Int      @default(0) @map("lesson_count")
+  isPopular   Boolean  @default(false) @map("is_popular")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  lessons   Lesson[]
+  favorites CategoryFavorite[]
+
+  @@map("categories")
+}
+
+model Lesson {
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  audioUrl     String?     @map("audio_url")
+  videoUrl     String?     @map("video_url")
+  thumbnailUrl String?     @map("thumbnail_url")
+  duration     Int         @default(0)
+  level        LessonLevel @default(INTERMEDIATE)
+  topic        String?
+  categoryId   String?     @map("category_id")
+  category     Category?   @relation(fields: [categoryId], references: [id])
+  isFeatured   Boolean     @default(false) @map("is_featured")
+  isNew        Boolean     @default(false) @map("is_new")
+  isHot        Boolean     @default(false) @map("is_hot")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  transcripts Transcript[]
+  histories   UserLessonHistory[]
+  favorites   UserFavorite[]
+
+  @@map("lessons")
+}
+
+model Transcript {
+  id          String @id @default(uuid())
+  lessonId    String @map("lesson_id")
+  lesson      Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  orderIndex  Int    @map("order_index")
+  englishText String @map("english_text")
+  vietnamese  String
+  startTime   Float  @map("start_time")
+  endTime     Float  @map("end_time")
+
+  @@map("transcripts")
+}
+
+model UserLessonHistory {
+  id                 String        @id @default(uuid())
+  userId             String        @map("user_id")
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId           String        @map("lesson_id")
+  lesson             Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progressPercentage Int           @default(0) @map("progress_percentage")
+  status             HistoryStatus @default(LEARNING)
+  listenedSeconds    Int           @default(0) @map("listened_seconds")
+  isFavorite         Boolean       @default(false) @map("is_favorite")
+  lastListenedAt     DateTime      @default(now()) @map("last_listened_at")
+
+  @@unique([userId, lessonId])
+  @@map("user_lesson_history")
+}
+
+model UserFavorite {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String   @map("lesson_id")
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, lessonId])
+  @@map("user_favorites")
+}
+
+model CategoryFavorite {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, categoryId])
+  @@map("category_favorites")
+}
+
+/// Trạng thái khóa bài học (lessonId khớp với id trong lessons.json)
+model LessonAccess {
+  lessonId  String   @id @map("lesson_id")
+  isLocked  Boolean  @default(true) @map("is_locked")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("lesson_access")
+}
+
+model ChatConversation {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level     CefrLevel
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String          @id @default(uuid())
+  conversationId String          @map("conversation_id")
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           ChatMessageRole
+  content        String
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  @@index([conversationId, createdAt])
+  @@map("chat_messages")
+}
+
+model VocabularySet {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  title       String
+  description String
+  icon        String    @default("book")
+  color       String    @default("indigo")
+  cefrLevel   CefrLevel @default(A1) @map("cefr_level")
+  topic       String
+  isFeatured  Boolean   @default(false) @map("is_featured")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  words VocabularyWord[]
+  savedBy UserVocabularySet[]
+
+  @@map("vocabulary_sets")
+}
+
+model VocabularyWord {
+  id                 String   @id @default(uuid())
+  setId              String   @map("set_id")
+  set                VocabularySet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  word               String
+  phonetic           String?
+  meaning            String
+  example            String
+  exampleTranslation String   @map("example_translation")
+  audioUrl           String?  @map("audio_url")
+  sortOrder          Int      @default(0) @map("sort_order")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  progress UserVocabularyProgress[]
+
+  @@unique([setId, word])
+  @@index([setId, sortOrder])
+  @@map("vocabulary_words")
+}
+
+model UserVocabularyProgress {
+  id             String                   @id @default(uuid())
+  userId         String                   @map("user_id")
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wordId         String                   @map("word_id")
+  word           VocabularyWord           @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  status         VocabularyProgressStatus @default(LEARNING)
+  reviewCount    Int                      @default(0) @map("review_count")
+  correctCount   Int                      @default(0) @map("correct_count")
+  streak         Int                      @default(0)
+  lapses         Int                      @default(0)
+  intervalDays   Int                      @default(0) @map("interval_days")
+  easeFactor     Float                    @default(2.5) @map("ease_factor")
+  learnedAt      DateTime                 @default(now()) @map("learned_at")
+  lastReviewedAt DateTime?                @map("last_reviewed_at")
+  nextReviewAt   DateTime                 @map("next_review_at")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+
+  @@unique([userId, wordId])
+  @@index([userId, nextReviewAt])
+  @@map("user_vocabulary_progress")
+}
+
+model UserVocabularySet {
+  id        String        @id @default(uuid())
+  userId    String        @map("user_id")
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setId     String        @map("set_id")
+  set       VocabularySet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@unique([userId, setId])
+  @@map("user_vocabulary_sets")
+}
+
+model SpeakingScenario {
+  id           String    @id @default(uuid())
+  slug         String    @unique
+  title        String
+  description  String
+  icon         String    @default("mic")
+  color        String    @default("indigo")
+  learnerRole  String    @map("learner_role")
+  aiRole       String    @map("ai_role")
+  objective    String
+  minLevel     CefrLevel @default(A1) @map("min_level")
+  maxLevel     CefrLevel @default(C2) @map("max_level")
+  openingHint  String    @map("opening_hint")
+  isVisible    Boolean   @default(true) @map("is_visible")
+  sortOrder    Int       @default(0) @map("sort_order")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  sessions SpeakingSession[]
+
+  @@index([isVisible, sortOrder])
+  @@map("speaking_scenarios")
+}
+
+model SpeakingSession {
+  id          String                @id @default(uuid())
+  userId      String                @map("user_id")
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenarioId  String                @map("scenario_id")
+  scenario    SpeakingScenario      @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  level       CefrLevel
+  dialect     SpeakingDialect       @default(EN_US)
+  status      SpeakingSessionStatus @default(ACTIVE)
+  turnCount   Int                   @default(0) @map("turn_count")
+  completedAt DateTime?             @map("completed_at")
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+
+  turns SpeakingTurn[]
+
+  @@index([userId, createdAt])
+  @@index([scenarioId])
+  @@map("speaking_sessions")
+}
+
+model SpeakingTurn {
+  id               String          @id @default(uuid())
+  sessionId        String          @map("session_id")
+  session          SpeakingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turnIndex        Int             @map("turn_index")
+  promptText       String          @map("prompt_text")
+  transcript       String?
+  suggestion       String?
+  feedback         String?
+  aiReply          String?         @map("ai_reply")
+  pronunciation    Float?
+  fluency          Float?
+  grammar          Float?
+  vocabulary       Float?
+  coherence        Float?
+  overall          Float?
+  relevance        String?
+  cefrOverall      String?         @map("cefr_overall")
+  correction       String?
+  durationMs       Int?            @map("duration_ms")
+  processingRaw    Json?           @map("speechace_raw")
+  createdAt        DateTime        @default(now()) @map("created_at")
+
+  @@unique([sessionId, turnIndex])
+  @@index([sessionId, createdAt])
+  @@map("speaking_turns")
+}
+
+model SpeakingDailyUsage {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usageDate DateTime @map("usage_date") @db.Date
+  turnCount Int      @default(0) @map("turn_count")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, usageDate])
+  @@index([userId, usageDate])
+  @@map("speaking_daily_usage")
+}
+
+enum VideoTranslateStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model VideoTranslateJob {
+  id               String               @id @default(uuid())
+  userId           String               @map("user_id")
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  youtubeVideoId   String?              @map("youtube_video_id")
+  youtubeUrl       String?              @map("youtube_url")
+  originalFilename String?              @map("original_filename")
+  mediaUrl         String?              @map("media_url")
+  title            String?
+  thumbnailUrl     String?              @map("thumbnail_url")
+  durationSec      Int?                 @map("duration_sec")
+  status           VideoTranslateStatus @default(PENDING)
+  source           String?
+  errorMessage     String?              @map("error_message") @db.Text
+  segmentsJson     Json?                @map("segments_json")
+  dubbedAudioUrl   String?              @map("dubbed_audio_url")
+  pipelineVersion  Int                  @default(1) @map("pipeline_version")
+  fromCache        Boolean              @default(false) @map("from_cache")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  completedAt      DateTime?            @map("completed_at")
+
+  @@index([userId, createdAt])
+  @@index([youtubeVideoId, status])
+  @@map("video_translate_jobs")
+}
+
+model VideoTranslateDailyUsage {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usageDate  DateTime @map("usage_date") @db.Date
+  videoCount Int      @default(0) @map("video_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, usageDate])
+  @@index([userId, usageDate])
+  @@map("video_translate_daily_usage")
+}

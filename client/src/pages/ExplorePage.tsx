@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Bookmark, ChevronLeft, Search, Sparkles, X } from 'lucide-react';
+import { Bookmark, ChevronLeft, Search, X } from 'lucide-react';
 import MobileLayout from '../components/MobileLayout';
+import StickyPageHeader from '../components/StickyPageHeader';
 import LessonGrid from '../components/LessonGrid';
 import PopularTopics from '../components/PopularTopics';
 import { getCategoryById } from '../data/categories';
@@ -9,6 +10,9 @@ import { getLessonsByCategory, lessons } from '../data/lessons';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useHistory } from '../contexts/HistoryContext';
 import { useAuth } from '../contexts/AuthContext';
+import SavedVideoLessons from '../features/youtube/SavedVideoLessons';
+import { videoFavoriteId } from '../features/youtube/catalog';
+import { PUBLIC_VIDEOS } from '../../../src/catalog/public-videos';
 
 const filters = [
   { id: 'all', label: 'Tất cả', icon: null },
@@ -33,11 +37,8 @@ export default function ExplorePage() {
   const allTopicsRef = useRef<HTMLDivElement>(null);
   const favoriteTopicsRef = useRef<HTMLDivElement>(null);
   const [topicsPanelHeight, setTopicsPanelHeight] = useState<number>();
-  const {
-    favoriteIds,
-    isCategoryFavorite,
-    toggleCategoryFavorite,
-  } = useFavorites();
+  const { favoriteIds, isCategoryFavorite, toggleCategoryFavorite } =
+    useFavorites();
   const { todayListeningSeconds, dailyGoalSeconds } = useHistory();
   const { user } = useAuth();
 
@@ -60,6 +61,9 @@ export default function ExplorePage() {
     return lessons.filter((lesson) => favoriteIdSet.has(lesson.id));
   }, [favoriteIds]);
   const normalizedQuery = normalizeSearchText(searchQuery);
+  const favoriteVideos = PUBLIC_VIDEOS.filter((video) =>
+    favoriteIds.includes(videoFavoriteId(video.id)),
+  );
   const searchResults = useMemo(() => {
     if (!normalizedQuery) return [];
 
@@ -139,25 +143,27 @@ export default function ExplorePage() {
     return (
       <MobileLayout>
         <div className="min-h-screen bg-gradient-to-b from-[#F3EEFF] via-[#F7F5FC] to-gray-50 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-950 -mx-0">
-          <div className="sticky top-0 z-30 bg-[#F3EEFF]/95 px-4 py-2 backdrop-blur-md dark:bg-neutral-950/95">
-            <div className="flex min-h-8 items-center gap-1.5">
+          <StickyPageHeader className="px-5 pb-2 pt-[max(16px,env(safe-area-inset-top))]">
+            <header className="relative flex h-11 items-center justify-center px-11 text-slate-900 dark:text-[#f4f4ef]">
               <button
                 type="button"
                 onClick={handleBack}
-                className="-ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center text-slate-700 dark:text-gray-200"
+                className="absolute -left-2 inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-200/60 focus-visible:outline-2 focus-visible:outline-teal-600 dark:hover:bg-white/10 dark:focus-visible:outline-teal-400"
                 aria-label="Quay lại trang trước"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={28} />
               </button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-[15px] font-bold text-slate-900 dark:text-white truncate">
-                  {activeCategory.name}
-                </h1>
-              </div>
+              <h1
+                className="truncate text-sm font-semibold"
+                title={activeCategory.name}
+                aria-label={activeCategory.name}
+              >
+                {activeCategory.name}
+              </h1>
               <button
                 type="button"
                 onClick={() => toggleCategoryFavorite(activeCategory.id)}
-                className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                className={`absolute -right-2 inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors ${
                   categorySaved
                     ? 'bg-primary text-white'
                     : 'bg-white dark:bg-neutral-900 text-primary border border-primary/20'
@@ -171,12 +177,12 @@ export default function ExplorePage() {
                 title={categorySaved ? 'Đã lưu' : 'Lưu'}
               >
                 <Bookmark
-                  size={14}
+                  size={16}
                   className={categorySaved ? 'fill-current' : ''}
                 />
               </button>
-            </div>
-          </div>
+            </header>
+          </StickyPageHeader>
 
           <div className="px-4 mb-4 pt-1">
             <LessonGrid
@@ -192,15 +198,19 @@ export default function ExplorePage() {
 
   return (
     <MobileLayout>
-      <div className="px-4 pt-5 pb-2">
-        <div className="flex items-center justify-between gap-3 mb-1">
-          <div className="flex items-center gap-2 min-w-0">
-            <Sparkles size={20} className="text-primary shrink-0" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Khám phá
-            </h1>
-          </div>
-        </div>
+      <StickyPageHeader className="px-4 pt-[max(16px,env(safe-area-inset-top))]">
+        <header className="relative mx-1 flex h-11 items-center justify-center px-11 text-slate-900 dark:text-[#f4f4ef]">
+          <Link
+            to="/"
+            aria-label="Trở về trang chủ"
+            className="absolute -left-2 inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-200/60 focus-visible:outline-2 focus-visible:outline-teal-600 dark:hover:bg-white/10 dark:focus-visible:outline-teal-400"
+          >
+            <ChevronLeft size={28} />
+          </Link>
+          <h1 className="truncate text-sm font-semibold">Khám phá</h1>
+        </header>
+      </StickyPageHeader>
+      <div className="px-4 pb-2">
         {searchOpen && (
           <div className="relative mt-3 mb-4">
             <Search
@@ -343,14 +353,20 @@ export default function ExplorePage() {
                     Bài học đã lưu
                   </h2>
                   <span className="text-xs text-gray-400">
-                    {favoriteLessons.length} bài
+                    {favoriteLessons.length + favoriteVideos.length} bài
                   </span>
                 </div>
-                <LessonGrid
-                  lessons={favoriteLessons}
-                  returnTo="/kham-pha?filter=fav"
-                  emptyMessage="Chưa có bài học đã lưu. Mở một bài học và bấm “Lưu bài” để thêm."
-                />
+                {(favoriteLessons.length > 0 ||
+                  favoriteVideos.length === 0) && (
+                  <LessonGrid
+                    lessons={favoriteLessons}
+                    returnTo="/kham-pha?filter=fav"
+                    emptyMessage="Chưa có bài học đã lưu. Mở một bài học và bấm “Lưu bài” để thêm."
+                  />
+                )}
+                {favoriteVideos.length > 0 && (
+                  <SavedVideoLessons videos={favoriteVideos} />
+                )}
               </div>
             </div>
           </div>

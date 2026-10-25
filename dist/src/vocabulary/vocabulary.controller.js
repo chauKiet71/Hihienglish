@@ -27,6 +27,18 @@ let VocabularyController = class VocabularyController {
     getOverview(user) {
         return this.vocabularyService.getOverview(user?.id);
     }
+    getLearnSession(user, setId, limit) {
+        return this.vocabularyService.getLearnSession(user.id, {
+            setId: setId?.trim() || undefined,
+            limit: limit ? Number(limit) : undefined,
+        });
+    }
+    getReviewSession(user, setId, limit) {
+        return this.vocabularyService.getReviewSession(user.id, {
+            setId: setId?.trim() || undefined,
+            limit: limit ? Number(limit) : undefined,
+        });
+    }
     getSets(user) {
         return this.vocabularyService.getSets(user?.id);
     }
@@ -40,7 +52,10 @@ let VocabularyController = class VocabularyController {
         return this.vocabularyService.removeSet(user.id, id);
     }
     learnWord(user, dto) {
-        return this.vocabularyService.learnWord(user.id, dto.wordId);
+        return this.vocabularyService.learnWord(user.id, dto.wordId, dto.correct ?? true);
+    }
+    lookupWord(user, dto) {
+        return this.vocabularyService.lookupWord(user?.id, dto);
     }
     reviewWord(user, id, dto) {
         return this.vocabularyService.reviewWord(user.id, id, dto.correct);
@@ -55,6 +70,26 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], VocabularyController.prototype, "getOverview", null);
+__decorate([
+    (0, common_1.Get)('sessions/learn'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('setId')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], VocabularyController.prototype, "getLearnSession", null);
+__decorate([
+    (0, common_1.Get)('sessions/review'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Query)('setId')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], VocabularyController.prototype, "getReviewSession", null);
 __decorate([
     (0, common_1.Get)('sets'),
     (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
@@ -99,6 +134,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, vocabulary_dto_1.LearnVocabularyWordDto]),
     __metadata("design:returntype", void 0)
 ], VocabularyController.prototype, "learnWord", null);
+__decorate([
+    (0, common_1.Post)('words/lookup'),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, vocabulary_dto_1.LookupVocabularyWordDto]),
+    __metadata("design:returntype", void 0)
+], VocabularyController.prototype, "lookupWord", null);
 __decorate([
     (0, common_1.Post)('words/:id/review'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

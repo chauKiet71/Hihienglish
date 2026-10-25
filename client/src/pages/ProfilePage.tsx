@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Crown,
@@ -10,7 +11,6 @@ import {
   Heart,
   HelpCircle,
   LogOut,
-  Mic,
   Moon,
   Pencil,
   RefreshCw,
@@ -20,6 +20,7 @@ import {
   Volume2,
 } from 'lucide-react';
 import MobileLayout from '../components/MobileLayout';
+import StickyPageHeader from '../components/StickyPageHeader';
 import UserAvatar from '../components/UserAvatar';
 import { useAuth } from '../contexts/AuthContext';
 import { useHistory, useListeningStats } from '../contexts/HistoryContext';
@@ -28,10 +29,7 @@ import { useLevel } from '../contexts/LevelContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { api, type LessonHistoryStats } from '../lib/api';
 import { peekCache } from '../lib/prefetchCache';
-import {
-  PrefetchKeys,
-  fetchLessonStats,
-} from '../lib/prefetchFeatures';
+import { PrefetchKeys, fetchLessonStats } from '../lib/prefetchFeatures';
 import type { UserLevelId } from '../data/userLevels';
 import {
   DEFAULT_PROFILE_SETTINGS,
@@ -170,7 +168,8 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState('');
-  const [settings, setSettings] = useState<ProfileSettings>(loadProfileSettings);
+  const [settings, setSettings] =
+    useState<ProfileSettings>(loadProfileSettings);
   const [remoteStats, setRemoteStats] = useState<LessonHistoryStats | null>(
     () => peekCache<LessonHistoryStats>(PrefetchKeys.lessonStats) ?? null,
   );
@@ -238,10 +237,7 @@ export default function ProfilePage() {
     return days;
   }, [entries, todayListeningSeconds]);
 
-  const maxWeeklyMinutes = Math.max(
-    1,
-    ...weeklyActivity.map((d) => d.minutes),
-  );
+  const maxWeeklyMinutes = Math.max(1, ...weeklyActivity.map((d) => d.minutes));
 
   const updateSetting = <K extends keyof ProfileSettings>(
     key: K,
@@ -290,6 +286,18 @@ export default function ProfilePage() {
   return (
     <MobileLayout showPlayer={false}>
       <div className="min-h-screen bg-[linear-gradient(180deg,#eef1ff_0%,#f7f8fc_40%,#f7f8fc_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#171717_40%,#0a0a0a_100%)]">
+        <StickyPageHeader className="pb-2 pt-[max(16px,env(safe-area-inset-top))]">
+          <header className="relative mx-5 flex h-11 items-center justify-center px-11 text-slate-900 dark:text-[#f4f4ef]">
+            <Link
+              to="/"
+              aria-label="Trở về trang chủ"
+              className="absolute -left-2 inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-200/60 focus-visible:outline-2 focus-visible:outline-teal-600 dark:hover:bg-white/10 dark:focus-visible:outline-teal-400"
+            >
+              <ChevronLeft size={28} />
+            </Link>
+            <h1 className="truncate text-sm font-semibold">Cá nhân</h1>
+          </header>
+        </StickyPageHeader>
         <div className="px-4 pt-5 pb-6">
           {/* Profile header */}
           <div className="flex items-center gap-3.5 mb-4">
@@ -328,9 +336,9 @@ export default function ProfilePage() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="font-bold text-gray-900 dark:text-white text-lg leading-tight truncate">
+                <h2 className="font-bold text-gray-900 dark:text-white text-lg leading-tight truncate">
                   {user?.fullName ?? 'Người dùng'}
-                </h1>
+                </h2>
                 {user?.isPremium && (
                   <span className="inline-flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                     <Crown size={10} /> Premium
@@ -418,7 +426,10 @@ export default function ProfilePage() {
               <p className="text-gray-400 text-[10px] mt-1">Ngày streak</p>
             </div>
             <div className="text-center">
-              <Headphones size={18} className="text-indigo-400 mx-auto mb-1.5" />
+              <Headphones
+                size={18}
+                className="text-indigo-400 mx-auto mb-1.5"
+              />
               <p className="text-gray-900 dark:text-white font-bold text-base leading-none">
                 {completedLessons}
               </p>
@@ -494,9 +505,7 @@ export default function ProfilePage() {
                       </div>
                       <span
                         className={`text-[10px] font-medium ${
-                          day.isToday
-                            ? 'text-indigo-500'
-                            : 'text-gray-400'
+                          day.isToday ? 'text-indigo-500' : 'text-gray-400'
                         }`}
                       >
                         {day.label}
@@ -587,11 +596,11 @@ export default function ProfilePage() {
               to="/video-cua-toi"
             />
             <MenuRow
-              icon={Mic}
+              icon={Headphones}
               iconBg="bg-violet-50 dark:bg-violet-950/40"
               iconColor="text-violet-500"
-              label="Luyện nói tình huống"
-              to="/luyen-noi"
+              label="Podcast"
+              to="/podcast"
             />
             <MenuRow
               icon={Target}

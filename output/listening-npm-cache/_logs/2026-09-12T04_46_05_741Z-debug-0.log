@@ -1,0 +1,27 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.6.2
+2 info using node@v24.11.1
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:D:\Code\HihiEnglish\21th9\Hihienglish\.npmrc
+5 silly config load:file:C:\Users\DELL\.npmrc
+6 silly config load:file:C:\Users\DELL\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install @testing-library/react @testing-library/user-event jest-environment-jsdom
+8 verbose argv "install" "--save-dev" "@testing-library/react" "@testing-library/user-event" "jest-environment-jsdom" "--ignore-scripts" "--cache" "output/listening-npm-cache"
+9 verbose logfile logs-max:10 dir:D:\Code\HihiEnglish\21th9\Hihienglish\output\listening-npm-cache\_logs\2026-09-12T04_46_05_741Z-
+10 verbose logfile D:\Code\HihiEnglish\21th9\Hihienglish\output\listening-npm-cache\_logs\2026-09-12T04_46_05_741Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+14 silly idealTree buildDeps
+15 silly fetch manifest @testing-library/react@*
+16 silly packumentCache full:https://registry.npmjs.org/@testing-library%2freact cache-miss
+17 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with EACCES
+18 http fetch GET https://registry.npmjs.org/@testing-library%2freact attempt 1 failed with EACCES
+19 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with EACCES
+20 http fetch GET https://registry.npmjs.org/@testing-library%2freact attempt 2 failed with EACCES
+21 http fetch GET https://registry.npmjs.org/npm attempt 3 failed with EACCES
+22 http fetch GET https://registry.npmjs.org/@testing-library%2freact attempt 3 failed with EACCES
+23 silly fetch manifest @testing-library/user-event@*
+24 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fuser-event cache-miss
+25 http fetch GET https://registry.npmjs.org/@testing-library%2fuser-event attempt 1 failed with EACCES
+26 http fetch GET https://registry.npmjs.org/@testing-library%2fuser-event attempt 2 failed with EACCES

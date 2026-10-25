@@ -42,6 +42,21 @@ let LessonsController = class LessonsController {
     getMyStats(user) {
         return this.lessonsService.getHistoryStats(user.id);
     }
+    getMyHistory(user) {
+        return this.lessonsService.getMyHistoryEntries(user.id);
+    }
+    upsertMyHistory(user, dto) {
+        return this.lessonsService.upsertHistory(user.id, dto);
+    }
+    getMyFavorites(user) {
+        return this.lessonsService.getMyFavoriteIds(user.id);
+    }
+    saveFavorite(user, lessonId) {
+        return this.lessonsService.setFavorite(user.id, lessonId, true);
+    }
+    removeFavorite(user, lessonId) {
+        return this.lessonsService.setFavorite(user.id, lessonId, false);
+    }
     getHistory(userId, status) {
         return this.lessonsService.getHistory(userId, status);
     }
@@ -84,6 +99,49 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], LessonsController.prototype, "getMyStats", null);
+__decorate([
+    (0, common_1.Get)('me/history'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], LessonsController.prototype, "getMyHistory", null);
+__decorate([
+    (0, common_1.Put)('me/history'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], LessonsController.prototype, "upsertMyHistory", null);
+__decorate([
+    (0, common_1.Get)('me/favorites'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], LessonsController.prototype, "getMyFavorites", null);
+__decorate([
+    (0, common_1.Put)('me/favorites/:lessonId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('lessonId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], LessonsController.prototype, "saveFavorite", null);
+__decorate([
+    (0, common_1.Delete)('me/favorites/:lessonId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Param)('lessonId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], LessonsController.prototype, "removeFavorite", null);
 __decorate([
     (0, common_1.Get)('history/:userId'),
     __param(0, (0, common_1.Param)('userId')),

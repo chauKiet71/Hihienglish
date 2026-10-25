@@ -1,4 +1,11 @@
-import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { LessonAccessProvider } from './contexts/LessonAccessContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
@@ -8,7 +15,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import ScrollToTop from './components/ScrollToTop';
-import DesktopGate from './components/DesktopGate';
+import AppDataPrefetch from './components/AppDataPrefetch';
 import HomePage from './pages/HomePage';
 import ExplorePage from './pages/ExplorePage';
 import LessonPage from './pages/LessonPage';
@@ -30,11 +37,17 @@ import UpgradePage from './pages/UpgradePage';
 import PaymentPage from './pages/PaymentPage';
 import LevelPage from './pages/LevelPage';
 import VocabularyPage from './pages/VocabularyPage';
-import SpeakingPage from './pages/SpeakingPage';
-import SpeakingHistoryPage from './pages/SpeakingHistoryPage';
-import SpeakingConversationHistoryPage from './pages/SpeakingConversationHistoryPage';
 import VideoTranslatePage from './pages/VideoTranslatePage';
 import MyVideosPage from './pages/MyVideosPage';
+
+const ListeningLessonPage = lazy(
+  () => import('./features/listening/ListeningLessonPage'),
+);
+const ChannelPage = lazy(() => import('./features/youtube/ChannelPage'));
+const VideoLessonPage = lazy(
+  () => import('./features/youtube/VideoLessonPage'),
+);
+const PodcastPage = lazy(() => import('./features/podcast/PodcastPage'));
 
 function LessonPageRoute() {
   const { id } = useParams<{ id: string }>();
@@ -50,12 +63,40 @@ export default function App() {
             <HistoryProvider>
               <LevelProvider>
                 <BrowserRouter>
-                  <DesktopGate />
                   <ScrollToTop />
+                  <AppDataPrefetch />
                   <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route
+                      path="/kenh/volka-english"
+                      element={
+                        <Suspense fallback={<p role="status">Đang mở kênh…</p>}>
+                          <ChannelPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/kenh/volka-english/video/:videoId"
+                      element={
+                        <Suspense
+                          fallback={<p role="status">Đang mở bài học…</p>}
+                        >
+                          <VideoLessonPage />
+                        </Suspense>
+                      }
+                    />
                     <Route path="/kham-pha" element={<ExplorePage />} />
                     <Route path="/bai-hoc/:id" element={<LessonPageRoute />} />
+                    <Route
+                      path="/bai-hoc/:id/luyen-tap"
+                      element={
+                        <Suspense
+                          fallback={<p role="status">Đang mở luyện tập…</p>}
+                        >
+                          <ListeningLessonPage />
+                        </Suspense>
+                      }
+                    />
                     <Route
                       path="/ca-nhan"
                       element={
@@ -115,14 +156,23 @@ export default function App() {
                     />
                     <Route path="/trinh-do" element={<LevelPage />} />
                     <Route path="/tu-vung" element={<VocabularyPage />} />
-                    <Route path="/luyen-noi" element={<SpeakingPage />} />
                     <Route
-                      path="/luyen-noi/lich-su"
-                      element={<SpeakingHistoryPage />}
+                      path="/podcast"
+                      element={
+                        <Suspense
+                          fallback={<p role="status">Đang mở Podcast…</p>}
+                        >
+                          <PodcastPage />
+                        </Suspense>
+                      }
                     />
                     <Route
-                      path="/luyen-noi/lich-su/:sessionId"
-                      element={<SpeakingConversationHistoryPage />}
+                      path="/postcast"
+                      element={<Navigate to="/podcast" replace />}
+                    />
+                    <Route
+                      path="/luyen-noi/*"
+                      element={<Navigate to="/podcast" replace />}
                     />
                     <Route
                       path="/dich-video"

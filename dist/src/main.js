@@ -21,6 +21,7 @@ async function bootstrap() {
         'https://www.hihienglish.com',
         'https://hihienglish.com',
         'https://hihienglish.netlify.app',
+        'https://hihienglishh.netlify.app',
         'http://localhost:3000',
         'http://localhost:5173',
         ...(process.env.CORS_ORIGINS ?? '')
@@ -28,7 +29,24 @@ async function bootstrap() {
             .map((origin) => origin.trim())
             .filter(Boolean),
     ]);
-    app.enableCors({ origin: [...corsOrigins] });
+    const localDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+    app.enableCors({
+        origin: (origin, callback) => {
+            if (!origin || corsOrigins.has(origin) || localDevOrigin.test(origin)) {
+                callback(null, true);
+                return;
+            }
+            callback(null, false);
+        },
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'X-Guest-Token',
+            'Accept',
+        ],
+        maxAge: 86400,
+    });
     app.useGlobalFilters(new global_exception_filter_1.GlobalExceptionFilter());
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     const expressApp = app.getHttpAdapter().getInstance();

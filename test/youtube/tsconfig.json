@@ -1,0 +1,8 @@
+{
+  "extends": "../../client/tsconfig.app.json",
+  "compilerOptions": { "incremental": false, "strict": true },
+  "include": [
+    "../../client/src/features/youtube/**/*",
+    "../../client/src/lib/youtubePlayer.ts"
+  ]
+}

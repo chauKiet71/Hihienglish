@@ -1,0 +1,9 @@
+{
+  "extends": "../../client/tsconfig.app.json",
+  "compilerOptions": { "incremental": false, "strict": true },
+  "include": [
+    "../../client/src/features/video/**/*",
+    "../../client/src/pages/HomePage.tsx",
+    "../../client/src/pages/MyVideosPage.tsx"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "../../client/tsconfig.app.json",
+  "compilerOptions": { "incremental": false, "strict": true },
+  "include": [
+    "../../client/src/features/podcast/**/*",
+    "../../client/src/components/ScrollToTop.tsx"
+  ]
+}

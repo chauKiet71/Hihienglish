@@ -11,14 +11,17 @@ const common_1 = require("@nestjs/common");
 const auth_module_1 = require("../auth/auth.module");
 const vocabulary_controller_1 = require("./vocabulary.controller");
 const vocabulary_service_1 = require("./vocabulary.service");
+const video_translate_module_1 = require("../video-translate/video-translate.module");
+const saved_vocabulary_controller_1 = require("./saved-vocabulary.controller");
+const saved_vocabulary_service_1 = require("./saved-vocabulary.service");
 let VocabularyModule = class VocabularyModule {
 };
 exports.VocabularyModule = VocabularyModule;
 exports.VocabularyModule = VocabularyModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
-        controllers: [vocabulary_controller_1.VocabularyController],
-        providers: [vocabulary_service_1.VocabularyService],
+        imports: [auth_module_1.AuthModule, video_translate_module_1.VideoTranslateModule],
+        controllers: [vocabulary_controller_1.VocabularyController, saved_vocabulary_controller_1.SavedVocabularyController],
+        providers: [vocabulary_service_1.VocabularyService, saved_vocabulary_service_1.SavedVocabularyService],
     })
 ], VocabularyModule);
 //# sourceMappingURL=vocabulary.module.js.map

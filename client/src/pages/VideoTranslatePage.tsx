@@ -1,3 +1,4 @@
+import { lookupInSource, saveLookedUpWord } from '../lib/savedVocabulary';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -21,6 +22,7 @@ import {
 import BottomNav from '../components/BottomNav';
 import LessonWordDetailSheet from '../components/LessonWordDetailSheet';
 import MobileLayout from '../components/MobileLayout';
+import StickyPageHeader from '../components/StickyPageHeader';
 import { useAuth } from '../contexts/AuthContext';
 import { useShadowing } from '../hooks/useShadowing';
 import {
@@ -28,11 +30,15 @@ import {
   api,
   type VocabularyLookupDetail,
   type VideoTranslateJob,
+  type VideoTranslateListResponse,
   type VideoTranslateQuota,
   type VideoTranslateSegment,
 } from '../lib/api';
+import { peekCache } from '../lib/prefetchCache';
+import { PageDataKeys } from '../lib/pageDataCache';
 import { resolveLessonPhonetics } from '../lib/phonetic';
 import { speakEnglishText } from '../lib/speech';
+import { loadYoutubeApi, type YoutubePlayer } from '../lib/youtubePlayer';
 
 const DELETED_RECENT_VIDEO_IDS_KEY = 'video_translate_deleted_recent_job_ids';
 const ACCEPT_MEDIA =
@@ -49,76 +55,9 @@ type VideoWordLookupContext = {
   word: string;
   sentence: string;
   sentenceTranslation: string;
+  startTime: number;
+  endTime: number;
 };
-
-type YoutubePlayer = {
-  destroy: () => void;
-  getCurrentTime: () => number;
-  pauseVideo: () => void;
-  playVideo: () => void;
-  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
-  setPlaybackRate: (rate: number) => void;
-  unMute: () => void;
-};
-
-declare global {
-  interface Window {
-    YT?: {
-      Player: new (
-        element: HTMLElement | string,
-        options: {
-          videoId: string;
-          width?: string | number;
-          height?: string | number;
-          playerVars?: Record<string, number | string>;
-          events?: {
-            onReady?: (event: { target: YoutubePlayer }) => void;
-            onStateChange?: (event: {
-              data: number;
-              target: YoutubePlayer;
-            }) => void;
-            onError?: () => void;
-          };
-        },
-      ) => YoutubePlayer;
-      PlayerState: {
-        PLAYING: number;
-        PAUSED: number;
-        ENDED: number;
-      };
-    };
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
-let youtubeApiPromise: Promise<void> | null = null;
-
-function loadYoutubeApi() {
-  if (window.YT?.Player) return Promise.resolve();
-  if (youtubeApiPromise !== null) return youtubeApiPromise;
-
-  youtubeApiPromise = new Promise<void>((resolve, reject) => {
-    const previousCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      previousCallback?.();
-      resolve();
-    };
-
-    if (!document.querySelector('script[data-youtube-iframe-api]')) {
-      const script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
-      script.async = true;
-      script.dataset.youtubeIframeApi = 'true';
-      script.onerror = () => {
-        youtubeApiPromise = null;
-        reject(new Error('Không tải được trình phát YouTube'));
-      };
-      document.body.appendChild(script);
-    }
-  });
-
-  return youtubeApiPromise;
-}
 
 function formatPlaybackRate(rate: PlaybackRate) {
   return `${rate === 1 ? '1.0' : rate}x`;
@@ -298,19 +237,40 @@ export default function VideoTranslatePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const replayStartRef = useRef<number | null>(
+    searchParams.has('t') && Number.isFinite(Number(searchParams.get('t')))
+      ? Math.max(0, Number(searchParams.get('t')))
+      : null,
+  );
+  const replayEndRef = useRef<number | null>(
+    searchParams.has('end') ? Number(searchParams.get('end')) : null,
+  );
   const { user } = useAuth();
-  const navigationState = location.state as VideoTranslateNavigationState | null;
+  const navigationState =
+    location.state as VideoTranslateNavigationState | null;
   const routedJob = navigationState?.videoTranslateJob ?? null;
   const requestedJobId = searchParams.get('job');
   const initialUrl = searchParams.get('url')?.trim() ?? '';
   const [url, setUrl] = useState(initialUrl);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [quota, setQuota] = useState<VideoTranslateQuota | null>(
-    navigationState?.videoTranslateQuota ?? null,
+    () =>
+      navigationState?.videoTranslateQuota ??
+      peekCache<VideoTranslateQuota>(PageDataKeys.videoQuota) ??
+      null,
   );
   const [job, setJob] = useState<VideoTranslateJob | null>(routedJob);
-  const [recent, setRecent] = useState<VideoTranslateJob[]>([]);
-  const [loading, setLoading] = useState(!routedJob);
+  const [recent, setRecent] = useState<VideoTranslateJob[]>(() => {
+    const deletedIds = getDeletedRecentVideoIds();
+    return (
+      peekCache<VideoTranslateListResponse>(PageDataKeys.videoJobs)?.jobs ?? []
+    )
+      .filter((item) => item.status === 'READY' && !deletedIds.has(item.id))
+      .slice(0, 8);
+  });
+  const [loading, setLoading] = useState(
+    !routedJob && (!!requestedJobId || !peekCache(PageDataKeys.videoJobs)),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [sourceMode, setSourceMode] = useState<'url' | 'upload'>(() =>
@@ -454,6 +414,12 @@ export default function VideoTranslatePage() {
       } else if (media) {
         setCurrentTime(media.currentTime || 0);
       }
+      const time = youtubePlayer?.getCurrentTime() ?? media?.currentTime ?? 0;
+      if (replayEndRef.current !== null && time >= replayEndRef.current) {
+        replayEndRef.current = null;
+        pausePlayback();
+        return;
+      }
       syncRafRef.current = window.requestAnimationFrame(tick);
     };
     syncRafRef.current = window.requestAnimationFrame(tick);
@@ -467,6 +433,20 @@ export default function VideoTranslatePage() {
 
     element.loop = isLooping;
     element.playbackRate = playbackRate;
+    if (replayStartRef.current !== null) {
+      const start = replayStartRef.current;
+      const apply = () => {
+        element.currentTime = Math.min(
+          start,
+          Number.isFinite(element.duration) ? element.duration : start,
+        );
+        replayStartRef.current = null;
+        void element.play().catch(() => setIsPlaying(false));
+      };
+      if (element.readyState >= 1) apply();
+      else element.addEventListener('loadedmetadata', apply, { once: true });
+      return;
+    }
     if (!autoPlayRequestedRef.current) return;
 
     autoPlayRequestedRef.current = false;
@@ -493,7 +473,15 @@ export default function VideoTranslatePage() {
 
     try {
       const detail = await api.lookupVocabularyWord(context);
-      if (wordLookupRequestRef.current === requestId) setWordDetail(detail);
+      if (wordLookupRequestRef.current === requestId && job)
+        setWordDetail(
+          lookupInSource(detail, {
+            type: 'video',
+            id: job.id,
+            startTime: context.startTime,
+            endTime: context.endTime,
+          }),
+        );
     } catch (lookupError) {
       if (wordLookupRequestRef.current !== requestId) return;
       setWordDetailError(
@@ -516,6 +504,8 @@ export default function VideoTranslatePage() {
       word,
       sentence: segment.en,
       sentenceTranslation: segment.vi,
+      startTime: segment.start,
+      endTime: segment.end,
     });
   }
 
@@ -538,26 +528,43 @@ export default function VideoTranslatePage() {
   }
 
   async function saveWordDetail() {
-    if (!wordDetail || wordDetail.progress || wordDetailSaving) return;
+    if (
+      !wordDetail ||
+      !wordLookupContext ||
+      !job ||
+      wordDetail.savedWordId ||
+      wordDetailSaving
+    )
+      return;
     if (!user) {
       void navigate('/dang-nhap', { state: { from: '/dich-video' } });
       return;
     }
 
+    const version = wordLookupRequestRef.current;
     setWordDetailSaving(true);
     try {
-      const progress = await api.learnVocabularyWord(wordDetail.id);
+      const saved = await saveLookedUpWord(wordDetail, {
+        type: 'video',
+        id: job.id,
+        startTime: wordLookupContext.startTime,
+        endTime: wordLookupContext.endTime,
+      });
+      if (version !== wordLookupRequestRef.current) return;
       setWordDetail((current) =>
-        current ? { ...current, progress } : current,
+        current
+          ? { ...current, progress: saved, savedWordId: saved.id }
+          : current,
       );
     } catch (saveError) {
+      if (version !== wordLookupRequestRef.current) return;
       setWordDetailError(
         saveError instanceof ApiError
           ? saveError.message
           : 'Không thể lưu từ vựng lúc này.',
       );
     } finally {
-      setWordDetailSaving(false);
+      if (version === wordLookupRequestRef.current) setWordDetailSaving(false);
     }
   }
 
@@ -752,6 +759,11 @@ export default function VideoTranslatePage() {
               youtubePlayerRef.current = event.target;
               event.target.unMute();
               event.target.setPlaybackRate(playbackRate);
+              if (replayStartRef.current !== null) {
+                event.target.seekTo(replayStartRef.current, true);
+                replayStartRef.current = null;
+                event.target.playVideo();
+              }
               if (autoPlayRequestedRef.current) {
                 autoPlayRequestedRef.current = false;
                 event.target.playVideo();
@@ -959,26 +971,31 @@ export default function VideoTranslatePage() {
   if (!ready) {
     return (
       <MobileLayout showNav={false}>
-        <div className="min-h-[100dvh] bg-white px-4 pb-32 pt-3 text-[#081333] dark:bg-neutral-950 dark:text-white">
-          <header className="relative flex h-12 items-center justify-center">
-            <button
-              type="button"
-              onClick={() => {
-                if (window.history.length > 1) {
-                  void navigate(-1);
-                  return;
-                }
-                void navigate('/');
-              }}
-              className="absolute left-0 inline-flex h-10 w-10 items-center justify-center text-[#081333] dark:text-white"
-              aria-label="Quay lại"
-            >
-              <ArrowLeft size={25} strokeWidth={2.25} />
-            </button>
-            <h1 className="text-[22px] font-extrabold leading-none">
-              Dịch video
-            </h1>
-          </header>
+        <div className="min-h-[100dvh] bg-white px-4 pb-32 text-[#081333] dark:bg-neutral-950 dark:text-white">
+          <StickyPageHeader
+            backgroundClassName="bg-white dark:bg-neutral-950"
+            className="-mx-4 px-4 pt-3"
+          >
+            <header className="relative flex h-12 items-center justify-center">
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    void navigate(-1);
+                    return;
+                  }
+                  void navigate('/');
+                }}
+                className="absolute left-0 inline-flex h-10 w-10 items-center justify-center text-[#081333] dark:text-white"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft size={25} strokeWidth={2.25} />
+              </button>
+              <h1 className="text-[22px] font-extrabold leading-none">
+                Dịch video
+              </h1>
+            </header>
+          </StickyPageHeader>
 
           <div className="mt-4 grid h-12 grid-cols-2 rounded-full border border-slate-200 bg-white p-1 shadow-[0_2px_8px_rgba(15,23,42,0.04)] dark:border-neutral-700 dark:bg-neutral-900">
             <button
@@ -1316,13 +1333,7 @@ export default function VideoTranslatePage() {
             type="button"
             onClick={() => {
               if (ready) {
-                setJob(null);
-                setUrl('');
-                setSelectedFile(null);
-                setError('');
-                setCurrentTime(0);
-                prevActiveIndexRef.current = -1;
-                if (fileInputRef.current) fileInputRef.current.value = '';
+                void navigate('/video-cua-toi');
                 return;
               }
               if (window.history.length > 1) {
@@ -1576,15 +1587,14 @@ export default function VideoTranslatePage() {
                         !!shadowingResult?.words?.length;
                       const phoneticText = phoneticTexts[idx] ?? '';
                       const timedWords = wordTimingsBySegment[idx] ?? [];
-                      const activeWordIndex =
-                        active
-                          ? findActiveWordIndex(
-                              timedWords,
-                              currentTime,
-                              playbackRate,
-                              seg.end,
-                            )
-                          : -1;
+                      const activeWordIndex = active
+                        ? findActiveWordIndex(
+                            timedWords,
+                            currentTime,
+                            playbackRate,
+                            seg.end,
+                          )
+                        : -1;
                       return (
                         <div
                           key={`${seg.start}-${idx}`}
@@ -1857,7 +1867,11 @@ export default function VideoTranslatePage() {
                         }`}
                       >
                         {isFetching ? (
-                          <Loader2 size={20} className="animate-spin" aria-hidden />
+                          <Loader2
+                            size={20}
+                            className="animate-spin"
+                            aria-hidden
+                          />
                         ) : (
                           <>
                             <Mic size={24} />

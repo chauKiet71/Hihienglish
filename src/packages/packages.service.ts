@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DurationUnit, PackageStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { activeSubscribersWhere } from './active-subscribers';
 
 export interface PackagePayload {
   name: string;
@@ -53,7 +54,9 @@ export class PackagesService {
 
     const packages = await this.prisma.package.findMany({
       where,
-      include: { _count: { select: { users: true } } },
+      include: {
+        _count: { select: { users: { where: activeSubscribersWhere() } } },
+      },
       orderBy: [{ sortOrder: 'asc' }, { price: 'asc' }],
     });
 
@@ -63,7 +66,9 @@ export class PackagesService {
   async findOne(id: string) {
     const pkg = await this.prisma.package.findUnique({
       where: { id },
-      include: { _count: { select: { users: true } } },
+      include: {
+        _count: { select: { users: { where: activeSubscribersWhere() } } },
+      },
     });
     if (!pkg) throw new NotFoundException('Gói không tồn tại');
     return this.mapPackage(pkg);

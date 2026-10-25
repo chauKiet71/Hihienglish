@@ -29,6 +29,17 @@ let GoogleAuthGuard = class GoogleAuthGuard extends (0, passport_1.AuthGuard)('g
         }
         return super.canActivate(context);
     }
+    getAuthenticateOptions(context) {
+        const req = context.switchToHttp().getRequest();
+        const redirect = req.query?.redirect;
+        if (typeof redirect === 'string' && redirect.length > 0) {
+            return {
+                scope: ['email', 'profile'],
+                state: Buffer.from(redirect).toString('base64url'),
+            };
+        }
+        return { scope: ['email', 'profile'] };
+    }
 };
 exports.GoogleAuthGuard = GoogleAuthGuard;
 exports.GoogleAuthGuard = GoogleAuthGuard = __decorate([

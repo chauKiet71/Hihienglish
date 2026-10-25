@@ -5,7 +5,28 @@ export declare class LessonsService {
     findAll(params?: {
         featured?: boolean;
         categoryId?: string;
-    }): Promise<({
+    }): Promise<{
+        id: string;
+        title: string;
+        description: string;
+        thumbnailUrl: string;
+        audioUrl: string;
+        duration: number;
+        level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+        topic: string;
+        categoryId: string;
+        isFeatured: boolean;
+        isNew: boolean;
+        isHot: boolean;
+        category: {
+            id: string;
+            name: string;
+            icon: string;
+            iconColor: string;
+            imageUrl: string;
+            lessonCount: number;
+        } | null;
+    }[] | ({
         category: {
             id: string;
             createdAt: Date;
@@ -23,17 +44,52 @@ export declare class LessonsService {
         createdAt: Date;
         description: string | null;
         duration: number;
-        isFeatured: boolean;
         categoryId: string | null;
         title: string;
         audioUrl: string | null;
         videoUrl: string | null;
         thumbnailUrl: string | null;
         topic: string | null;
+        isFeatured: boolean;
         isNew: boolean;
         isHot: boolean;
     })[]>;
-    findOne(id: string): Promise<({
+    findOne(id: string): Promise<{
+        transcripts: {
+            id: string;
+            orderIndex: number;
+            englishText: string;
+            vietnamese: string;
+            startTime: number;
+            endTime: number;
+            phonetic: string;
+            words: {
+                text: string;
+                start: number;
+                end: number;
+            }[];
+        }[];
+        id: string;
+        title: string;
+        description: string;
+        thumbnailUrl: string;
+        audioUrl: string;
+        duration: number;
+        level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+        topic: string;
+        categoryId: string;
+        isFeatured: boolean;
+        isNew: boolean;
+        isHot: boolean;
+        category: {
+            id: string;
+            name: string;
+            icon: string;
+            iconColor: string;
+            imageUrl: string;
+            lessonCount: number;
+        } | null;
+    } | ({
         category: {
             id: string;
             createdAt: Date;
@@ -60,16 +116,16 @@ export declare class LessonsService {
         createdAt: Date;
         description: string | null;
         duration: number;
-        isFeatured: boolean;
         categoryId: string | null;
         title: string;
         audioUrl: string | null;
         videoUrl: string | null;
         thumbnailUrl: string | null;
         topic: string | null;
+        isFeatured: boolean;
         isNew: boolean;
         isHot: boolean;
-    }) | null>;
+    })>;
     getHistory(userId: string, status?: string): Promise<({
         lesson: {
             category: {
@@ -89,21 +145,21 @@ export declare class LessonsService {
             createdAt: Date;
             description: string | null;
             duration: number;
-            isFeatured: boolean;
             categoryId: string | null;
             title: string;
             audioUrl: string | null;
             videoUrl: string | null;
             thumbnailUrl: string | null;
             topic: string | null;
+            isFeatured: boolean;
             isNew: boolean;
             isHot: boolean;
         };
     } & {
         id: string;
         status: import("@prisma/client").$Enums.HistoryStatus;
-        userId: string;
         lessonId: string;
+        userId: string;
         progressPercentage: number;
         listenedSeconds: number;
         isFavorite: boolean;
@@ -116,5 +172,47 @@ export declare class LessonsService {
         streakDays: number;
         weeklyGoal: number;
         weeklyProgress: number;
+    }>;
+    toHistoryEntry(row: {
+        lessonId: string;
+        status: string;
+        progressPercentage: number;
+        listenedSeconds: number;
+        lastListenedAt: Date;
+        isFavorite: boolean;
+    }): {
+        lessonId: string;
+        status: string;
+        progress: number;
+        listenedSeconds: number;
+        lastListenedAt: string;
+        isFavorite: boolean;
+    };
+    getMyHistoryEntries(userId: string): Promise<{
+        lessonId: string;
+        status: string;
+        progress: number;
+        listenedSeconds: number;
+        lastListenedAt: string;
+        isFavorite: boolean;
+    }[]>;
+    upsertHistory(userId: string, dto: {
+        lessonId: string;
+        status?: string;
+        progress?: number;
+        listenedSeconds?: number;
+        isFavorite?: boolean;
+    }): Promise<{
+        lessonId: string;
+        status: string;
+        progress: number;
+        listenedSeconds: number;
+        lastListenedAt: string;
+        isFavorite: boolean;
+    } | null>;
+    getMyFavoriteIds(userId: string): Promise<string[]>;
+    setFavorite(userId: string, lessonId: string, favorite: boolean): Promise<{
+        lessonId: string;
+        saved: boolean;
     }>;
 }

@@ -1,4 +1,5 @@
 import { GuestIdentityService } from '../auth/guest-identity.service';
+import { CreateVideoTranslateDto } from './dto/create-video-translate.dto';
 import { VideoTranslateService } from './video-translate.service';
 interface UploadedMediaFile {
     buffer: Buffer;
@@ -86,7 +87,7 @@ export declare class VideoTranslateController {
     }>;
     createJob(user: {
         id: string;
-    } | null, guestToken: string | undefined, file?: UploadedMediaFile): Promise<{
+    } | null, guestToken: string | undefined, dto: CreateVideoTranslateDto, file?: UploadedMediaFile): Promise<{
         job: {
             id: string;
             youtubeVideoId: string | null;

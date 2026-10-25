@@ -1,0 +1,37 @@
+44d479078fc2850c22efa9be98773cc5
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppController = void 0;
+const common_1 = require("@nestjs/common");
+const app_service_1 = require("./app.service");
+let AppController = class AppController {
+    appService;
+    constructor(appService) {
+        this.appService = appService;
+    }
+    health() {
+        return { status: 'ok', service: 'Shadowing ENGLISH API' };
+    }
+};
+exports.AppController = AppController;
+__decorate([
+    (0, common_1.Get)('health'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "health", null);
+exports.AppController = AppController = __decorate([
+    (0, common_1.Controller)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
+], AppController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcYXBwLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7OztBQUFBLDJDQUFpRDtBQUNqRCwrQ0FBMkM7QUFHcEMsSUFBTSxhQUFhLEdBQW5CLE1BQU0sYUFBYTtJQUNLO0lBQTdCLFlBQTZCLFVBQXNCO1FBQXRCLGVBQVUsR0FBVixVQUFVLENBQVk7SUFBRyxDQUFDO0lBR3ZELE1BQU07UUFDSixPQUFPLEVBQUUsTUFBTSxFQUFFLElBQUksRUFBRSxPQUFPLEVBQUUsdUJBQXVCLEVBQUUsQ0FBQztJQUM1RCxDQUFDO0NBQ0YsQ0FBQTtBQVBZLHNDQUFhO0FBSXhCO0lBREMsSUFBQSxZQUFHLEVBQUMsUUFBUSxDQUFDOzs7OzJDQUdiO3dCQU5VLGFBQWE7SUFEekIsSUFBQSxtQkFBVSxHQUFFO3lEQUU4Qix3QkFBVSxvQkFBVix3QkFBVTtHQUR4QyxhQUFhLENBT3pCIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkQ6XFxDb2RlXFxIaWhpRW5nbGlzaFxcMjF0aDlcXEhpaGllbmdsaXNoXFxzcmNcXGFwcC5jb250cm9sbGVyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IENvbnRyb2xsZXIsIEdldCB9IGZyb20gJ0BuZXN0anMvY29tbW9uJztcclxuaW1wb3J0IHsgQXBwU2VydmljZSB9IGZyb20gJy4vYXBwLnNlcnZpY2UnO1xyXG5cclxuQENvbnRyb2xsZXIoKVxyXG5leHBvcnQgY2xhc3MgQXBwQ29udHJvbGxlciB7XHJcbiAgY29uc3RydWN0b3IocHJpdmF0ZSByZWFkb25seSBhcHBTZXJ2aWNlOiBBcHBTZXJ2aWNlKSB7fVxyXG5cclxuICBAR2V0KCdoZWFsdGgnKVxyXG4gIGhlYWx0aCgpIHtcclxuICAgIHJldHVybiB7IHN0YXR1czogJ29rJywgc2VydmljZTogJ1NoYWRvd2luZyBFTkdMSVNIIEFQSScgfTtcclxuICB9XHJcbn1cclxuIl0sInZlcnNpb24iOjN9

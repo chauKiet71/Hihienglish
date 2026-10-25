@@ -1,4 +1,5 @@
 import { api } from './api';
+import { clearPageDataCache } from './pageDataCache';
 import {
   cachedFetch,
   invalidateCache,
@@ -72,23 +73,28 @@ export function fetchSpeakingHistory(force = false) {
   );
 }
 
-/** Prefetch public APIs for guests and add account-specific data after login. */
-export function prefetchHomeFeatures(isAuthenticated: boolean) {
+/** Read-only data for the main routes, independent of the entry URL. */
+export function prefetchAppFeatures(
+  isAuthenticated: boolean,
+  authReady = true,
+) {
   const tasks: Promise<unknown>[] = [
     fetchActivePackages(),
-    fetchVocabularyOverview(),
-    fetchSpeakingScenarios(),
-    fetchSpeakingQuota(),
+    api.getLessonAccessMap(),
   ];
 
-  if (isAuthenticated) {
-    tasks.push(fetchLessonStats());
+  if (authReady)
+    tasks.push(api.listVideoTranslateJobs(), api.getVideoTranslateQuota());
+
+  if (authReady && isAuthenticated) {
+    tasks.push(fetchLessonStats(), api.getSavedVocabulary());
   }
 
   return Promise.allSettled(tasks);
 }
 
 export function clearAuthenticatedPrefetch() {
+  clearPageDataCache();
   invalidateCache([
     PrefetchKeys.lessonStats,
     PrefetchKeys.vocabularyOverview,

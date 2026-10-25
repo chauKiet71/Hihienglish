@@ -1,0 +1,26 @@
+d832a35c156376d3e52b9cae966af54c
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OptionalJwtAuthGuard = void 0;
+const common_1 = require("@nestjs/common");
+const passport_1 = require("@nestjs/passport");
+/**
+ * Attaches the current user when a valid JWT is present, while still allowing
+ * anonymous access to public endpoints.
+ */
+let OptionalJwtAuthGuard = class OptionalJwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
+    handleRequest(_err, user) {
+        return user || null;
+    }
+};
+exports.OptionalJwtAuthGuard = OptionalJwtAuthGuard;
+exports.OptionalJwtAuthGuard = OptionalJwtAuthGuard = __decorate([
+    (0, common_1.Injectable)()
+], OptionalJwtAuthGuard);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcYXV0aFxcb3B0aW9uYWwtand0LWF1dGguZ3VhcmQudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7O0FBQUEsMkNBQTRDO0FBQzVDLCtDQUE2QztBQUU3Qzs7O0dBR0c7QUFFSSxJQUFNLG9CQUFvQixHQUExQixNQUFNLG9CQUFxQixTQUFRLElBQUEsb0JBQVMsRUFBQyxLQUFLLENBQUM7SUFDeEQsYUFBYSxDQUNYLElBQWEsRUFDYixJQUEwQjtRQUUxQixPQUFPLElBQUksSUFBSSxJQUFJLENBQUM7SUFDdEIsQ0FBQztDQUNGLENBQUE7QUFQWSxvREFBb0I7K0JBQXBCLG9CQUFvQjtJQURoQyxJQUFBLG1CQUFVLEdBQUU7R0FDQSxvQkFBb0IsQ0FPaEMiLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcYXV0aFxcb3B0aW9uYWwtand0LWF1dGguZ3VhcmQudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgSW5qZWN0YWJsZSB9IGZyb20gJ0BuZXN0anMvY29tbW9uJztcclxuaW1wb3J0IHsgQXV0aEd1YXJkIH0gZnJvbSAnQG5lc3Rqcy9wYXNzcG9ydCc7XHJcblxyXG4vKipcclxuICogQXR0YWNoZXMgdGhlIGN1cnJlbnQgdXNlciB3aGVuIGEgdmFsaWQgSldUIGlzIHByZXNlbnQsIHdoaWxlIHN0aWxsIGFsbG93aW5nXHJcbiAqIGFub255bW91cyBhY2Nlc3MgdG8gcHVibGljIGVuZHBvaW50cy5cclxuICovXHJcbkBJbmplY3RhYmxlKClcclxuZXhwb3J0IGNsYXNzIE9wdGlvbmFsSnd0QXV0aEd1YXJkIGV4dGVuZHMgQXV0aEd1YXJkKCdqd3QnKSB7XHJcbiAgaGFuZGxlUmVxdWVzdDxUVXNlciA9IHVua25vd24+KFxyXG4gICAgX2VycjogdW5rbm93bixcclxuICAgIHVzZXI6IFRVc2VyIHwgZmFsc2UgfCBudWxsLFxyXG4gICk6IFRVc2VyIHwgbnVsbCB7XHJcbiAgICByZXR1cm4gdXNlciB8fCBudWxsO1xyXG4gIH1cclxufVxyXG4iXSwidmVyc2lvbiI6M30=

@@ -4,6 +4,16 @@ import type {
   RegisterPayload,
   User,
 } from '../types/auth';
+import {
+  cachedFetch,
+  invalidateCache,
+  invalidateCacheByPrefix,
+} from './prefetchCache';
+import {
+  clearPageDataCache,
+  PageDataKeys,
+  withAbortSignal,
+} from './pageDataCache';
 
 const TOKEN_KEY = 'accessToken';
 const GUEST_TOKEN_KEY = 'guestToken';
@@ -32,10 +42,21 @@ export function getToken(): string | null {
 
 export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
+  syncReadCacheIdentity();
 }
 
 export function removeToken() {
   localStorage.removeItem(TOKEN_KEY);
+  syncReadCacheIdentity();
+}
+
+let readCacheIdentity: string | null | undefined;
+function syncReadCacheIdentity() {
+  const identity = getToken();
+  if (readCacheIdentity !== identity) {
+    clearPageDataCache();
+    readCacheIdentity = identity;
+  }
 }
 
 export function getGuestToken(): string {
@@ -347,7 +368,10 @@ export const api = {
   },
 
   getLessonAccessMap() {
-    return request<Record<string, boolean>>('/lessons/access');
+    syncReadCacheIdentity();
+    return cachedFetch(PageDataKeys.lessonAccess, () =>
+      request<Record<string, boolean>>('/lessons/access'),
+    );
   },
 
   setLessonAccess(lessonId: string, isLocked: boolean) {
@@ -357,11 +381,79 @@ export const api = {
         method: 'PUT',
         body: JSON.stringify({ isLocked }),
       },
-    );
+    ).then((result) => {
+      invalidateCache(PageDataKeys.lessonAccess);
+      return result;
+    });
   },
 
   getVocabularyOverview() {
     return request<VocabularyOverview>('/vocabulary/overview');
+  },
+
+  getSavedVocabulary(params: SavedVocabularyQuery = {}, signal?: AbortSignal) {
+    syncReadCacheIdentity();
+    const key = PageDataKeys.savedVocabulary(params);
+    return withAbortSignal(
+      cachedFetch(
+        key,
+        () =>
+          request<SavedVocabularyLibrary>(
+            `/vocabulary/saved?${new URLSearchParams(params)}`,
+          ),
+        { ttlMs: 60_000 },
+      ),
+      signal,
+    );
+  },
+
+  getSavedVocabularySession(params: SavedVocabularyQuery = {}) {
+    return request<{ words: SavedVocabularyWord[] }>(
+      `/vocabulary/saved/session?${new URLSearchParams(params)}`,
+    );
+  },
+
+  saveVocabularyWord(payload: SaveVocabularyPayload) {
+    return request<SavedVocabularyWord>('/vocabulary/saved', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).then((result) => {
+      invalidateCacheByPrefix('page-data:saved-vocabulary:');
+      return result;
+    });
+  },
+
+  removeSavedVocabulary(id: string) {
+    return request<{ removed: boolean }>(
+      `/vocabulary/saved/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    ).then((result) => {
+      invalidateCacheByPrefix('page-data:saved-vocabulary:');
+      return result;
+    });
+  },
+
+  reviewSavedVocabulary(
+    id: string,
+    payload: {
+      correct: boolean;
+      requestId: string;
+      expectedReviewCount: number;
+    },
+  ) {
+    return request<SavedVocabularyWord>(
+      `/vocabulary/saved/${encodeURIComponent(id)}/review`,
+      { method: 'POST', body: JSON.stringify(payload) },
+    ).then((result) => {
+      invalidateCacheByPrefix('page-data:saved-vocabulary:');
+      return result;
+    });
+  },
+
+  replaySavedVocabulary(id: string, sourceId: string) {
+    return request<{ href: string }>(
+      `/vocabulary/saved/${encodeURIComponent(id)}/sources/${encodeURIComponent(sourceId)}/replay`,
+    );
   },
 
   getVocabularyLearnSession(params?: { setId?: string; limit?: number }) {
@@ -525,23 +617,54 @@ export const api = {
   },
 
   getVideoTranslateQuota() {
-    return request<VideoTranslateQuota>('/video-translate/quota');
+    syncReadCacheIdentity();
+    return cachedFetch(
+      PageDataKeys.videoQuota,
+      () => request<VideoTranslateQuota>('/video-translate/quota'),
+      { ttlMs: 30_000 },
+    );
+  },
+
+  getFeaturedVideoTranscript(id: string, signal?: AbortSignal) {
+    return request<FeaturedVideoTranscript>(
+      `/featured-videos/${encodeURIComponent(id)}/transcript`,
+      { signal },
+    );
+  },
+
+  prepareFeaturedVideoTranscript(id: string, signal?: AbortSignal) {
+    return request<FeaturedVideoTranscript>(
+      `/featured-videos/${encodeURIComponent(id)}/transcript`,
+      { method: 'POST', signal },
+    );
   },
 
   listVideoTranslateJobs() {
-    return request<VideoTranslateListResponse>('/video-translate/jobs');
+    syncReadCacheIdentity();
+    return cachedFetch(
+      PageDataKeys.videoJobs,
+      () => request<VideoTranslateListResponse>('/video-translate/jobs'),
+      { ttlMs: 30_000 },
+    );
   },
 
   getVideoTranslateJob(id: string) {
     return request<VideoTranslateJobResponse>(
       `/video-translate/jobs/${encodeURIComponent(id)}`,
-    );
+    ).then((result) => {
+      // Polling a processing job can change both the recent list and quota.
+      invalidateCache([PageDataKeys.videoJobs, PageDataKeys.videoQuota]);
+      return result;
+    });
   },
 
   createVideoTranslateJob(url: string) {
     return request<CreateVideoTranslateResponse>('/video-translate/jobs', {
       method: 'POST',
       body: JSON.stringify({ url }),
+    }).then((result) => {
+      invalidateCache([PageDataKeys.videoJobs, PageDataKeys.videoQuota]);
+      return result;
     });
   },
 
@@ -577,6 +700,7 @@ export const api = {
               : undefined;
         throw new ApiError(message, code, res.status);
       }
+      invalidateCache([PageDataKeys.videoJobs, PageDataKeys.videoQuota]);
       return data as CreateVideoTranslateResponse;
     });
   },
@@ -585,7 +709,10 @@ export const api = {
     return request<{ deleted: boolean }>(
       `/video-translate/jobs/${encodeURIComponent(id)}`,
       { method: 'DELETE' },
-    );
+    ).then((result) => {
+      invalidateCache([PageDataKeys.videoJobs, PageDataKeys.videoQuota]);
+      return result;
+    });
   },
 };
 
@@ -867,6 +994,8 @@ export interface VocabularyWord {
 }
 
 export interface VocabularyLookupDetail extends VocabularyWord {
+  savedWordId?: string | null;
+  savedSourceKeys?: string[];
   requestedWord: string;
   partOfSpeech: string | null;
   definition: string;
@@ -1079,6 +1208,12 @@ export interface VideoTranslateSegment {
   }>;
 }
 
+export interface FeaturedVideoTranscript {
+  status: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED';
+  segments: VideoTranslateSegment[];
+  errorMessage: string | null;
+}
+
 export type VideoTranslateStatus =
   'PENDING' | 'PROCESSING' | 'READY' | 'FAILED';
 
@@ -1117,4 +1252,52 @@ export interface CreateVideoTranslateResponse {
   job: VideoTranslateJob;
   quota: VideoTranslateQuota;
   fromCache: boolean;
+}
+
+export interface SavedVocabularySourceInput {
+  type: 'lesson' | 'featured-video' | 'video';
+  id: string;
+  startTime: number;
+  endTime: number;
+}
+export interface SaveVocabularyPayload {
+  requestedWord: string;
+  word: string;
+  meaning: string;
+  phonetic?: string;
+  partOfSpeech?: string;
+  definition?: string;
+  source: SavedVocabularySourceInput;
+}
+export interface SavedVocabularySource {
+  id: string;
+  sourceType: SavedVocabularySourceInput['type'];
+  sourceId: string;
+  title: string;
+  sentence: string;
+  sentenceTranslation: string;
+  startTime: number;
+  endTime: number;
+}
+export interface SavedVocabularyWord extends VocabularyProgress {
+  id: string;
+  word: string;
+  meaning: string;
+  phonetic: string | null;
+  partOfSpeech: string | null;
+  definition: string | null;
+  createdAt: string;
+  sources: SavedVocabularySource[];
+}
+export type SavedVocabularyQuery = {
+  status?: 'all' | 'due' | 'mastered';
+  search?: string;
+  source?: string;
+  sort?: 'newest' | 'alphabetical';
+  wordId?: string;
+};
+export interface SavedVocabularyLibrary {
+  words: SavedVocabularyWord[];
+  stats: { total: number; due: number; mastered: number };
+  sources: Array<{ key: string; title: string }>;
 }

@@ -13,6 +13,7 @@ exports.PackagesService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const active_subscribers_1 = require("./active-subscribers");
 let PackagesService = class PackagesService {
     prisma;
     constructor(prisma) {
@@ -40,7 +41,9 @@ let PackagesService = class PackagesService {
             where.isVisible = params.visible;
         const packages = await this.prisma.package.findMany({
             where,
-            include: { _count: { select: { users: true } } },
+            include: {
+                _count: { select: { users: { where: (0, active_subscribers_1.activeSubscribersWhere)() } } },
+            },
             orderBy: [{ sortOrder: 'asc' }, { price: 'asc' }],
         });
         return packages.map((pkg) => this.mapPackage(pkg));
@@ -48,7 +51,9 @@ let PackagesService = class PackagesService {
     async findOne(id) {
         const pkg = await this.prisma.package.findUnique({
             where: { id },
-            include: { _count: { select: { users: true } } },
+            include: {
+                _count: { select: { users: { where: (0, active_subscribers_1.activeSubscribersWhere)() } } },
+            },
         });
         if (!pkg)
             throw new common_1.NotFoundException('Gói không tồn tại');

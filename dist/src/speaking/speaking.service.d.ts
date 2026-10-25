@@ -1,15 +1,21 @@
 import { ConfigService } from '@nestjs/config';
 import { CefrLevel, SpeakingDialect } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { IflytekPronunciationService } from './iflytek-pronunciation.service';
 export declare const FREE_SPEAKING_TURNS_PER_DAY = 3;
 export declare const MAX_SPEAKING_AUDIO_BYTES: number;
 export declare const MAX_SPEAKING_DURATION_MS = 60000;
+export declare function resolveGrammarCorrection(transcript: string | null | undefined, correction: string | null | undefined): string | null;
+export declare function suggestionCopiesCorrection(suggestion: string, correction: string | null | undefined): boolean;
 export declare class SpeakingService {
     private readonly prisma;
     private readonly config;
+    private readonly iflytekPronunciation?;
     private readonly logger;
     private openai;
-    constructor(prisma: PrismaService, config: ConfigService);
+    private catalogPromise;
+    private readonly pendingTurnScores;
+    constructor(prisma: PrismaService, config: ConfigService, iflytekPronunciation?: IflytekPronunciationService | undefined);
     listScenarios(): Promise<{
         id: string;
         description: string;
@@ -30,6 +36,39 @@ export declare class SpeakingService {
         remaining: number | null;
         isPremium: boolean;
         resetsAt: string;
+    }>;
+    getHistory(userId: string): Promise<{
+        stats: {
+            totalSessions: number;
+            averageScore: number | null;
+            streakDays: number;
+            practicedTopics: number;
+        };
+        items: {
+            id: string;
+            level: import("@prisma/client").$Enums.CefrLevel;
+            dialect: import("@prisma/client").$Enums.SpeakingDialect;
+            status: import("@prisma/client").$Enums.SpeakingSessionStatus;
+            createdAt: Date;
+            completedAt: Date | null;
+            durationMs: number;
+            turnsSpoken: number;
+            averageOverall: number | null;
+            scenario: {
+                id: string;
+                description: string;
+                sortOrder: number;
+                icon: string;
+                title: string;
+                objective: string;
+                color: string;
+                slug: string;
+                learnerRole: string;
+                aiRole: string;
+                minLevel: import("@prisma/client").$Enums.CefrLevel;
+                maxLevel: import("@prisma/client").$Enums.CefrLevel;
+            };
+        }[];
     }>;
     createSession(userId: string, scenarioId: string, level: CefrLevel, dialect: SpeakingDialect): Promise<{
         session: {
@@ -59,6 +98,7 @@ export declare class SpeakingService {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -109,6 +149,7 @@ export declare class SpeakingService {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -144,6 +185,7 @@ export declare class SpeakingService {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -194,6 +236,7 @@ export declare class SpeakingService {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -232,12 +275,19 @@ export declare class SpeakingService {
     private getTodayUsage;
     private assertAndReserveQuota;
     private releaseQuotaReservation;
+    private queueTurnScoring;
+    private scoreAndPersistTurn;
+    private assessSpeakingTurn;
+    private buildTurnScores;
+    private calculateFluencyScore;
     private transcribeAudio;
     private ensureOpenAi;
     translateToVietnamese(text: string): Promise<{
         translation: string;
     }>;
     private generateAiReply;
+    private ensureNextTurnSuggestion;
+    private parseSpeakingAssessment;
     private mapSession;
     private mapTurn;
 }

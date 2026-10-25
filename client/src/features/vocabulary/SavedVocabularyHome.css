@@ -1,0 +1,148 @@
+.saved-vocabulary-home {
+  container-type: inline-size;
+}
+
+.saved-vocabulary-promo {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 4.17cqw, 20px);
+  overflow: hidden;
+  padding: 12px 14px 12px clamp(12px, 4.17cqw, 20px);
+  border: 1px solid #cfd5ff;
+  border-left: 7px solid #4f5dff;
+  border-radius: 16px;
+  background-color: #fff;
+  color: #0f1738;
+  box-shadow: 0 5px 18px rgb(79 93 255 / 7%);
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.saved-vocabulary-promo::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image: url('../../assets/vocabulary-card-background.png');
+  background-size: 100% 100%;
+  pointer-events: none;
+  content: '';
+}
+
+.saved-vocabulary-promo__icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: clamp(40px, 10.85cqw, 52px);
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: #e8ecff;
+  color: #4f5dff;
+}
+
+.saved-vocabulary-promo__icon svg {
+  width: clamp(24px, 6.25cqw, 30px);
+  height: auto;
+}
+
+.saved-vocabulary-promo__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.saved-vocabulary-promo__title {
+  margin: 0;
+  font-size: clamp(13px, 3.4cqw, 16.3px);
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+
+.saved-vocabulary-promo__description {
+  margin: 4px 0 0;
+  color: #66738e;
+  font-size: clamp(11px, 2.61cqw, 12.5px);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.saved-vocabulary-promo__arrow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: clamp(28px, 7.5cqw, 36px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e2e7ff;
+  color: #4f5dff;
+}
+
+.saved-vocabulary-promo__arrow svg {
+  width: 50%;
+  height: auto;
+  transition: transform 180ms ease;
+}
+
+.saved-vocabulary-promo:hover {
+  border-color: #a5afff;
+  border-left-color: #4f5dff;
+  box-shadow: 0 7px 22px rgb(79 93 255 / 12%);
+}
+
+.saved-vocabulary-promo:focus-visible {
+  outline: 2px solid #4f5dff;
+  outline-offset: 4px;
+}
+
+.saved-vocabulary-promo:is(:hover, :focus-visible)
+  .saved-vocabulary-promo__arrow
+  svg {
+  transform: translateX(2px);
+}
+
+.dark .saved-vocabulary-promo {
+  border-color: #353f68;
+  border-left-color: #818cf8;
+  background-color: #171c2e;
+  color: #f3f4ff;
+  box-shadow: 0 5px 18px rgb(0 0 0 / 15%);
+}
+
+.dark .saved-vocabulary-promo::before {
+  opacity: 0.055;
+}
+
+.dark .saved-vocabulary-promo__icon {
+  background: #30385c;
+  color: #a5b4ff;
+}
+
+.dark .saved-vocabulary-promo__description {
+  color: #aeb9d3;
+}
+
+.dark .saved-vocabulary-promo__arrow {
+  background: #343d65;
+  color: #a5b4ff;
+}
+
+.dark .saved-vocabulary-promo:hover {
+  border-color: #6978b8;
+  border-left-color: #a5b4ff;
+}
+
+.dark .saved-vocabulary-promo:focus-visible {
+  outline-color: #a5b4ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saved-vocabulary-promo,
+  .saved-vocabulary-promo__arrow svg {
+    transition: none;
+  }
+}

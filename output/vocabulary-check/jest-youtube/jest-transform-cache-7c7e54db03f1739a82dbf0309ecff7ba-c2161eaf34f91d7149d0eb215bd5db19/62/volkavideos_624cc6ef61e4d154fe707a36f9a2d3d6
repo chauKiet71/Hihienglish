@@ -1,0 +1,44 @@
+4205ee75d14ec339cce2c7486b1af268
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.VOLKA_VIDEOS = exports.VOLKA_CHANNEL = void 0;
+/** Curated from https://www.youtube.com/@VolkaEnglish/videos on 2026-10-25. */
+exports.VOLKA_CHANNEL = {
+    name: 'Volka English',
+    handle: '@VolkaEnglish',
+    url: 'https://www.youtube.com/@VolkaEnglish',
+    avatarUrl: 'https://yt3.googleusercontent.com/1VNunCWJS2XjOpJBb0d1Zpqo29Wz29xDdfIa2vdMXfTZpk2Agf5pa6kDoHsIef6fte10B1sIKw=s160-c-k-c0x00ffffff-no-rj',
+};
+exports.VOLKA_VIDEOS = [
+    {
+        id: 'H5qcIEH1iVs',
+        title: "I'll Talk About My Day. You Practice Your English",
+        duration: 1426,
+        publishedAt: '2026-10-23',
+    },
+    {
+        id: 'lxoMNDsktlY',
+        title: 'A Day in China | English Listening Practice',
+        duration: 1422,
+        publishedAt: '2026-10-20',
+    },
+    {
+        id: 'mgfBmnD04Q8',
+        title: 'LEARN ENGLISH by Listening to Slow, Natural Conversations',
+        duration: 1249,
+        publishedAt: '2026-10-18',
+    },
+    {
+        id: 'LTVk3yUb5Mg',
+        title: 'The Easiest Way to Learn English? My Real Daily Routine | POV Vlog',
+        duration: 1115,
+        publishedAt: '2026-10-16',
+    },
+    {
+        id: 'ErP_AKE3riY',
+        title: 'How to Introduce Yourself in English Naturally | ENGLISH 101',
+        duration: 822,
+        publishedAt: '2026-10-13',
+    },
+];
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcY2F0YWxvZ1xcdm9sa2EtdmlkZW9zLnRzIiwibWFwcGluZ3MiOiI7OztBQUFBLCtFQUErRTtBQUNsRSxRQUFBLGFBQWEsR0FBRztJQUMzQixJQUFJLEVBQUUsZUFBZTtJQUNyQixNQUFNLEVBQUUsZUFBZTtJQUN2QixHQUFHLEVBQUUsdUNBQXVDO0lBQzVDLFNBQVMsRUFDUCx5SUFBeUk7Q0FDNUksQ0FBQztBQUVXLFFBQUEsWUFBWSxHQUFHO0lBQzFCO1FBQ0UsRUFBRSxFQUFFLGFBQWE7UUFDakIsS0FBSyxFQUFFLG1EQUFtRDtRQUMxRCxRQUFRLEVBQUUsSUFBSTtRQUNkLFdBQVcsRUFBRSxZQUFZO0tBQzFCO0lBQ0Q7UUFDRSxFQUFFLEVBQUUsYUFBYTtRQUNqQixLQUFLLEVBQUUsNkNBQTZDO1FBQ3BELFFBQVEsRUFBRSxJQUFJO1FBQ2QsV0FBVyxFQUFFLFlBQVk7S0FDMUI7SUFDRDtRQUNFLEVBQUUsRUFBRSxhQUFhO1FBQ2pCLEtBQUssRUFBRSwyREFBMkQ7UUFDbEUsUUFBUSxFQUFFLElBQUk7UUFDZCxXQUFXLEVBQUUsWUFBWTtLQUMxQjtJQUNEO1FBQ0UsRUFBRSxFQUFFLGFBQWE7UUFDakIsS0FBSyxFQUFFLG9FQUFvRTtRQUMzRSxRQUFRLEVBQUUsSUFBSTtRQUNkLFdBQVcsRUFBRSxZQUFZO0tBQzFCO0lBQ0Q7UUFDRSxFQUFFLEVBQUUsYUFBYTtRQUNqQixLQUFLLEVBQUUsOERBQThEO1FBQ3JFLFFBQVEsRUFBRSxHQUFHO1FBQ2IsV0FBVyxFQUFFLFlBQVk7S0FDMUI7Q0FDRixDQUFDIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkQ6XFxDb2RlXFxIaWhpRW5nbGlzaFxcMjF0aDlcXEhpaGllbmdsaXNoXFxzcmNcXGNhdGFsb2dcXHZvbGthLXZpZGVvcy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvKiogQ3VyYXRlZCBmcm9tIGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL0BWb2xrYUVuZ2xpc2gvdmlkZW9zIG9uIDIwMjYtMTAtMjUuICovXG5leHBvcnQgY29uc3QgVk9MS0FfQ0hBTk5FTCA9IHtcbiAgbmFtZTogJ1ZvbGthIEVuZ2xpc2gnLFxuICBoYW5kbGU6ICdAVm9sa2FFbmdsaXNoJyxcbiAgdXJsOiAnaHR0cHM6Ly93d3cueW91dHViZS5jb20vQFZvbGthRW5nbGlzaCcsXG4gIGF2YXRhclVybDpcbiAgICAnaHR0cHM6Ly95dDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tLzFWTnVuQ1dKUzJYak9wSkJiMGQxWnBxbzI5V3oyOXhEZGZJYTJ2ZE1YZlRacGsyQWdmNXBhNmtEb0hzSWVmNmZ0ZTEwQjFzSUt3PXMxNjAtYy1rLWMweDAwZmZmZmZmLW5vLXJqJyxcbn07XG5cbmV4cG9ydCBjb25zdCBWT0xLQV9WSURFT1MgPSBbXG4gIHtcbiAgICBpZDogJ0g1cWNJRUgxaVZzJyxcbiAgICB0aXRsZTogXCJJJ2xsIFRhbGsgQWJvdXQgTXkgRGF5LiBZb3UgUHJhY3RpY2UgWW91ciBFbmdsaXNoXCIsXG4gICAgZHVyYXRpb246IDE0MjYsXG4gICAgcHVibGlzaGVkQXQ6ICcyMDI2LTEwLTIzJyxcbiAgfSxcbiAge1xuICAgIGlkOiAnbHhvTU5Ec2t0bFknLFxuICAgIHRpdGxlOiAnQSBEYXkgaW4gQ2hpbmEgfCBFbmdsaXNoIExpc3RlbmluZyBQcmFjdGljZScsXG4gICAgZHVyYXRpb246IDE0MjIsXG4gICAgcHVibGlzaGVkQXQ6ICcyMDI2LTEwLTIwJyxcbiAgfSxcbiAge1xuICAgIGlkOiAnbWdmQm1uRDA0UTgnLFxuICAgIHRpdGxlOiAnTEVBUk4gRU5HTElTSCBieSBMaXN0ZW5pbmcgdG8gU2xvdywgTmF0dXJhbCBDb252ZXJzYXRpb25zJyxcbiAgICBkdXJhdGlvbjogMTI0OSxcbiAgICBwdWJsaXNoZWRBdDogJzIwMjYtMTAtMTgnLFxuICB9LFxuICB7XG4gICAgaWQ6ICdMVFZrM3lVYjVNZycsXG4gICAgdGl0bGU6ICdUaGUgRWFzaWVzdCBXYXkgdG8gTGVhcm4gRW5nbGlzaD8gTXkgUmVhbCBEYWlseSBSb3V0aW5lIHwgUE9WIFZsb2cnLFxuICAgIGR1cmF0aW9uOiAxMTE1LFxuICAgIHB1Ymxpc2hlZEF0OiAnMjAyNi0xMC0xNicsXG4gIH0sXG4gIHtcbiAgICBpZDogJ0VyUF9BS0UzcmlZJyxcbiAgICB0aXRsZTogJ0hvdyB0byBJbnRyb2R1Y2UgWW91cnNlbGYgaW4gRW5nbGlzaCBOYXR1cmFsbHkgfCBFTkdMSVNIIDEwMScsXG4gICAgZHVyYXRpb246IDgyMixcbiAgICBwdWJsaXNoZWRBdDogJzIwMjYtMTAtMTMnLFxuICB9LFxuXTtcblxuZXhwb3J0IHR5cGUgVm9sa2FWaWRlbyA9ICh0eXBlb2YgVk9MS0FfVklERU9TKVtudW1iZXJdO1xuIl0sInZlcnNpb24iOjN9

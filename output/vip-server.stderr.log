@@ -1,0 +1,16 @@
+[Nest] 13644  - 09/12/2026, 10:48:22 AM   ERROR [NestApplication] Error: listen EADDRINUSE: address already in use :::3000 +2ms
+Error: listen EADDRINUSE: address already in use :::3000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at ExpressAdapter.listen (D:\Code\HihiEnglish\21th9\Hihienglish\node_modules\@nestjs\platform-express\adapters\express-adapter.js:115:32)
+    at D:\Code\HihiEnglish\21th9\Hihienglish\node_modules\@nestjs\core\nest-application.js:190:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (D:\Code\HihiEnglish\21th9\Hihienglish\node_modules\@nestjs\core\nest-application.js:180:16)
+    at async bootstrap (D:\Code\HihiEnglish\21th9\Hihienglish\src\main.ts:78:3) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}

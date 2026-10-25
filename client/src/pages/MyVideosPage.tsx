@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
+  ChevronLeft,
   Clapperboard,
   Headphones,
   Loader2,
@@ -10,7 +10,13 @@ import {
   Trash2,
 } from 'lucide-react';
 import MobileLayout from '../components/MobileLayout';
+import StickyPageHeader from '../components/StickyPageHeader';
+import AddVideoButton from '../features/video/AddVideoButton';
 import { api, type VideoTranslateJob } from '../lib/api';
+import type { VideoTranslateListResponse } from '../lib/api';
+import { peekCache } from '../lib/prefetchCache';
+import { PageDataKeys } from '../lib/pageDataCache';
+import { useAuth } from '../contexts/AuthContext';
 
 type SourceFilter = 'all' | 'youtube' | 'upload';
 
@@ -64,14 +70,24 @@ function statusLabel(job: VideoTranslateJob) {
 
 export default function MyVideosPage() {
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState<VideoTranslateJob[]>([]);
+  const { user } = useAuth();
+  const [jobs, setJobs] = useState<VideoTranslateJob[]>(
+    () =>
+      peekCache<VideoTranslateListResponse>(PageDataKeys.videoJobs)?.jobs ?? [],
+  );
   const [filter, setFilter] = useState<SourceFilter>('all');
   const [menuJobId, setMenuJobId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!peekCache(PageDataKeys.videoJobs));
   const [error, setError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
+    const cached = peekCache<VideoTranslateListResponse>(
+      PageDataKeys.videoJobs,
+    );
+    setJobs(cached?.jobs ?? []);
+    setLoading(!cached);
+    setError('');
 
     void api
       .listVideoTranslateJobs()
@@ -94,7 +110,7 @@ export default function MyVideosPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!menuJobId) return;
@@ -138,18 +154,20 @@ export default function MyVideosPage() {
 
   return (
     <MobileLayout>
-      <main className="min-h-screen px-4 pb-6 pt-3 text-[#0b1533] dark:text-white">
-        <header className="relative flex h-12 items-center justify-center">
-          <button
-            type="button"
-            onClick={() => navigate('/ca-nhan')}
-            className="absolute left-0 inline-flex h-10 w-10 items-center justify-center"
-            aria-label="Trở về trang cá nhân"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-sm font-semibold">Video của tôi</h1>
-        </header>
+      <main className="min-h-screen px-4 pb-24 text-[#0b1533] dark:text-white">
+        <StickyPageHeader className="-mx-4 px-4 pt-[max(16px,env(safe-area-inset-top))]">
+          <header className="relative mx-1 flex h-11 items-center justify-center px-11 text-slate-900 dark:text-[#f4f4ef]">
+            <button
+              type="button"
+              onClick={() => navigate('/ca-nhan')}
+              className="absolute -left-2 inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-200/60 focus-visible:outline-2 focus-visible:outline-teal-600 dark:hover:bg-white/10 dark:focus-visible:outline-teal-400"
+              aria-label="Trở về trang cá nhân"
+            >
+              <ChevronLeft size={28} />
+            </button>
+            <h1 className="truncate text-sm font-semibold">Video của tôi</h1>
+          </header>
+        </StickyPageHeader>
 
         <p className="mt-1 text-center text-xs text-slate-500 dark:text-neutral-400">
           Nội dung từ YouTube và thiết bị của bạn
@@ -191,7 +209,10 @@ export default function MyVideosPage() {
             </p>
           </div>
         ) : (
-          <section className="mt-5 space-y-3" aria-label="Danh sách video của tôi">
+          <section
+            className="mt-5 space-y-3"
+            aria-label="Danh sách video của tôi"
+          >
             {visibleJobs.map((job) => {
               const audioOnly = isAudioUrl(job.mediaUrl);
               const processingLabel = statusLabel(job);
@@ -257,7 +278,9 @@ export default function MyVideosPage() {
                     <h2 className="line-clamp-2 text-sm font-extrabold leading-5">
                       {job.title ||
                         job.originalFilename ||
-                        (job.youtubeVideoId ? 'Video YouTube' : 'Tệp đã tải lên')}
+                        (job.youtubeVideoId
+                          ? 'Video YouTube'
+                          : 'Tệp đã tải lên')}
                     </h2>
                     <p className="mt-1 text-[11px] leading-4 text-slate-500 dark:text-neutral-400">
                       {job.youtubeVideoId ? 'YouTube' : 'Tải lên'} ·{' '}
@@ -312,6 +335,8 @@ export default function MyVideosPage() {
           </section>
         )}
       </main>
+
+      <AddVideoButton returnTo="/video-cua-toi" />
     </MobileLayout>
   );
 }

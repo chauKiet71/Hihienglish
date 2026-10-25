@@ -25,6 +25,15 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Architecture
+
+The current application is a NestJS modular monolith. The accepted target and
+incremental migration plan are documented in
+[`docs/architecture/microservices.md`](docs/architecture/microservices.md).
+
+The first extraction target is the video translation worker, after media is
+moved from local disk to shared object storage and job dispatch is made durable.
+
 ## Project setup
 
 ```bash

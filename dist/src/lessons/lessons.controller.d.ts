@@ -11,7 +11,28 @@ export declare class LessonsController {
         lessonId: string;
         isLocked: boolean;
     }>;
-    findAll(featured?: string, categoryId?: string): Promise<({
+    findAll(featured?: string, categoryId?: string): Promise<{
+        id: string;
+        title: string;
+        description: string;
+        thumbnailUrl: string;
+        audioUrl: string;
+        duration: number;
+        level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+        topic: string;
+        categoryId: string;
+        isFeatured: boolean;
+        isNew: boolean;
+        isHot: boolean;
+        category: {
+            id: string;
+            name: string;
+            icon: string;
+            iconColor: string;
+            imageUrl: string;
+            lessonCount: number;
+        } | null;
+    }[] | ({
         category: {
             id: string;
             createdAt: Date;
@@ -29,13 +50,13 @@ export declare class LessonsController {
         createdAt: Date;
         description: string | null;
         duration: number;
-        isFeatured: boolean;
         categoryId: string | null;
         title: string;
         audioUrl: string | null;
         videoUrl: string | null;
         thumbnailUrl: string | null;
         topic: string | null;
+        isFeatured: boolean;
         isNew: boolean;
         isHot: boolean;
     })[]>;
@@ -48,6 +69,47 @@ export declare class LessonsController {
         streakDays: number;
         weeklyGoal: number;
         weeklyProgress: number;
+    }>;
+    getMyHistory(user: {
+        id: string;
+    }): Promise<{
+        lessonId: string;
+        status: string;
+        progress: number;
+        listenedSeconds: number;
+        lastListenedAt: string;
+        isFavorite: boolean;
+    }[]>;
+    upsertMyHistory(user: {
+        id: string;
+    }, dto: {
+        lessonId: string;
+        status?: string;
+        progress?: number;
+        listenedSeconds?: number;
+        isFavorite?: boolean;
+    }): Promise<{
+        lessonId: string;
+        status: string;
+        progress: number;
+        listenedSeconds: number;
+        lastListenedAt: string;
+        isFavorite: boolean;
+    } | null>;
+    getMyFavorites(user: {
+        id: string;
+    }): Promise<string[]>;
+    saveFavorite(user: {
+        id: string;
+    }, lessonId: string): Promise<{
+        lessonId: string;
+        saved: boolean;
+    }>;
+    removeFavorite(user: {
+        id: string;
+    }, lessonId: string): Promise<{
+        lessonId: string;
+        saved: boolean;
     }>;
     getHistory(userId: string, status?: string): Promise<({
         lesson: {
@@ -68,21 +130,21 @@ export declare class LessonsController {
             createdAt: Date;
             description: string | null;
             duration: number;
-            isFeatured: boolean;
             categoryId: string | null;
             title: string;
             audioUrl: string | null;
             videoUrl: string | null;
             thumbnailUrl: string | null;
             topic: string | null;
+            isFeatured: boolean;
             isNew: boolean;
             isHot: boolean;
         };
     } & {
         id: string;
         status: import("@prisma/client").$Enums.HistoryStatus;
-        userId: string;
         lessonId: string;
+        userId: string;
         progressPercentage: number;
         listenedSeconds: number;
         isFavorite: boolean;
@@ -96,7 +158,42 @@ export declare class LessonsController {
         weeklyGoal: number;
         weeklyProgress: number;
     }>;
-    findOne(id: string): Promise<({
+    findOne(id: string): Promise<{
+        transcripts: {
+            id: string;
+            orderIndex: number;
+            englishText: string;
+            vietnamese: string;
+            startTime: number;
+            endTime: number;
+            phonetic: string;
+            words: {
+                text: string;
+                start: number;
+                end: number;
+            }[];
+        }[];
+        id: string;
+        title: string;
+        description: string;
+        thumbnailUrl: string;
+        audioUrl: string;
+        duration: number;
+        level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+        topic: string;
+        categoryId: string;
+        isFeatured: boolean;
+        isNew: boolean;
+        isHot: boolean;
+        category: {
+            id: string;
+            name: string;
+            icon: string;
+            iconColor: string;
+            imageUrl: string;
+            lessonCount: number;
+        } | null;
+    } | ({
         category: {
             id: string;
             createdAt: Date;
@@ -123,14 +220,14 @@ export declare class LessonsController {
         createdAt: Date;
         description: string | null;
         duration: number;
-        isFeatured: boolean;
         categoryId: string | null;
         title: string;
         audioUrl: string | null;
         videoUrl: string | null;
         thumbnailUrl: string | null;
         topic: string | null;
+        isFeatured: boolean;
         isNew: boolean;
         isHot: boolean;
-    }) | null>;
+    })>;
 }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
-import { GUEST_EMAIL_SUFFIX } from '../auth/guest-identity.service';
+import { activeSubscribersWhere } from '../packages/active-subscribers';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AdminPackagesService {
     const users = await this.prisma.user.findMany({
       where: {
         packageId,
-        NOT: { email: { endsWith: GUEST_EMAIL_SUFFIX } },
+        ...activeSubscribersWhere(),
       },
       orderBy: { premiumExpiresAt: 'asc' },
       select: {

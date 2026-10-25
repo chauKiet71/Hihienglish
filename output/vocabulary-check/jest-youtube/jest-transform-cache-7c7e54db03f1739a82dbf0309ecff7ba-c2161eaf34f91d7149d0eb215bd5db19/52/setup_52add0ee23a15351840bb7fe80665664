@@ -1,0 +1,4 @@
+8ad21b6a3d3d61af4d06c0af878e7f3e
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;

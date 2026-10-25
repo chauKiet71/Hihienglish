@@ -109,6 +109,7 @@ model User {
   chatConversations ChatConversation[]
   vocabularyProgress UserVocabularyProgress[]
   vocabularySets     UserVocabularySet[]
+  savedVocabulary    SavedVocabularyWord[]
   speakingSessions   SpeakingSession[]
   speakingDailyUsage SpeakingDailyUsage[]
   videoTranslateJobs VideoTranslateJob[]
@@ -398,6 +399,56 @@ model UserVocabularySet {
 
   @@unique([userId, setId])
   @@map("user_vocabulary_sets")
+}
+
+model SavedVocabularyWord {
+  id             String                   @id @default(uuid())
+  userId         String                   @map("user_id")
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word           String
+  wordKey        String                   @map("word_key")
+  senseKey       String                   @map("sense_key")
+  meaning        String
+  phonetic       String?
+  partOfSpeech   String?                  @map("part_of_speech")
+  definition     String?
+  status         VocabularyProgressStatus @default(LEARNING)
+  reviewCount    Int                      @default(0) @map("review_count")
+  correctCount   Int                      @default(0) @map("correct_count")
+  streak         Int                      @default(0)
+  lapses         Int                      @default(0)
+  intervalDays   Int                      @default(0) @map("interval_days")
+  easeFactor     Float                    @default(2.5) @map("ease_factor")
+  nextReviewAt   DateTime                 @default(now()) @map("next_review_at")
+  lastReviewedAt DateTime?                @map("last_reviewed_at")
+  lastReviewRequestId String?             @map("last_review_request_id")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  sources        SavedVocabularySource[]
+
+  @@unique([userId, wordKey, senseKey])
+  @@index([userId, nextReviewAt])
+  @@index([userId, status])
+  @@map("saved_vocabulary_words")
+}
+
+model SavedVocabularySource {
+  id                  String              @id @default(uuid())
+  wordId              String              @map("word_id")
+  word                SavedVocabularyWord @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  sourceKey           String              @map("source_key")
+  sourceType          String              @map("source_type")
+  sourceId            String              @map("source_id")
+  title               String
+  sentence            String
+  sentenceTranslation String              @map("sentence_translation")
+  startTime           Float               @map("start_time")
+  endTime             Float               @map("end_time")
+  createdAt           DateTime            @default(now()) @map("created_at")
+
+  @@unique([wordId, sourceKey])
+  @@index([sourceType, sourceId])
+  @@map("saved_vocabulary_sources")
 }
 
 model SpeakingScenario {

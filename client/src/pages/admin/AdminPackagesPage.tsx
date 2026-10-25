@@ -241,25 +241,15 @@ export default function AdminPackagesPage() {
       if (editExpiresLocal.trim() && Number.isNaN(new Date(editExpiresLocal).getTime())) {
         throw new Error('Ngày hết hạn không hợp lệ');
       }
-      const updated = await api.updateAdminUserPremium(userId, {
+      await api.updateAdminUserPremium(userId, {
         premiumExpiresAt,
         packageId: subscribersPkg?.id,
         isPremium: true,
       });
       invalidateAdminUsersCache();
       invalidateAdminOverviewCache();
-      setSubscribers((prev) =>
-        prev.map((item) =>
-          item.id === userId
-            ? {
-                ...item,
-                isPremium: updated.isPremium,
-                packageName: updated.packageName ?? item.packageName,
-                expiresAt: updated.expiresAt,
-              }
-            : item,
-        ),
-      );
+      if (subscribersPkg) await openSubscribers(subscribersPkg);
+      await loadPackages(false, true);
       setEditingUserId(null);
       setEditExpiresLocal('');
     } catch (err) {
@@ -276,23 +266,15 @@ export default function AdminPackagesPage() {
     setSubscribersError('');
     try {
       const nextIso = addDaysIso(user.expiresAt, days);
-      const updated = await api.updateAdminUserPremium(user.id, {
+      await api.updateAdminUserPremium(user.id, {
         premiumExpiresAt: nextIso,
         packageId: subscribersPkg?.id,
         isPremium: true,
       });
       invalidateAdminUsersCache();
       invalidateAdminOverviewCache();
-      setSubscribers((prev) =>
-        prev.map((item) =>
-          item.id === user.id
-            ? { ...item, expiresAt: updated.expiresAt, isPremium: updated.isPremium }
-            : item,
-        ),
-      );
-      if (editingUserId === user.id) {
-        setEditExpiresLocal(toDatetimeLocalValue(updated.expiresAt));
-      }
+      if (subscribersPkg) await openSubscribers(subscribersPkg);
+      await loadPackages(false, true);
     } catch (err) {
       setSubscribersError(
         err instanceof Error ? err.message : 'Không gia hạn được',
@@ -500,7 +482,7 @@ export default function AdminPackagesPage() {
                 <th className="p-4 font-medium">Tên gói</th>
                 <th className="p-4 font-medium">Giá (VNĐ)</th>
                 <th className="p-4 font-medium">Thời hạn</th>
-                <th className="p-4 font-medium">Người dùng</th>
+                <th className="p-4 font-medium">VIP còn hiệu lực</th>
                 <th className="p-4 font-medium">Trạng thái</th>
                 <th className="p-4 font-medium">Thao tác</th>
               </tr>
@@ -794,7 +776,7 @@ export default function AdminPackagesPage() {
             <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-lg font-bold text-gray-900">
-                  Người dùng đăng ký · {subscribersPkg?.name ?? 'Gói'}
+                  Người dùng VIP còn hiệu lực · {subscribersPkg?.name ?? 'Gói'}
                 </h3>
                 <p className="text-sm text-gray-500 mt-0.5">
                   {subscribersLoading
@@ -844,7 +826,7 @@ export default function AdminPackagesPage() {
                   ) : subscribers.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="px-5 py-10 text-center text-gray-400">
-                        Chưa có người dùng đăng ký gói này
+                        Không có người dùng còn hạn VIP của gói này
                       </td>
                     </tr>
                   ) : (

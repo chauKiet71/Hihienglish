@@ -18,6 +18,7 @@ const platform_express_1 = require("@nestjs/platform-express");
 const current_user_decorator_1 = require("../auth/current-user.decorator");
 const guest_identity_service_1 = require("../auth/guest-identity.service");
 const optional_jwt_auth_guard_1 = require("../auth/optional-jwt-auth.guard");
+const create_video_translate_dto_1 = require("./dto/create-video-translate.dto");
 const video_translate_service_1 = require("./video-translate.service");
 const MAX_UPLOAD_BYTES = 120 * 1024 * 1024;
 let VideoTranslateController = class VideoTranslateController {
@@ -39,12 +40,18 @@ let VideoTranslateController = class VideoTranslateController {
         const userId = await this.guestIdentity.resolveUserId(user, guestToken);
         return this.videoTranslateService.getJob(userId, id);
     }
-    async createJob(user, guestToken, file) {
-        if (!file?.buffer?.length) {
-            throw new common_1.BadRequestException('Hãy chọn file video hoặc audio để dịch');
+    async createJob(user, guestToken, dto, file) {
+        const url = dto?.url?.trim();
+        if (!file?.buffer?.length && !url) {
+            throw new common_1.BadRequestException('Hãy dán link YouTube hoặc chọn file video/audio để dịch');
         }
         const userId = await this.guestIdentity.resolveUserId(user, guestToken);
-        return this.videoTranslateService.createJobFromUpload(userId, file);
+        if (file?.buffer?.length) {
+            return this.videoTranslateService.createJobFromUpload(userId, file);
+        }
+        if (url)
+            return this.videoTranslateService.createJob(userId, url);
+        throw new common_1.BadRequestException('Thiếu nguồn video để dịch');
     }
     async deleteJob(user, guestToken, id) {
         const userId = await this.guestIdentity.resolveUserId(user, guestToken);
@@ -84,9 +91,10 @@ __decorate([
     })),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __param(1, (0, common_1.Headers)('x-guest-token')),
-    __param(2, (0, common_1.UploadedFile)()),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, create_video_translate_dto_1.CreateVideoTranslateDto, Object]),
     __metadata("design:returntype", Promise)
 ], VideoTranslateController.prototype, "createJob", null);
 __decorate([

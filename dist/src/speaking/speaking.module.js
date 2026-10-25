@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SpeakingModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_module_1 = require("../auth/auth.module");
+const iflytek_pronunciation_service_1 = require("./iflytek-pronunciation.service");
 const speaking_controller_1 = require("./speaking.controller");
 const speaking_service_1 = require("./speaking.service");
 let SpeakingModule = class SpeakingModule {
@@ -18,7 +19,7 @@ exports.SpeakingModule = SpeakingModule = __decorate([
     (0, common_1.Module)({
         imports: [auth_module_1.AuthModule],
         controllers: [speaking_controller_1.SpeakingController],
-        providers: [speaking_service_1.SpeakingService],
+        providers: [iflytek_pronunciation_service_1.IflytekPronunciationService, speaking_service_1.SpeakingService],
     })
 ], SpeakingModule);
 //# sourceMappingURL=speaking.module.js.map

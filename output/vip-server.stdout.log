@@ -1,0 +1,104 @@
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [DatabaseSync] AUTO_SYNC_DB=false — bỏ qua đồng bộ schema
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [NestFactory] Starting Nest application... +9ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] PassportModule dependencies initialized +13ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] AppModule dependencies initialized +9ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] ConfigModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] ServeStaticModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] PrismaModule dependencies initialized +2ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] CloudinaryModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] MailModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] JwtModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] ShadowingModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] UsersModule dependencies initialized +2ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] CategoriesModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] PackagesModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] PaymentsModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] LessonsModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] ChatModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] VocabularyModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] AdminModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] VideoTranslateModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] SpeakingModule dependencies initialized +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [InstanceLoader] AuthModule dependencies initialized +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] AppController {/api}: +21ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/health, GET} route +2ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] AuthController {/api/auth}: +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/register, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/login, POST} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/google, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/google/callback, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/me, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/avatar, PATCH} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/forgot-password, POST} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/resend-reset-code, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/verify-reset-code, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/auth/reset-password, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] UsersController {/api/users}: +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/users/stats, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/users, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/users/:id, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] LessonsController {/api/lessons}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/access, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/access/:lessonId, PUT} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/stats, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/history, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/history, PUT} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/favorites, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/favorites/:lessonId, PUT} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/me/favorites/:lessonId, DELETE} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/history/:userId, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/history/:userId/stats, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/lessons/:id, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] CategoriesController {/api/categories}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/categories, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/categories/popular, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] PackagesController {/api/packages}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/packages, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/packages/:id, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/packages, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/packages/:id, PUT} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/packages/:id, DELETE} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] PaymentsController {/api/payments}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/payments/orders, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/payments/orders/:id, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/payments/webhooks/sepay, POST} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] ChatController {/api/chat}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/chat/quota, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/chat/conversations, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/chat/conversations/:id/messages, POST} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] VocabularyController {/api/vocabulary}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/overview, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sessions/learn, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sessions/review, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sets, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sets/:id, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sets/:id/save, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/sets/:id/save, DELETE} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/words/learn, POST} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/words/lookup, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/vocabulary/words/:id/review, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] SpeakingController {/api/speaking}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/scenarios, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/quota, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/history, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/sessions, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/translate, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/sessions/:id, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/sessions/:id/turns, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/speaking/sessions/:id/complete, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] VideoTranslateController {/api/video-translate}: +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/video-translate/quota, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/video-translate/jobs, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/video-translate/jobs/:id, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/video-translate/jobs, POST} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/video-translate/jobs/:id, DELETE} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RoutesResolver] AdminController {/api/admin}: +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/overview, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/stats, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/packages/:id/subscribers, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/users/:id/premium, PATCH} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/transactions/stats, GET} route +1ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [RouterExplorer] Mapped {/api/admin/transactions, GET} route +0ms
+[Nest] 13644  - 09/12/2026, 10:48:22 AM     LOG [NestApplication] Nest application successfully started +60ms

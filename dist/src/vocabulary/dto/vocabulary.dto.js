@@ -9,16 +9,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReviewVocabularyWordDto = exports.LearnVocabularyWordDto = void 0;
+exports.ReviewVocabularyWordDto = exports.LearnVocabularyWordDto = exports.LookupVocabularyWordDto = void 0;
 const class_validator_1 = require("class-validator");
+class LookupVocabularyWordDto {
+    word;
+    sentence;
+    sentenceTranslation;
+}
+exports.LookupVocabularyWordDto = LookupVocabularyWordDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(1),
+    (0, class_validator_1.MaxLength)(64),
+    __metadata("design:type", String)
+], LookupVocabularyWordDto.prototype, "word", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(1),
+    (0, class_validator_1.MaxLength)(500),
+    __metadata("design:type", String)
+], LookupVocabularyWordDto.prototype, "sentence", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(500),
+    __metadata("design:type", String)
+], LookupVocabularyWordDto.prototype, "sentenceTranslation", void 0);
 class LearnVocabularyWordDto {
     wordId;
+    correct;
 }
 exports.LearnVocabularyWordDto = LearnVocabularyWordDto;
 __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], LearnVocabularyWordDto.prototype, "wordId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], LearnVocabularyWordDto.prototype, "correct", void 0);
 class ReviewVocabularyWordDto {
     correct;
 }

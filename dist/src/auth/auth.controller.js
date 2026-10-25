@@ -40,7 +40,24 @@ let AuthController = class AuthController {
     }
     googleAuthCallback(req, res) {
         const token = req.user.accessToken;
-        return res.redirect(`/xac-thuc-google?token=${encodeURIComponent(token)}`);
+        const state = typeof req.query?.state === 'string' ? req.query.state : '';
+        let redirect = '/xac-thuc-google';
+        if (state) {
+            try {
+                const decoded = Buffer.from(state, 'base64url').toString('utf8');
+                const url = new URL(decoded);
+                const hostOk = url.hostname === 'localhost' ||
+                    url.hostname === '127.0.0.1' ||
+                    url.hostname.endsWith('hihienglish.com');
+                if (hostOk && url.pathname.startsWith('/xac-thuc-google')) {
+                    redirect = decoded;
+                }
+            }
+            catch {
+            }
+        }
+        const separator = redirect.includes('?') ? '&' : '?';
+        return res.redirect(`${redirect}${separator}token=${encodeURIComponent(token)}`);
     }
     me(user) {
         return this.authService.getProfile(user.id);

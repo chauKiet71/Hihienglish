@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   padding: 34px 34px 40px;
-  overflow: hidden;
+  overflow: clip;
   border: 1px solid rgba(255, 255, 255, 0.92);
   border-radius: 36px;
   color: var(--account-navy);
@@ -40,6 +40,10 @@
 }
 
 .account-auth-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff;
   min-height: 44px;
   display: grid;
   grid-template-columns: 46px 1fr 46px;
@@ -487,9 +491,7 @@
   .account-auth-card--register {
     width: 100%;
     min-height: 100svh;
-    padding:
-      max(24px, env(safe-area-inset-top))
-      24px
+    padding: max(24px, env(safe-area-inset-top)) 24px
       max(30px, env(safe-area-inset-bottom));
     border: 0;
     border-radius: 0;

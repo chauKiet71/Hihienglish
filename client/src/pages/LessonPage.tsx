@@ -32,6 +32,8 @@ import { useShadowing } from '../hooks/useShadowing';
 import { ApiError, api, type VocabularyLookupDetail } from '../lib/api';
 import { resolveLessonPhonetics } from '../lib/phonetic';
 import { speakEnglishText } from '../lib/speech';
+import { scrollSentenceIntoView } from '../lib/transcriptScroll';
+import { lookupInSource, saveLookedUpWord } from '../lib/savedVocabulary';
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5] as const;
 const VIDEO_CONTROLS_VISIBLE_MS = 2000;
@@ -41,6 +43,8 @@ type LessonWordLookupContext = {
   word: string;
   sentence: string;
   sentenceTranslation: string;
+  startTime: number;
+  endTime: number;
 };
 
 function cleanVocabularyToken(value: string) {
@@ -135,65 +139,27 @@ function speakSentence(text: string, playbackRate: PlaybackRate) {
   speakEnglishText(text, playbackRate);
 }
 
-/** Cố định câu active ở đầu vùng transcript — chừa vài px để không cắt border trên */
-const ACTIVE_SENTENCE_SLOT_TOP = 6;
-const TRANSCRIPT_SCROLL_DURATION_MS = 360;
-
-function easeInOutCubic(progress: number) {
-  return progress < 0.5
-    ? 4 * progress * progress * progress
-    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-}
-
-function scrollSentenceIntoView(
-  container: HTMLElement,
-  element: HTMLElement,
-  behavior: ScrollBehavior = 'smooth',
-): () => void {
-  const containerRect = container.getBoundingClientRect();
-  const elementRect = element.getBoundingClientRect();
-  const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
-  const targetTop = offsetTop - ACTIVE_SENTENCE_SLOT_TOP;
-  const maxScroll = Math.max(
-    0,
-    container.scrollHeight - container.clientHeight,
-  );
-  const clampedTargetTop = Math.min(maxScroll, Math.max(0, targetTop));
-
-  if (behavior !== 'smooth') {
-    container.scrollTo({ top: clampedTargetTop, behavior: 'auto' });
-    return () => undefined;
-  }
-
-  const startTop = container.scrollTop;
-  const distance = clampedTargetTop - startTop;
-  if (Math.abs(distance) < 1) return () => undefined;
-
-  const startedAt = performance.now();
-  let animationFrame = 0;
-
-  const animate = (now: number) => {
-    const progress = Math.min(
-      (now - startedAt) / TRANSCRIPT_SCROLL_DURATION_MS,
-      1,
-    );
-    container.scrollTop = startTop + distance * easeInOutCubic(progress);
-
-    if (progress < 1) {
-      animationFrame = requestAnimationFrame(animate);
-    }
-  };
-
-  animationFrame = requestAnimationFrame(animate);
-  return () => cancelAnimationFrame(animationFrame);
-}
-
 export default function LessonPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const replayStartRef = useRef<number | null>(null);
+  const replayEndRef = useRef<number | null>(null);
   const { user } = useAuth();
   const lesson = useMemo(() => (id ? getLessonById(id) : undefined), [id]);
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const start = params.has('t') ? Number(params.get('t')) : NaN;
+    const end = Number(params.get('end'));
+    replayStartRef.current = Number.isFinite(start) && start >= 0 && start < (lesson?.duration ?? 0) ? start : null;
+    replayEndRef.current = Number.isFinite(end) && end > start ? end : null;
+    const media = audioRef.current;
+    if (media && media.readyState >= 1 && replayStartRef.current !== null) {
+      media.currentTime = replayStartRef.current;
+      replayStartRef.current = null;
+      void media.play().catch(() => setIsPlaying(false));
+    }
+  }, [location.search, lesson?.id]);
   const {
     canAccess,
     locked,
@@ -493,6 +459,9 @@ export default function LessonPage() {
     };
 
     const onTimeUpdate = () => {
+      if (replayEndRef.current !== null && audio.currentTime >= replayEndRef.current) {
+        audio.currentTime = replayEndRef.current; audio.pause(); replayEndRef.current = null;
+      }
       syncPlaybackPosition();
       saveListeningProgress();
     };
@@ -531,6 +500,7 @@ export default function LessonPage() {
       setIsPlaying(false);
     };
     const onLoadedMetadata = () => {
+      if (replayStartRef.current !== null) { audio.currentTime = replayStartRef.current; replayStartRef.current = null; }
       syncDuration();
       syncPlaybackPosition();
       audio.playbackRate = playbackRate;
@@ -725,7 +695,7 @@ export default function LessonPage() {
 
     try {
       const detail = await api.lookupVocabularyWord(context);
-      if (wordLookupRequestRef.current === requestId) setWordDetail(detail);
+      if (wordLookupRequestRef.current === requestId && lesson) setWordDetail(lookupInSource(detail, { type: 'lesson', id: lesson.id, startTime: context.startTime, endTime: context.endTime }));
     } catch (error) {
       if (wordLookupRequestRef.current !== requestId) return;
       setWordDetailError(
@@ -749,6 +719,8 @@ export default function LessonPage() {
       word,
       sentence: sentence.english,
       sentenceTranslation: sentence.vietnamese,
+      startTime: sentence.time_start,
+      endTime: sentence.time_end,
     });
   };
 
@@ -771,7 +743,7 @@ export default function LessonPage() {
   };
 
   const saveWordDetail = async () => {
-    if (!wordDetail || wordDetail.progress || wordDetailSaving) return;
+    if (!wordDetail || !wordLookupContext || !lesson || wordDetail.savedWordId || wordDetailSaving) return;
     if (!user) {
       void navigate('/dang-nhap', {
         state: { from: location.pathname },
@@ -779,20 +751,23 @@ export default function LessonPage() {
       return;
     }
 
+    const version = wordLookupRequestRef.current;
     setWordDetailSaving(true);
     try {
-      const progress = await api.learnVocabularyWord(wordDetail.id);
+      const saved = await saveLookedUpWord(wordDetail, { type: 'lesson', id: lesson.id, startTime: wordLookupContext.startTime, endTime: wordLookupContext.endTime });
+      if (version !== wordLookupRequestRef.current) return;
       setWordDetail((current) =>
-        current ? { ...current, progress } : current,
+        current ? { ...current, progress: saved, savedWordId: saved.id } : current,
       );
     } catch (error) {
+      if (version !== wordLookupRequestRef.current) return;
       setWordDetailError(
         error instanceof ApiError
           ? error.message
           : 'Không thể lưu từ vựng lúc này.',
       );
     } finally {
-      setWordDetailSaving(false);
+      if (version === wordLookupRequestRef.current) setWordDetailSaving(false);
     }
   };
 
@@ -894,7 +869,13 @@ export default function LessonPage() {
         <h1 className="min-w-0 font-semibold text-gray-900 text-sm truncate text-center px-1">
           {lesson.title}
         </h1>
-        <div className="w-7 flex-shrink-0" aria-hidden />
+        <button
+          type="button"
+          onClick={() => { audioRef.current?.pause(); void navigate(`/bai-hoc/${lesson.id}/luyen-tap`); }}
+          className="shrink-0 rounded-lg bg-emerald-50 px-2 py-1.5 text-xs font-semibold text-emerald-700"
+        >
+          Luyện tập
+        </button>
       </div>
 
       <div className="flex-shrink-0 z-10 bg-gray-50 px-0 mb-3">

@@ -47,7 +47,7 @@ const SETS: VocabularySeedSet[] = [
   FINANCE_VOCABULARY_SET,
 ];
 
-const LISTENING_WORDS_SET_SLUG = 'tu-vung-tu-bai-nghe';
+import { vocabularyKey, vocabularySenseKey } from './vocabulary-key';
 
 type GeneratedWordDetail = {
   word: string;
@@ -402,8 +402,15 @@ export class VocabularyService {
     };
   }
 
+  private async withSavedWord<T extends { word: string; meaning: string }>(userId: string | undefined, detail: T) {
+    const saved = userId ? await this.prisma.savedVocabularyWord.findUnique({
+      where: { userId_wordKey_senseKey: { userId, wordKey: vocabularyKey(detail.word), senseKey: vocabularySenseKey(detail.meaning) } },
+      include: { sources: { select: { sourceKey: true } } },
+    }) : null;
+    return { ...detail, savedWordId: saved?.id ?? null, savedSourceKeys: saved?.sources.map((source) => source.sourceKey) ?? [], progress: saved ? this.publicProgress(saved) : null };
+  }
+
   async lookupWord(userId: string | undefined, input: LookupVocabularyWordDto) {
-    await this.ensureCatalog();
     const requestedWord = this.normalizeLookupWord(input.word);
     if (!requestedWord) {
       throw new BadRequestException('Từ cần tra cứu không hợp lệ');
@@ -440,7 +447,7 @@ export class VocabularyService {
         }
       }
 
-      return {
+      return this.withSavedWord(userId, {
         id: existing.id,
         requestedWord,
         word: existing.word,
@@ -454,9 +461,8 @@ export class VocabularyService {
         audioUrl: existing.audioUrl,
         synonyms: enriched?.synonyms ?? [],
         relatedWords: enriched?.relatedWords ?? [],
-        progress: existing.progress[0] ?? null,
         source: 'catalog' as const,
-      };
+      });
     }
 
     const generated = await this.getGeneratedWordDetail(
@@ -464,54 +470,13 @@ export class VocabularyService {
       requestedWord,
       input,
     );
-    const set = await this.prisma.vocabularySet.upsert({
-      where: { slug: LISTENING_WORDS_SET_SLUG },
-      create: {
-        slug: LISTENING_WORDS_SET_SLUG,
-        title: 'Từ vựng từ bài nghe',
-        description: 'Những từ bạn đã tra cứu trong các bài luyện nghe.',
-        icon: 'headphones',
-        color: 'violet',
-        cefrLevel: CefrLevel.A2,
-        topic: 'Bài nghe',
-        isFeatured: false,
-        sortOrder: 999,
-      },
-      update: {},
-    });
-
-    const storedWord = await this.prisma.vocabularyWord.upsert({
-      where: {
-        setId_word: {
-          setId: set.id,
-          word: generated.word,
-        },
-      },
-      create: {
-        setId: set.id,
-        word: generated.word,
-        phonetic: generated.phonetic,
-        meaning: generated.meaning,
-        example: generated.example,
-        exampleTranslation: generated.exampleTranslation,
-        sortOrder: 0,
-      },
-      update: {
-        phonetic: generated.phonetic,
-        meaning: generated.meaning,
-        example: generated.example,
-        exampleTranslation: generated.exampleTranslation,
-      },
-    });
-
-    return {
-      id: storedWord.id,
+    return this.withSavedWord(userId, {
+      id: `lookup-${vocabularySenseKey(cacheKey)}`,
       requestedWord,
       ...generated,
-      audioUrl: storedWord.audioUrl,
-      progress: null,
+      audioUrl: null,
       source: 'generated' as const,
-    };
+    });
   }
 
   private async getGeneratedWordDetail(

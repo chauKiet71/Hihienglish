@@ -3,10 +3,14 @@ import {
   useEffect,
   useCallback,
   type ReactNode,
+  type HTMLAttributes,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 
-interface HorizontalScrollProps {
+interface HorizontalScrollProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'onMouseDown' | 'onMouseEnter' | 'onMouseLeave' | 'onClickCapture'
+> {
   children: ReactNode;
   className?: string;
   visibleItems?: number;
@@ -24,6 +28,7 @@ export default function HorizontalScroll({
   autoPlayInterval = 3000,
   hideScrollbar = false,
   startAtBeginning = false,
+  ...scrollerProps
 }: HorizontalScrollProps) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef({
@@ -79,9 +84,31 @@ export default function HorizontalScroll({
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      if (
+        e.ctrlKey ||
+        !e.cancelable ||
+        Math.abs(e.deltaY) <= Math.abs(e.deltaX)
+      )
+        return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (
+        maxScroll <= 1 ||
+        (e.deltaY < 0 && el.scrollLeft <= 1) ||
+        (e.deltaY > 0 && el.scrollLeft >= maxScroll - 1)
+      )
+        return;
+
+      const unit =
+        e.deltaMode === 1
+          ? parseFloat(window.getComputedStyle(el).lineHeight) || 16
+          : e.deltaMode === 2
+            ? el.clientWidth
+            : 1;
       e.preventDefault();
-      el.scrollLeft += e.deltaY;
+      el.scrollLeft = Math.max(
+        0,
+        Math.min(maxScroll, el.scrollLeft + e.deltaY * unit),
+      );
     };
 
     el.addEventListener('wheel', onWheel, { passive: false });
@@ -173,6 +200,7 @@ export default function HorizontalScroll({
 
   return (
     <div
+      {...scrollerProps}
       ref={ref}
       className={`scroll-x scroll-x-interactive ${hideScrollbar ? 'scroll-x-hidden no-scrollbar' : ''} ${className}`}
       onMouseDown={onMouseDown}

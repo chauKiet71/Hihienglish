@@ -128,4 +128,17 @@ export declare const SPEAKING_SCENARIOS: readonly [{
     readonly maxLevel: "B2";
     readonly openingHint: "Trả lời điện thoại chuyên nghiệp và hỏi bạn có thể giúp gì.";
     readonly sortOrder: 10;
-}];
+}, ...{
+    slug: string;
+    title: string;
+    description: string;
+    icon: string;
+    color: string;
+    learnerRole: string;
+    aiRole: string;
+    objective: string;
+    minLevel: import("@prisma/client").$Enums.CefrLevel;
+    maxLevel: import("@prisma/client").$Enums.CefrLevel;
+    openingHint: string;
+    sortOrder: number;
+}[]];

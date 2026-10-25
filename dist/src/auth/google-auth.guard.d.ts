@@ -5,5 +5,12 @@ export declare class GoogleAuthGuard extends GoogleAuthGuard_base {
     private config;
     constructor(config: ConfigService);
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | import("rxjs").Observable<boolean>;
+    getAuthenticateOptions(context: ExecutionContext): {
+        scope: string[];
+        state: string;
+    } | {
+        scope: string[];
+        state?: undefined;
+    };
 }
 export {};

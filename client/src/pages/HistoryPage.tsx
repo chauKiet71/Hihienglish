@@ -9,6 +9,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import MobileLayout from '../components/MobileLayout';
+import StickyPageHeader from '../components/StickyPageHeader';
 import LessonLink from '../components/LessonLink';
 import {
   formatLastListened,
@@ -60,20 +61,19 @@ export default function HistoryPage() {
     const showHours = totalMinutes >= 60;
     return {
       lessonsListened: items.length,
-      listeningTime: showHours
-        ? Math.floor(totalSeconds / 3600)
-        : totalMinutes,
+      listeningTime: showHours ? Math.floor(totalSeconds / 3600) : totalMinutes,
       listeningTimeLabel: showHours ? 'Giờ đã nghe' : 'Phút đã nghe',
     };
   }, [items]);
 
   return (
     <MobileLayout>
-      <div className="px-4 pt-5">
-        <div className="flex items-center mb-4">
+      <StickyPageHeader className="px-4 pt-5 pb-4">
+        <div className="flex items-center">
           <h1 className="text-2xl font-bold text-gray-900">Lịch sử</h1>
         </div>
-
+      </StickyPageHeader>
+      <div className="px-4">
         <div className="flex gap-1 border-b border-gray-200 mb-4 -mx-4 px-4 overflow-x-auto no-scrollbar">
           {tabs.map((tab, i) => (
             <button
@@ -116,7 +116,10 @@ export default function HistoryPage() {
 
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-900">Danh sách lịch sử</h3>
-          <button type="button" className="flex items-center gap-1 text-sm text-gray-500">
+          <button
+            type="button"
+            className="flex items-center gap-1 text-sm text-gray-500"
+          >
             Mới nhất <ChevronDown size={14} />
           </button>
         </div>
@@ -145,7 +148,11 @@ export default function HistoryPage() {
                   />
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center">
-                      <Play size={12} className="text-primary ml-0.5" fill="currentColor" />
+                      <Play
+                        size={12}
+                        className="text-primary ml-0.5"
+                        fill="currentColor"
+                      />
                     </div>
                   </div>
                 </div>
@@ -173,7 +180,9 @@ export default function HistoryPage() {
                         : 'bg-purple-100 text-purple-700'
                     }`}
                   >
-                    {entry.status === 'COMPLETED' ? 'Đã hoàn thành' : 'Đang học'}
+                    {entry.status === 'COMPLETED'
+                      ? 'Đã hoàn thành'
+                      : 'Đang học'}
                   </span>
                   <p className="text-[10px] text-gray-400 mt-1">
                     {lesson.topic} • {formatLevelLabel(lesson.level)}
@@ -186,7 +195,9 @@ export default function HistoryPage() {
                           style={{ width: `${entry.progress}%` }}
                         />
                       </div>
-                      <span className="text-[10px] text-gray-400">{entry.progress}%</span>
+                      <span className="text-[10px] text-gray-400">
+                        {entry.progress}%
+                      </span>
                     </div>
                   )}
                   <div className="flex items-center gap-3 mt-1.5 text-[10px] text-gray-400">
@@ -194,7 +205,8 @@ export default function HistoryPage() {
                       <Clock size={10} /> {formatDuration(lesson.duration)}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar size={10} /> {formatLastListened(entry.lastListenedAt)}
+                      <Calendar size={10} />{' '}
+                      {formatLastListened(entry.lastListenedAt)}
                     </span>
                   </div>
                 </div>

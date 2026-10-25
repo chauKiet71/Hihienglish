@@ -4,6 +4,15 @@ export declare class CategoriesService {
     constructor(prisma: PrismaService);
     findAll(): Promise<{
         id: string;
+        name: string;
+        description: string;
+        icon: string;
+        iconColor: string;
+        imageUrl: string;
+        lessonCount: number;
+        isPopular: boolean;
+    }[] | {
+        id: string;
         createdAt: Date;
         name: string;
         description: string | null;
@@ -14,6 +23,15 @@ export declare class CategoriesService {
         isPopular: boolean;
     }[]>;
     findPopular(): Promise<{
+        id: string;
+        name: string;
+        description: string;
+        icon: string;
+        iconColor: string;
+        imageUrl: string;
+        lessonCount: number;
+        isPopular: boolean;
+    }[] | {
         id: string;
         createdAt: Date;
         name: string;

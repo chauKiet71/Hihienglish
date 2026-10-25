@@ -35,6 +35,10 @@ let SpeakingController = class SpeakingController {
         const userId = await this.guestIdentity.resolveUserId(user, guestToken);
         return this.speakingService.getQuota(userId);
     }
+    async getHistory(user, guestToken) {
+        const userId = await this.guestIdentity.resolveUserId(user, guestToken);
+        return this.speakingService.getHistory(userId);
+    }
     async createSession(user, guestToken, dto) {
         const userId = await this.guestIdentity.resolveUserId(user, guestToken);
         return this.speakingService.createSession(userId, dto.scenarioId, dto.level, dto.dialect);
@@ -76,6 +80,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], SpeakingController.prototype, "getQuota", null);
+__decorate([
+    (0, common_1.Get)('history'),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, common_1.Headers)('x-guest-token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], SpeakingController.prototype, "getHistory", null);
 __decorate([
     (0, common_1.Post)('sessions'),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),

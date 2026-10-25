@@ -8,7 +8,6 @@ import {
   Infinity,
   Subtitles,
   Bookmark,
-  Mic,
   Clapperboard,
   Sparkles,
   Shield,
@@ -25,7 +24,7 @@ import type { PackageRow } from '../lib/api';
 
 const features = [
   { icon: Infinity, label: 'Nghe không giới hạn', free: false, premium: true },
-  { icon: Mic, label: 'Luyện nói tình huống', free: 'limited', premium: true },
+  { icon: Headphones, label: 'Nghe Podcast từ 7 kênh YouTube', free: true, premium: true },
   { icon: Clapperboard, label: 'Dịch video YouTube', free: 'limited', premium: true },
   { icon: Subtitles, label: 'Phụ đề song ngữ', free: 'limited', premium: true },
   { icon: Bookmark, label: 'Lưu & Quản lý yêu thích', free: 'limited', premium: true },

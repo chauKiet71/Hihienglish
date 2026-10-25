@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoriesService = void 0;
 const common_1 = require("@nestjs/common");
+const content_catalog_1 = require("../catalog/content-catalog");
 const prisma_service_1 = require("../prisma/prisma.service");
 let CategoriesService = class CategoriesService {
     prisma;
@@ -18,11 +19,17 @@ let CategoriesService = class CategoriesService {
         this.prisma = prisma;
     }
     async findAll() {
+        const catalog = (0, content_catalog_1.listCatalogCategories)();
+        if (catalog.length > 0)
+            return catalog;
         return this.prisma.category.findMany({
             orderBy: { lessonCount: 'desc' },
         });
     }
     async findPopular() {
+        const catalog = (0, content_catalog_1.listCatalogCategories)(true);
+        if (catalog.length > 0)
+            return catalog;
         return this.prisma.category.findMany({
             where: { isPopular: true },
             orderBy: { lessonCount: 'desc' },

@@ -35,6 +35,41 @@ export declare class SpeakingController {
         isPremium: boolean;
         resetsAt: string;
     }>;
+    getHistory(user: {
+        id: string;
+    } | null, guestToken?: string): Promise<{
+        stats: {
+            totalSessions: number;
+            averageScore: number | null;
+            streakDays: number;
+            practicedTopics: number;
+        };
+        items: {
+            id: string;
+            level: import("@prisma/client").$Enums.CefrLevel;
+            dialect: import("@prisma/client").$Enums.SpeakingDialect;
+            status: import("@prisma/client").$Enums.SpeakingSessionStatus;
+            createdAt: Date;
+            completedAt: Date | null;
+            durationMs: number;
+            turnsSpoken: number;
+            averageOverall: number | null;
+            scenario: {
+                id: string;
+                description: string;
+                sortOrder: number;
+                icon: string;
+                title: string;
+                objective: string;
+                color: string;
+                slug: string;
+                learnerRole: string;
+                aiRole: string;
+                minLevel: import("@prisma/client").$Enums.CefrLevel;
+                maxLevel: import("@prisma/client").$Enums.CefrLevel;
+            };
+        }[];
+    }>;
     createSession(user: {
         id: string;
     } | null, guestToken: string | undefined, dto: CreateSpeakingSessionDto): Promise<{
@@ -65,6 +100,7 @@ export declare class SpeakingController {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -120,6 +156,7 @@ export declare class SpeakingController {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -152,6 +189,7 @@ export declare class SpeakingController {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
@@ -204,6 +242,7 @@ export declare class SpeakingController {
             transcript: string | null;
             suggestion: string | null;
             feedback: string | null;
+            correction: string | null;
             aiReply: string | null;
             scores: {
                 pronunciation: number | null;
