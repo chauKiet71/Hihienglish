@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { findPublicVideo, PUBLIC_VIDEOS } from '../catalog/public-videos';
+import { PodcastCatalogService } from './podcast-catalog.service';
 
 export interface PodcastPolicy {
   videoId: string;
@@ -24,13 +20,20 @@ export interface PodcastPlaybackAccess extends PodcastPolicy {
 
 @Injectable()
 export class PodcastAccessService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly catalog: PodcastCatalogService,
+  ) {}
 
   async getAccessMap(): Promise<Record<string, PodcastPolicy>> {
     const rows = await this.prisma.podcastAccess.findMany({
       select: { videoId: true, isPremium: true, previewSeconds: true },
     });
-    const ids = new Set(PUBLIC_VIDEOS.map((video) => video.id));
+    const ids = new Set(
+      (await this.catalog.list()).flatMap((channel) =>
+        channel.videos.map((video) => video.id),
+      ),
+    );
     return Object.fromEntries(
       rows
         .filter((row) => ids.has(row.videoId))
@@ -42,7 +45,7 @@ export class PodcastAccessService {
     videoId: string,
     viewer?: PodcastViewer | null,
   ): Promise<PodcastPlaybackAccess> {
-    const video = this.findVideo(videoId);
+    const video = await this.catalog.findVideo(videoId);
     const row = await this.prisma.podcastAccess.findUnique({
       where: { videoId },
       select: { videoId: true, isPremium: true, previewSeconds: true },
@@ -75,7 +78,7 @@ export class PodcastAccessService {
     isPremium: boolean,
     previewSeconds: number,
   ): Promise<PodcastPolicy> {
-    const video = this.findVideo(videoId);
+    const video = await this.catalog.findVideo(videoId, true);
     if (
       typeof isPremium !== 'boolean' ||
       !Number.isInteger(previewSeconds) ||
@@ -93,11 +96,5 @@ export class PodcastAccessService {
       update: { isPremium, previewSeconds },
       select: { videoId: true, isPremium: true, previewSeconds: true },
     });
-  }
-
-  private findVideo(videoId: string) {
-    const video = findPublicVideo(videoId);
-    if (!video) throw new NotFoundException('Không tìm thấy podcast này.');
-    return video;
   }
 }

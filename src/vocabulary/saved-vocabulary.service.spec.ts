@@ -2,6 +2,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { SavedVocabularyService } from './saved-vocabulary.service';
 import { vocabularySenseKey } from './vocabulary-key';
 import { PODCAST_CHANNELS } from '../catalog/podcast';
+import { findPublicVideo } from '../catalog/public-videos';
 
 jest.mock('../catalog/content-catalog', () => ({
   loadCatalogLessons: () => [
@@ -63,6 +64,13 @@ describe('personal saved vocabulary', () => {
     const service = new SavedVocabularyService(
       prisma as never,
       featured as never,
+      {
+        findVideo: async (id: string) => {
+          const video = findPublicVideo(id);
+          if (!video) throw new NotFoundException();
+          return video;
+        },
+      } as never,
     );
     return { service, prisma, featured };
   }

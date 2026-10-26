@@ -118,6 +118,65 @@ model User {
   @@map("users")
 }
 
+model PodcastChannel {
+  id                String             @id
+  youtubeChannelId  String             @unique @map("youtube_channel_id")
+  handle            String
+  name              String
+  url               String
+  description       String             @default("")
+  avatarUrl         String             @map("avatar_url")
+  uploadsPlaylistId String?            @map("uploads_playlist_id")
+  isVisible         Boolean            @default(true) @map("is_visible")
+  sortOrder         Int                @default(0) @map("sort_order")
+  lastSyncedAt      DateTime?          @map("last_synced_at")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at")
+  videos            PodcastVideo[]
+  imports           PodcastImportJob[]
+
+  @@map("podcast_channels")
+}
+
+model PodcastVideo {
+  id               String         @id
+  channelId        String         @map("channel_id")
+  channel          PodcastChannel @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  title            String
+  duration         Int
+  publishedAt      DateTime?      @map("published_at")
+  isVisible        Boolean        @default(true) @map("is_visible")
+  sortOrder        Int            @default(0) @map("sort_order")
+  transcriptStatus String         @default("PENDING") @map("transcript_status")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  @@index([channelId, sortOrder])
+  @@map("podcast_videos")
+}
+
+model PodcastImportJob {
+  id             String         @id @default(uuid())
+  channelId      String         @map("channel_id")
+  channel        PodcastChannel @relation(fields: [channelId], references: [id], onDelete: Restrict)
+  mode           String
+  requestedCount Int            @map("requested_count")
+  videoUrl       String?        @map("video_url")
+  status         String         @default("QUEUED")
+  scannedCount   Int            @default(0) @map("scanned_count")
+  candidatesJson Json           @default("[]") @map("candidates_json")
+  importedCount  Int            @default(0) @map("imported_count")
+  errorMessage   String?        @map("error_message")
+  leaseToken     String?        @map("lease_token")
+  leaseUntil     DateTime?      @map("lease_until")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  @@index([status, leaseUntil])
+  @@index([channelId, createdAt])
+  @@map("podcast_import_jobs")
+}
+
 model PodcastAccess {
   videoId        String   @id @map("video_id")
   isPremium      Boolean  @default(false) @map("is_premium")

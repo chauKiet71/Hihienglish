@@ -3,14 +3,21 @@ import { Play } from 'lucide-react';
 import HorizontalScroll from '../../components/HorizontalScroll';
 import {
   CHANNEL_PATH,
-  VOLKA_CHANNEL,
-  VOLKA_VIDEOS,
   videoLessonPath,
   videoThumbnail,
   videoTime,
 } from './catalog';
+import {
+  CatalogFeedback,
+  usePodcastCatalog,
+} from '../podcast/usePodcastCatalog';
 
 export default function FeaturedVideos() {
+  const catalog = usePodcastCatalog();
+  const channel = catalog.channels.find((item) => item.id === 'volka-english');
+  if (!channel) return <CatalogFeedback catalog={catalog} />;
+  const VOLKA_CHANNEL = channel;
+  const VOLKA_VIDEOS = channel.videos;
   return (
     <section className="mb-5 px-4" aria-labelledby="volka-videos-title">
       <div className="mb-3 flex items-center justify-between gap-3">

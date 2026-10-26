@@ -6,7 +6,10 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
-import { findPublicVideo } from '../../../src/catalog/public-videos';
+import {
+  CatalogFeedback,
+  usePodcastCatalog,
+} from '../features/podcast/usePodcastCatalog';
 import {
   ArrowLeft,
   BookOpen,
@@ -240,6 +243,7 @@ function formatRecentDate(value: string) {
 }
 
 export default function VideoTranslatePage() {
+  const podcastCatalog = usePodcastCatalog();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -974,7 +978,15 @@ export default function VideoTranslatePage() {
   const mediaIsAudio = isAudioMediaUrl(job?.mediaUrl);
   const visibleRecent = showAllRecent ? recent : recent.slice(0, 2);
   const publicVideo =
-    ready && job.youtubeVideoId ? findPublicVideo(job.youtubeVideoId) : null;
+    ready && job.youtubeVideoId
+      ? podcastCatalog.videos.find((video) => video.id === job.youtubeVideoId)
+      : null;
+  if (
+    ready &&
+    job.youtubeVideoId &&
+    (podcastCatalog.loading || podcastCatalog.error)
+  )
+    return <CatalogFeedback catalog={podcastCatalog} />;
   if (publicVideo) {
     const replay = new URLSearchParams();
     if (searchParams.has('t')) replay.set('t', searchParams.get('t')!);

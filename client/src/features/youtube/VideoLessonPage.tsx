@@ -25,15 +25,23 @@ import { usePodcastAccess } from '../podcast/usePodcastAccess';
 import PodcastPremiumDialog from '../podcast/PodcastPremiumDialog';
 import {
   CHANNEL_PATH,
-  VOLKA_VIDEOS,
   videoTime,
   videoFavoriteId,
   type VolkaVideo,
 } from './catalog';
+import {
+  CatalogFeedback,
+  usePodcastCatalog,
+} from '../podcast/usePodcastCatalog';
 
 export default function VideoLessonPage() {
+  const catalog = usePodcastCatalog();
   const { videoId } = useParams<{ videoId: string }>();
-  const video = VOLKA_VIDEOS.find((item) => item.id === videoId);
+  const video = catalog.channels
+    .find((channel) => channel.id === 'volka-english')
+    ?.videos.find((item) => item.id === videoId);
+  if (catalog.loading || (catalog.error && !video))
+    return <CatalogFeedback catalog={catalog} />;
   if (!video) {
     return (
       <main className="mx-auto max-w-lg px-5 py-16 text-center">

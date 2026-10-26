@@ -14,17 +14,22 @@ exports.FeaturedVideoService = void 0;
 const common_1 = require("@nestjs/common");
 const fs_1 = require("fs");
 const path_1 = require("path");
-const public_videos_1 = require("../catalog/public-videos");
+const podcast_catalog_service_1 = require("../podcast/podcast-catalog.service");
 const video_translate_service_1 = require("./video-translate.service");
 let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
     videoTranslate;
+    catalog;
     logger = new common_1.Logger(FeaturedVideoService_1.name);
     lessons = new Map();
-    constructor(videoTranslate) {
+    constructor(videoTranslate, catalog) {
         this.videoTranslate = videoTranslate;
+        this.catalog = catalog;
     }
-    getTranscript(id) {
-        this.findVideo(id);
+    async getTranscript(id) {
+        await this.catalog.findVideo(id);
+        return this.readTranscript(id);
+    }
+    readTranscript(id) {
         const existing = this.lessons.get(id);
         if (existing)
             return existing;
@@ -46,6 +51,7 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
                         errorMessage: null,
                     };
                     this.lessons.set(id, result);
+                    this.saveStatus(id, 'READY');
                     return result;
                 }
             }
@@ -54,9 +60,9 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
         }
         return { status: 'PENDING', segments: [], errorMessage: null };
     }
-    prepareTranscript(id) {
-        const video = this.findVideo(id);
-        const existing = this.getTranscript(id);
+    async prepareTranscript(id) {
+        const video = await this.catalog.findVideo(id);
+        const existing = this.readTranscript(id);
         if (existing.status === 'READY' || existing.status === 'PROCESSING')
             return existing;
         const state = {
@@ -65,6 +71,7 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
             errorMessage: null,
         };
         this.lessons.set(id, state);
+        await this.catalog.setTranscriptStatus(id, 'PROCESSING').catch(() => { });
         void (async () => {
             try {
                 const directory = (0, path_1.join)(process.cwd(), 'storage', 'featured-videos', id);
@@ -74,6 +81,7 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
                     throw new Error('Empty transcript');
                 (0, fs_1.writeFileSync)(this.cachePath(id), JSON.stringify(segments), 'utf8');
                 this.lessons.set(id, { status: 'READY', segments, errorMessage: null });
+                this.saveStatus(id, 'READY');
             }
             catch (error) {
                 this.logger.warn(`Featured video ${id}: ${error instanceof Error ? error.message : String(error)}`);
@@ -82,15 +90,13 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
                     segments: [],
                     errorMessage: 'Chưa tải được phụ đề song ngữ. Bạn có thể tiếp tục xem video hoặc thử lại.',
                 });
+                this.saveStatus(id, 'FAILED');
             }
         })();
         return state;
     }
-    findVideo(id) {
-        const video = (0, public_videos_1.findPublicVideo)(id);
-        if (!video)
-            throw new common_1.NotFoundException('Không tìm thấy bài học video');
-        return video;
+    saveStatus(id, status) {
+        void this.catalog.setTranscriptStatus(id, status).catch(() => { });
     }
     cachePath(id) {
         return (0, path_1.join)(process.cwd(), 'storage', 'featured-videos', id, 'transcript-v2.json');
@@ -99,6 +105,7 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
 exports.FeaturedVideoService = FeaturedVideoService;
 exports.FeaturedVideoService = FeaturedVideoService = FeaturedVideoService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [video_translate_service_1.VideoTranslateService])
+    __metadata("design:paramtypes", [video_translate_service_1.VideoTranslateService,
+        podcast_catalog_service_1.PodcastCatalogService])
 ], FeaturedVideoService);
 //# sourceMappingURL=featured-video.service.js.map

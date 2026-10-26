@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { FeaturedVideoService } from './featured-video.service';
-import { PODCAST_CHANNELS } from '../catalog/podcast';
+import { findPublicVideo } from '../catalog/public-videos';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
@@ -9,74 +9,74 @@ jest.mock('fs', () => ({
   readFileSync: jest.fn(),
   writeFileSync: jest.fn(),
 }));
-
-describe('FeaturedVideoService', () => {
+describe('FeaturedVideoService with database catalog', () => {
+  const id = 'ErP_AKE3riY';
   const segments = [{ start: 0, end: 2, en: 'Hello.', vi: 'Xin chào.' }];
   let prepare: jest.Mock;
+  let lookup: jest.Mock;
   let service: FeaturedVideoService;
-
   beforeEach(() => {
     jest.clearAllMocks();
     jest.mocked(existsSync).mockReturnValue(false);
     prepare = jest.fn().mockResolvedValue(segments);
-    service = new FeaturedVideoService({
-      prepareFeaturedTranscript: prepare,
-    } as never);
-  });
-
-  it('rejects IDs outside the public catalog before processing or reading storage', () => {
-    expect(() => service.prepareTranscript('../private')).toThrow(
-      NotFoundException,
+    lookup = jest.fn(async (videoId: string) => {
+      const video = findPublicVideo(videoId);
+      if (!video) throw new NotFoundException();
+      return video;
+    });
+    service = new FeaturedVideoService(
+      { prepareFeaturedTranscript: prepare } as never,
+      {
+        findVideo: lookup,
+        setTranscriptStatus: jest.fn().mockResolvedValue(undefined),
+      } as never,
     );
+  });
+  it('rejects an unknown or hidden video before reading storage or processing', async () => {
+    await expect(
+      service.prepareTranscript('../private'),
+    ).rejects.toBeInstanceOf(NotFoundException);
     expect(prepare).not.toHaveBeenCalled();
     expect(existsSync).not.toHaveBeenCalled();
   });
-
-  it('does not start paid processing from a GET request', () => {
-    expect(service.getTranscript('ErP_AKE3riY').status).toBe('PENDING');
+  it('does not start paid processing from GET', async () => {
+    expect((await service.getTranscript(id)).status).toBe('PENDING');
     expect(prepare).not.toHaveBeenCalled();
   });
-
-  it('allows the bundled podcast videos without processing them from GET requests', () => {
-    for (const channel of PODCAST_CHANNELS) {
-      for (const video of channel.videos) {
-        expect(service.getTranscript(video.id).status).toBe('PENDING');
-      }
-    }
-    expect(prepare).not.toHaveBeenCalled();
-  });
-
-  it('prepares and caches a podcast transcript using its actual duration', async () => {
-    const video = PODCAST_CHANNELS[0].videos[0];
-    expect(service.prepareTranscript(video.id).status).toBe('PROCESSING');
-    expect(prepare).toHaveBeenCalledWith(
-      video.id,
-      video.duration,
-      expect.stringContaining(video.id),
-    );
-    await Promise.resolve();
-    expect(service.getTranscript(video.id)).toEqual({
-      status: 'READY',
-      segments,
-      errorMessage: null,
+  it('accepts an imported video absent from the bundled catalog', async () => {
+    lookup.mockResolvedValue({
+      id: 'new-video01',
+      title: 'Imported',
+      duration: 37,
     });
-    service.prepareTranscript(video.id);
-    expect(prepare).toHaveBeenCalledTimes(1);
+    expect((await service.prepareTranscript('new-video01')).status).toBe(
+      'PROCESSING',
+    );
+    expect(prepare).toHaveBeenCalledWith(
+      'new-video01',
+      37,
+      expect.stringContaining('new-video01'),
+    );
+    expect((await service.getTranscript('new-video01')).segments).toEqual(
+      segments,
+    );
   });
-
-  it('shares concurrent requests and persists the completed transcript', async () => {
-    let complete!: (value: typeof segments) => void;
+  it('shares concurrent requests and persists the result', async () => {
+    let finish!: (value: typeof segments) => void;
     prepare.mockReturnValue(
       new Promise((resolve) => {
-        complete = resolve;
+        finish = resolve;
       }),
     );
-    const first = service.prepareTranscript('ErP_AKE3riY');
-    expect(service.prepareTranscript('ErP_AKE3riY')).toBe(first);
+    const [first, second] = await Promise.all([
+      service.prepareTranscript(id),
+      service.prepareTranscript(id),
+    ]);
+    expect(second).toBe(first);
     expect(prepare).toHaveBeenCalledTimes(1);
-    complete(segments);
+    finish(segments);
     await Promise.resolve();
-    expect(service.getTranscript('ErP_AKE3riY')).toEqual({
+    expect(await service.getTranscript(id)).toEqual({
       status: 'READY',
       segments,
       errorMessage: null,
@@ -86,36 +86,31 @@ describe('FeaturedVideoService', () => {
       JSON.stringify(segments),
       'utf8',
     );
-    service.prepareTranscript('ErP_AKE3riY');
+    await service.prepareTranscript(id);
     expect(prepare).toHaveBeenCalledTimes(1);
   });
-
-  it('reuses the disk cache after a server restart', () => {
+  it('reuses a valid disk cache after restart', async () => {
     jest.mocked(existsSync).mockReturnValue(true);
     jest.mocked(readFileSync).mockReturnValue(JSON.stringify(segments));
-    expect(service.prepareTranscript('ErP_AKE3riY').status).toBe('READY');
+    expect((await service.prepareTranscript(id)).status).toBe('READY');
     expect(prepare).not.toHaveBeenCalled();
   });
-
-  it('exposes failure and starts a new attempt only on an explicit retry', async () => {
+  it('exposes failure and retries on explicit preparation', async () => {
     prepare.mockRejectedValueOnce(new Error('Provider unavailable'));
-    service.prepareTranscript('ErP_AKE3riY');
+    await service.prepareTranscript(id);
     await Promise.resolve();
-    expect(service.getTranscript('ErP_AKE3riY').status).toBe('FAILED');
-    expect(prepare).toHaveBeenCalledTimes(1);
-    service.prepareTranscript('ErP_AKE3riY');
+    expect((await service.getTranscript(id)).status).toBe('FAILED');
+    await service.prepareTranscript(id);
     await Promise.resolve();
-    expect(service.getTranscript('ErP_AKE3riY').status).toBe('READY');
+    expect((await service.getTranscript(id)).status).toBe('READY');
     expect(prepare).toHaveBeenCalledTimes(2);
   });
-
-  it('regenerates an invalid cache instead of returning malformed timing', async () => {
+  it('regenerates malformed cached timing', async () => {
     jest.mocked(existsSync).mockReturnValue(true);
     jest
       .mocked(readFileSync)
       .mockReturnValue(JSON.stringify([{ ...segments[0], end: -1 }]));
-    expect(service.prepareTranscript('ErP_AKE3riY').status).toBe('PROCESSING');
-    await Promise.resolve();
-    expect(service.getTranscript('ErP_AKE3riY').segments).toEqual(segments);
+    expect((await service.prepareTranscript(id)).status).toBe('PROCESSING');
+    expect((await service.getTranscript(id)).segments).toEqual(segments);
   });
 });

@@ -82,6 +82,7 @@ export function prefetchAppFeatures(
     fetchActivePackages(),
     api.getLessonAccessMap(),
     api.getPodcastAccessMap(),
+    api.getPodcastCatalog(),
   ];
 
   if (authReady)

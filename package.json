@@ -29,6 +29,8 @@
     "test:video-import": "jest --config test/video-import/jest.config.cjs --runInBand",
     "test:prefetch": "jest --config test/prefetch/jest.config.cjs --runInBand",
     "test:podcast-premium": "jest --config test/podcast-premium/jest.config.cjs --runInBand",
+    "test:podcast-catalog:db": "node test/podcast-catalog/database.integration.mjs",
+    "db:podcast-catalog": "node scripts/apply-podcast-catalog.mjs",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

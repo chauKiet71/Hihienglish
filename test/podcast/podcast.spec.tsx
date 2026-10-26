@@ -1,3 +1,6 @@
+import { catalogFixture } from '../helpers/podcast-catalog';
+import { setCache } from '../../client/src/lib/prefetchCache';
+import { PageDataKeys } from '../../client/src/lib/pageDataCache';
 import {
   cleanup,
   fireEvent,
@@ -15,6 +18,7 @@ import SavedVideoLessons from '../../client/src/features/youtube/SavedVideoLesso
 
 jest.mock('../../client/src/lib/api', () => ({
   api: {
+    getPodcastCatalog: jest.fn(),
     getPodcastPlaybackAccess: jest.fn(),
     prepareFeaturedVideoTranscript: jest.fn(),
     getFeaturedVideoTranscript: jest.fn(),
@@ -73,6 +77,15 @@ beforeAll(() => {
   Element.prototype.scrollTo = jest.fn();
 });
 beforeEach(() => {
+  setCache(
+    PageDataKeys.podcastCatalog,
+    catalogFixture.filter((channel) => channel.id !== 'volka-english'),
+  );
+  jest
+    .mocked(api.getPodcastCatalog)
+    .mockResolvedValue(
+      catalogFixture.filter((channel) => channel.id !== 'volka-english'),
+    );
   jest
     .mocked(api.getPodcastPlaybackAccess)
     .mockImplementation(async (videoId) => ({

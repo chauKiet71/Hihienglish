@@ -15,9 +15,19 @@ beforeEach(() => {
     findMany: jest.fn().mockResolvedValue([policy]),
     upsert: jest.fn().mockImplementation(async ({ create }) => create),
   };
-  service = new PodcastAccessService({
-    podcastAccess: table,
-  } as unknown as PrismaService);
+  service = new PodcastAccessService(
+    {
+      podcastAccess: table,
+    } as unknown as PrismaService,
+    {
+      list: async () => [{ videos: PUBLIC_VIDEOS }],
+      findVideo: async (id: string) => {
+        const entry = PUBLIC_VIDEOS.find((item) => item.id === id);
+        if (!entry) throw new NotFoundException();
+        return entry;
+      },
+    } as never,
+  );
 });
 
 it.each([

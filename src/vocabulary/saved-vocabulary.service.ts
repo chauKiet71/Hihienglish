@@ -10,7 +10,7 @@ import {
   type SavedVocabularyWord,
 } from '@prisma/client';
 import { loadCatalogLessons } from '../catalog/content-catalog';
-import { findPublicVideo } from '../catalog/public-videos';
+import { PodcastCatalogService } from '../podcast/podcast-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FeaturedVideoService } from '../video-translate/featured-video.service';
 import {
@@ -32,6 +32,7 @@ export class SavedVocabularyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly featured: FeaturedVideoService,
+    private readonly catalog: PodcastCatalogService,
   ) {}
 
   private where(
@@ -154,11 +155,11 @@ export class SavedVocabularyService {
         }));
       }
     } else if (source.type === 'featured-video') {
-      const video = findPublicVideo(source.id);
+      const video = await this.catalog.findVideo(source.id);
       if (!video)
         throw new NotFoundException('Không tìm thấy bài học video nguồn.');
       title = video.title;
-      segments = this.featured.getTranscript(source.id).segments;
+      segments = (await this.featured.getTranscript(source.id)).segments;
     } else {
       const job = await this.prisma.videoTranslateJob.findFirst({
         where: { id: source.id, userId, status: 'READY' },
@@ -314,7 +315,7 @@ export class SavedVocabularyService {
     const query = `t=${source.startTime}&end=${source.endTime}`;
     const publicPath =
       source.sourceType === 'featured-video'
-        ? findPublicVideo(source.sourceId)?.lessonPath
+        ? (await this.catalog.findVideo(source.sourceId)).lessonPath
         : undefined;
     if (source.sourceType === 'featured-video' && !publicPath)
       throw new NotFoundException('Không tìm thấy bài học video nguồn.');

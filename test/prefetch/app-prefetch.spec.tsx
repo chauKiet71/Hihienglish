@@ -63,7 +63,7 @@ beforeEach(() => {
           ? list
           : path === '/video-translate/quota'
             ? quota
-            : path === '/packages'
+            : path === '/packages' || path === '/podcasts/catalog'
               ? []
               : {},
     );
@@ -93,6 +93,7 @@ it('starts on a direct vocabulary URL without blocking render or duplicating Str
     '/packages',
     '/lessons/access',
     '/podcasts/access',
+    '/podcasts/catalog',
     '/video-translate/jobs',
     '/video-translate/quota',
   ]) {
@@ -110,7 +111,7 @@ it('waits for authentication before loading private data, then pages reuse it', 
   >);
   const view = render(<AppDataPrefetch />);
   await flush();
-  expect(requests).toHaveLength(3);
+  expect(requests).toHaveLength(4);
   setToken('account-a');
   useAuth.mockReturnValue({ user: { id: 'a' }, loading: false } as ReturnType<
     typeof auth.useAuth

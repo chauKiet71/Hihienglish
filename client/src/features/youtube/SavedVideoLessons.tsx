@@ -1,20 +1,19 @@
 import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { videoThumbnail, videoTime } from './catalog';
-import {
-  findPublicVideo,
-  type PublicVideo,
-} from '../../../../src/catalog/public-videos';
+import { type PublicVideo } from '../../../../src/catalog/public-videos';
+import { usePodcastCatalog } from '../podcast/usePodcastCatalog';
 
 export default function SavedVideoLessons({
   videos,
 }: {
   videos: Array<Pick<PublicVideo, 'id' | 'title' | 'duration'>>;
 }) {
+  const catalog = usePodcastCatalog();
   return (
     <section aria-label="Video đã lưu" className="mt-3 grid grid-cols-2 gap-3">
       {videos.map((video) => {
-        const entry = findPublicVideo(video.id);
+        const entry = catalog.videos.find((item) => item.id === video.id);
         if (!entry) return null;
         return (
           <Link

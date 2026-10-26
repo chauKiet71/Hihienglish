@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SavedVocabularyService = void 0;
 const common_1 = require("@nestjs/common");
 const content_catalog_1 = require("../catalog/content-catalog");
-const public_videos_1 = require("../catalog/public-videos");
+const podcast_catalog_service_1 = require("../podcast/podcast-catalog.service");
 const prisma_service_1 = require("../prisma/prisma.service");
 const featured_video_service_1 = require("../video-translate/featured-video.service");
 const vocabulary_srs_1 = require("./vocabulary-srs");
@@ -20,9 +20,11 @@ const vocabulary_key_1 = require("./vocabulary-key");
 let SavedVocabularyService = class SavedVocabularyService {
     prisma;
     featured;
-    constructor(prisma, featured) {
+    catalog;
+    constructor(prisma, featured, catalog) {
         this.prisma = prisma;
         this.featured = featured;
+        this.catalog = catalog;
     }
     where(userId, query) {
         return {
@@ -126,11 +128,11 @@ let SavedVocabularyService = class SavedVocabularyService {
             }
         }
         else if (source.type === 'featured-video') {
-            const video = (0, public_videos_1.findPublicVideo)(source.id);
+            const video = await this.catalog.findVideo(source.id);
             if (!video)
                 throw new common_1.NotFoundException('Không tìm thấy bài học video nguồn.');
             title = video.title;
-            segments = this.featured.getTranscript(source.id).segments;
+            segments = (await this.featured.getTranscript(source.id)).segments;
         }
         else {
             const job = await this.prisma.videoTranslateJob.findFirst({
@@ -262,7 +264,7 @@ let SavedVocabularyService = class SavedVocabularyService {
         });
         const query = `t=${source.startTime}&end=${source.endTime}`;
         const publicPath = source.sourceType === 'featured-video'
-            ? (0, public_videos_1.findPublicVideo)(source.sourceId)?.lessonPath
+            ? (await this.catalog.findVideo(source.sourceId)).lessonPath
             : undefined;
         if (source.sourceType === 'featured-video' && !publicPath)
             throw new common_1.NotFoundException('Không tìm thấy bài học video nguồn.');
@@ -278,6 +280,7 @@ exports.SavedVocabularyService = SavedVocabularyService;
 exports.SavedVocabularyService = SavedVocabularyService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        featured_video_service_1.FeaturedVideoService])
+        featured_video_service_1.FeaturedVideoService,
+        podcast_catalog_service_1.PodcastCatalogService])
 ], SavedVocabularyService);
 //# sourceMappingURL=saved-vocabulary.service.js.map

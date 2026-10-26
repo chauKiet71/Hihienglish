@@ -27,14 +27,14 @@ let FeaturedVideoController = class FeaturedVideoController {
     }
     async getTranscript(id, user) {
         const access = await this.access.getPlaybackAccess(id, user);
-        const result = this.featuredVideos.getTranscript(id);
+        const result = await this.featuredVideos.getTranscript(id);
         return this.forViewer(result, access);
     }
     async prepareTranscript(id, user) {
         const access = await this.access.getPlaybackAccess(id, user);
         if (access.previewLimitSeconds === 0)
             return { status: 'READY', segments: [], errorMessage: null, access };
-        return this.forViewer(this.featuredVideos.prepareTranscript(id), access);
+        return this.forViewer(await this.featuredVideos.prepareTranscript(id), access);
     }
     forViewer(result, access) {
         return {

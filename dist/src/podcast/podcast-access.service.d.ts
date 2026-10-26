@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { PodcastCatalogService } from './podcast-catalog.service';
 export interface PodcastPolicy {
     videoId: string;
     isPremium: boolean;
@@ -16,9 +17,9 @@ export interface PodcastPlaybackAccess extends PodcastPolicy {
 }
 export declare class PodcastAccessService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly catalog;
+    constructor(prisma: PrismaService, catalog: PodcastCatalogService);
     getAccessMap(): Promise<Record<string, PodcastPolicy>>;
     getPlaybackAccess(videoId: string, viewer?: PodcastViewer | null): Promise<PodcastPlaybackAccess>;
     setAccess(videoId: string, isPremium: boolean, previewSeconds: number): Promise<PodcastPolicy>;
-    private findVideo;
 }

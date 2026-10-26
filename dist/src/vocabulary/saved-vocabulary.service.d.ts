@@ -1,11 +1,13 @@
 import { type SavedVocabularySource } from '@prisma/client';
+import { PodcastCatalogService } from '../podcast/podcast-catalog.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FeaturedVideoService } from '../video-translate/featured-video.service';
 import { ReviewSavedVocabularyDto, SaveVocabularyDto, SavedVocabularyQueryDto, VocabularySourceDto } from './dto/saved-vocabulary.dto';
 export declare class SavedVocabularyService {
     private readonly prisma;
     private readonly featured;
-    constructor(prisma: PrismaService, featured: FeaturedVideoService);
+    private readonly catalog;
+    constructor(prisma: PrismaService, featured: FeaturedVideoService, catalog: PodcastCatalogService);
     private where;
     private publicWord;
     list(userId: string, query?: SavedVocabularyQueryDto): Promise<{

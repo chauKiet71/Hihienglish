@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom';
 import HorizontalScroll from '../../components/HorizontalScroll';
-import { PODCAST_CHANNELS } from './catalog';
+import { CatalogFeedback, usePodcastCatalog } from './usePodcastCatalog';
 
 export default function PodcastHomePreview() {
+  const catalog = usePodcastCatalog();
+  const PODCAST_CHANNELS = catalog.channels.filter(
+    (channel) => channel.id !== 'volka-english',
+  );
   return (
     <section className="mb-6 px-4" aria-label="Podcast">
+      <CatalogFeedback catalog={catalog} />
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-bold text-gray-900 dark:text-white">Podcast</h2>
         <Link

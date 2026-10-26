@@ -1,3 +1,4 @@
+import { catalogFixture } from '../helpers/podcast-catalog';
 import {
   act,
   cleanup,
@@ -12,7 +13,11 @@ import { invalidateCacheByPrefix } from '../../client/src/lib/prefetchCache';
 import { PUBLIC_VIDEOS } from '../../src/catalog/public-videos';
 
 jest.mock('../../client/src/lib/api', () => ({
-  api: { getPodcastAccessMap: jest.fn(), setPodcastAccess: jest.fn() },
+  api: {
+    getPodcastAccessMap: jest.fn(),
+    setPodcastAccess: jest.fn(),
+    getAdminPodcastCatalog: jest.fn(),
+  },
 }));
 jest.mock('../../client/src/components/AdminLayout', () => ({
   __esModule: true,
@@ -25,6 +30,9 @@ beforeEach(() => {
   jest.clearAllMocks();
   invalidateCacheByPrefix('page-data:');
   jest.mocked(api.getPodcastAccessMap).mockResolvedValue({});
+  jest
+    .mocked(api.getAdminPodcastCatalog)
+    .mockResolvedValue({ channels: catalogFixture, youtubeConfigured: true });
 });
 afterEach(cleanup);
 async function open() {
@@ -32,6 +40,10 @@ async function open() {
     <MemoryRouter initialEntries={['/admin/content/podcasts']}>
       <AdminPodcastsPage />
     </MemoryRouter>,
+  );
+  await act(async () => {});
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Khóa Premium', exact: true }),
   );
   await act(async () => {});
   fireEvent.change(screen.getByRole('textbox', { name: 'Tìm podcast' }), {
@@ -48,13 +60,11 @@ const input = () =>
   });
 
 it('saves Premium and the configured preview time together', async () => {
-  jest
-    .mocked(api.setPodcastAccess)
-    .mockResolvedValue({
-      videoId: video.id,
-      isPremium: true,
-      previewSeconds: 120,
-    });
+  jest.mocked(api.setPodcastAccess).mockResolvedValue({
+    videoId: video.id,
+    isPremium: true,
+    previewSeconds: 120,
+  });
   await open();
   expect((save() as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(toggle());
@@ -111,11 +121,9 @@ it('does not offer editable default settings when the load failed', async () => 
 });
 
 it('filters Premium podcasts by committed settings', async () => {
-  jest
-    .mocked(api.getPodcastAccessMap)
-    .mockResolvedValue({
-      [video.id]: { videoId: video.id, isPremium: true, previewSeconds: 0 },
-    });
+  jest.mocked(api.getPodcastAccessMap).mockResolvedValue({
+    [video.id]: { videoId: video.id, isPremium: true, previewSeconds: 0 },
+  });
   await open();
   fireEvent.change(
     screen.getByRole('combobox', { name: 'Trạng thái Premium' }),

@@ -1,3 +1,6 @@
+import { catalogFixture } from '../helpers/podcast-catalog';
+import { setCache } from '../../client/src/lib/prefetchCache';
+import { PageDataKeys } from '../../client/src/lib/pageDataCache';
 import {
   fireEvent,
   render,
@@ -18,6 +21,7 @@ import { VOLKA_VIDEOS } from '../../client/src/features/youtube/catalog';
 
 jest.mock('../../client/src/lib/api', () => ({
   api: {
+    getPodcastCatalog: jest.fn(),
     getPodcastPlaybackAccess: jest.fn(),
     prepareFeaturedVideoTranscript: jest.fn(),
     getFeaturedVideoTranscript: jest.fn(),
@@ -65,6 +69,8 @@ const player = {
 };
 
 beforeEach(() => {
+  setCache(PageDataKeys.podcastCatalog, catalogFixture);
+  jest.mocked(api.getPodcastCatalog).mockResolvedValue(catalogFixture);
   jest.clearAllMocks();
   localStorage.clear();
   jest

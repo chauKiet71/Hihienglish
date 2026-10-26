@@ -12,7 +12,7 @@ import { useHistory } from '../contexts/HistoryContext';
 import { useAuth } from '../contexts/AuthContext';
 import SavedVideoLessons from '../features/youtube/SavedVideoLessons';
 import { videoFavoriteId } from '../features/youtube/catalog';
-import { PUBLIC_VIDEOS } from '../../../src/catalog/public-videos';
+import { usePodcastCatalog } from '../features/podcast/usePodcastCatalog';
 
 const filters = [
   { id: 'all', label: 'Tất cả', icon: null },
@@ -28,6 +28,7 @@ function normalizeSearchText(value: string) {
 }
 
 export default function ExplorePage() {
+  const { videos: PUBLIC_VIDEOS } = usePodcastCatalog();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeFilter, setActiveFilter] = useState('all');

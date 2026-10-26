@@ -3,12 +3,15 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import MobileLayout from '../../components/MobileLayout';
 import StickyPageHeader from '../../components/StickyPageHeader';
-import { PODCAST_CHANNELS, podcastChannelPath } from './catalog';
+import { podcastChannelPath } from './catalog';
+import { CatalogFeedback, usePodcastCatalog } from './usePodcastCatalog';
 import PodcastChannelRow from './PodcastChannelRow';
 import PodcastChannelList from './PodcastChannelList';
 import { VideoLesson } from '../youtube/VideoLessonPage';
 
 export default function PodcastPage() {
+  const catalog = usePodcastCatalog();
+  const PODCAST_CHANNELS = catalog.channels;
   const [searchParams] = useSearchParams();
   const { hash } = useLocation();
   const requestedChannelId = searchParams.get('channel');
@@ -26,7 +29,7 @@ export default function PodcastPage() {
       document.getElementById(channelId)?.scrollIntoView({ block: 'start' }),
     );
     return () => window.cancelAnimationFrame(frame);
-  }, [hash, selectedChannel]);
+  }, [hash, selectedChannel, PODCAST_CHANNELS]);
   const videoId = searchParams.get('v');
   const channel = requestedChannelId
     ? selectedChannel
@@ -41,6 +44,12 @@ export default function PodcastPage() {
         ? 'Video này không có trong danh sách. Hãy chọn một video bên dưới.'
         : null;
 
+  if (catalog.loading || (catalog.error && !PODCAST_CHANNELS.length))
+    return (
+      <MobileLayout>
+        <CatalogFeedback catalog={catalog} />
+      </MobileLayout>
+    );
   if (video && channel)
     return (
       <VideoLesson
@@ -57,6 +66,7 @@ export default function PodcastPage() {
 
   return (
     <MobileLayout>
+      <CatalogFeedback catalog={catalog} />
       {notice && (
         <p
           role="status"

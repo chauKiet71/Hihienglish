@@ -1,7 +1,7 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { findPublicVideo } from '../catalog/public-videos';
+import { PodcastCatalogService } from '../podcast/podcast-catalog.service';
 import {
   VideoTranslateService,
   type VideoSegment,
@@ -18,10 +18,17 @@ export class FeaturedVideoService {
   private readonly logger = new Logger(FeaturedVideoService.name);
   private readonly lessons = new Map<string, FeaturedVideoTranscript>();
 
-  constructor(private readonly videoTranslate: VideoTranslateService) {}
+  constructor(
+    private readonly videoTranslate: VideoTranslateService,
+    private readonly catalog: PodcastCatalogService,
+  ) {}
 
-  getTranscript(id: string): FeaturedVideoTranscript {
-    this.findVideo(id);
+  async getTranscript(id: string): Promise<FeaturedVideoTranscript> {
+    await this.catalog.findVideo(id);
+    return this.readTranscript(id);
+  }
+
+  private readTranscript(id: string): FeaturedVideoTranscript {
     const existing = this.lessons.get(id);
     if (existing) return existing;
     const path = this.cachePath(id);
@@ -49,6 +56,7 @@ export class FeaturedVideoService {
             errorMessage: null,
           };
           this.lessons.set(id, result);
+          this.saveStatus(id, 'READY');
           return result;
         }
       } catch {
@@ -58,9 +66,9 @@ export class FeaturedVideoService {
     return { status: 'PENDING', segments: [], errorMessage: null };
   }
 
-  prepareTranscript(id: string): FeaturedVideoTranscript {
-    const video = this.findVideo(id);
-    const existing = this.getTranscript(id);
+  async prepareTranscript(id: string): Promise<FeaturedVideoTranscript> {
+    const video = await this.catalog.findVideo(id);
+    const existing = this.readTranscript(id);
     if (existing.status === 'READY' || existing.status === 'PROCESSING')
       return existing;
     const state: FeaturedVideoTranscript = {
@@ -69,6 +77,7 @@ export class FeaturedVideoService {
       errorMessage: null,
     };
     this.lessons.set(id, state);
+    await this.catalog.setTranscriptStatus(id, 'PROCESSING').catch(() => {});
     void (async () => {
       try {
         const directory = join(process.cwd(), 'storage', 'featured-videos', id);
@@ -81,6 +90,7 @@ export class FeaturedVideoService {
         if (!segments.length) throw new Error('Empty transcript');
         writeFileSync(this.cachePath(id), JSON.stringify(segments), 'utf8');
         this.lessons.set(id, { status: 'READY', segments, errorMessage: null });
+        this.saveStatus(id, 'READY');
       } catch (error) {
         this.logger.warn(
           `Featured video ${id}: ${error instanceof Error ? error.message : String(error)}`,
@@ -91,15 +101,14 @@ export class FeaturedVideoService {
           errorMessage:
             'Chưa tải được phụ đề song ngữ. Bạn có thể tiếp tục xem video hoặc thử lại.',
         });
+        this.saveStatus(id, 'FAILED');
       }
     })();
     return state;
   }
 
-  private findVideo(id: string) {
-    const video = findPublicVideo(id);
-    if (!video) throw new NotFoundException('Không tìm thấy bài học video');
-    return video;
+  private saveStatus(id: string, status: string) {
+    void this.catalog.setTranscriptStatus(id, status).catch(() => {});
   }
 
   private cachePath(id: string) {

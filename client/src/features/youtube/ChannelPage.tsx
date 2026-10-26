@@ -2,15 +2,26 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ExternalLink, Youtube } from 'lucide-react';
 import BottomNav from '../../components/BottomNav';
 import StickyPageHeader from '../../components/StickyPageHeader';
+import { videoLessonPath, videoThumbnail, videoTime } from './catalog';
 import {
-  VOLKA_CHANNEL,
-  VOLKA_VIDEOS,
-  videoLessonPath,
-  videoThumbnail,
-  videoTime,
-} from './catalog';
+  CatalogFeedback,
+  usePodcastCatalog,
+} from '../podcast/usePodcastCatalog';
 
 export default function ChannelPage() {
+  const catalog = usePodcastCatalog();
+  const channel = catalog.channels.find((item) => item.id === 'volka-english');
+  if (!channel)
+    return (
+      <main>
+        <CatalogFeedback catalog={catalog} />
+        {!catalog.loading && !catalog.error && (
+          <p className="p-5 text-center">Kênh hiện chưa khả dụng.</p>
+        )}
+      </main>
+    );
+  const VOLKA_CHANNEL = channel;
+  const VOLKA_VIDEOS = channel.videos;
   const nameCharacters = Array.from(VOLKA_CHANNEL.name);
   const channelTitle =
     nameCharacters.length > 30
@@ -90,14 +101,16 @@ export default function ChannelPage() {
                 <h2 className="line-clamp-2 text-[15px] font-semibold leading-[1.45] tracking-wide group-hover:text-teal-700 sm:text-lg dark:group-hover:text-[#50c5cb]">
                   {video.title}
                 </h2>
-                <p className="mt-2 text-xs text-slate-500 sm:text-sm dark:text-[#8194a2]">
-                  {new Intl.DateTimeFormat('vi-VN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                    timeZone: 'UTC',
-                  }).format(new Date(video.publishedAt))}
-                </p>
+                {video.publishedAt && (
+                  <p className="mt-2 text-xs text-slate-500 sm:text-sm dark:text-[#8194a2]">
+                    {new Intl.DateTimeFormat('vi-VN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                      timeZone: 'UTC',
+                    }).format(new Date(video.publishedAt))}
+                  </p>
+                )}
               </div>
             </Link>
           ))}

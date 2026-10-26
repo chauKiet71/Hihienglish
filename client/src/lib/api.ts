@@ -4,6 +4,11 @@ import type {
   RegisterPayload,
   User,
 } from '../types/auth';
+import type {
+  CatalogChannel,
+  CatalogImportJob,
+  ImportMode,
+} from '../../../src/podcast/catalog.types';
 import {
   PODCAST_ACCESS_CHANGED,
   type PodcastPolicy,
@@ -138,7 +143,68 @@ export class ApiError extends Error {
   }
 }
 
+function catalogChanged<T>(result: T): T {
+  invalidateCache(PageDataKeys.podcastCatalog);
+  window.dispatchEvent(new Event('podcast-catalog-changed'));
+  return result;
+}
+
 export const api = {
+  getPodcastCatalog(force = false) {
+    return cachedFetch(
+      PageDataKeys.podcastCatalog,
+      () => request<CatalogChannel[]>('/podcasts/catalog'),
+      { ttlMs: 30_000, force },
+    );
+  },
+  getAdminPodcastCatalog() {
+    return request<{ channels: CatalogChannel[]; youtubeConfigured: boolean }>(
+      '/admin/podcasts/catalog',
+    );
+  },
+  addPodcastChannel(url: string) {
+    return request('/admin/podcasts/channels', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    }).then(catalogChanged);
+  },
+  setPodcastChannelVisible(id: string, isVisible: boolean) {
+    return request(`/admin/podcasts/channels/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isVisible }),
+    }).then(catalogChanged);
+  },
+  setPodcastVideoVisible(id: string, isVisible: boolean) {
+    return request(`/admin/podcasts/videos/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isVisible }),
+    }).then(catalogChanged);
+  },
+  getPodcastImports(channelId: string) {
+    return request<CatalogImportJob[]>(
+      `/admin/podcasts/channels/${encodeURIComponent(channelId)}/imports`,
+    );
+  },
+  startPodcastImport(
+    channelId: string,
+    payload: { mode: ImportMode; count: number; videoUrl?: string },
+  ) {
+    return request<CatalogImportJob>(
+      `/admin/podcasts/channels/${encodeURIComponent(channelId)}/imports`,
+      { method: 'POST', body: JSON.stringify(payload) },
+    );
+  },
+  getPodcastImport(id: string) {
+    return request<CatalogImportJob>(
+      `/admin/podcasts/imports/${encodeURIComponent(id)}`,
+    );
+  },
+  commitPodcastImport(id: string, videoIds: string[]) {
+    return request<CatalogImportJob>(
+      `/admin/podcasts/imports/${encodeURIComponent(id)}/commit`,
+      { method: 'POST', body: JSON.stringify({ videoIds }) },
+    ).then(catalogChanged);
+  },
   login(payload: LoginPayload) {
     return request<AuthResponse>('/auth/login', {
       method: 'POST',

@@ -1,6 +1,7 @@
 import { invalidateCacheByPrefix } from './prefetchCache';
 
 export const PageDataKeys = {
+  podcastCatalog: 'page-data:podcast-catalog',
   podcastAccess: 'page-data:podcast-access',
   lessonAccess: 'page-data:lesson-access',
   videoJobs: 'page-data:video-jobs',

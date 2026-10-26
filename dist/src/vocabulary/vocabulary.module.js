@@ -14,12 +14,13 @@ const vocabulary_service_1 = require("./vocabulary.service");
 const video_translate_module_1 = require("../video-translate/video-translate.module");
 const saved_vocabulary_controller_1 = require("./saved-vocabulary.controller");
 const saved_vocabulary_service_1 = require("./saved-vocabulary.service");
+const podcast_module_1 = require("../podcast/podcast.module");
 let VocabularyModule = class VocabularyModule {
 };
 exports.VocabularyModule = VocabularyModule;
 exports.VocabularyModule = VocabularyModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule, video_translate_module_1.VideoTranslateModule],
+        imports: [auth_module_1.AuthModule, video_translate_module_1.VideoTranslateModule, podcast_module_1.PodcastModule],
         controllers: [vocabulary_controller_1.VocabularyController, saved_vocabulary_controller_1.SavedVocabularyController],
         providers: [vocabulary_service_1.VocabularyService, saved_vocabulary_service_1.SavedVocabularyService],
     })

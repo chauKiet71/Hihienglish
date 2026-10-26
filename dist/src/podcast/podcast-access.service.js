@@ -12,23 +12,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PodcastAccessService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const public_videos_1 = require("../catalog/public-videos");
+const podcast_catalog_service_1 = require("./podcast-catalog.service");
 let PodcastAccessService = class PodcastAccessService {
     prisma;
-    constructor(prisma) {
+    catalog;
+    constructor(prisma, catalog) {
         this.prisma = prisma;
+        this.catalog = catalog;
     }
     async getAccessMap() {
         const rows = await this.prisma.podcastAccess.findMany({
             select: { videoId: true, isPremium: true, previewSeconds: true },
         });
-        const ids = new Set(public_videos_1.PUBLIC_VIDEOS.map((video) => video.id));
+        const ids = new Set((await this.catalog.list()).flatMap((channel) => channel.videos.map((video) => video.id)));
         return Object.fromEntries(rows
             .filter((row) => ids.has(row.videoId))
             .map((row) => [row.videoId, row]));
     }
     async getPlaybackAccess(videoId, viewer) {
-        const video = this.findVideo(videoId);
+        const video = await this.catalog.findVideo(videoId);
         const row = await this.prisma.podcastAccess.findUnique({
             where: { videoId },
             select: { videoId: true, isPremium: true, previewSeconds: true },
@@ -54,7 +56,7 @@ let PodcastAccessService = class PodcastAccessService {
         };
     }
     async setAccess(videoId, isPremium, previewSeconds) {
-        const video = this.findVideo(videoId);
+        const video = await this.catalog.findVideo(videoId, true);
         if (typeof isPremium !== 'boolean' ||
             !Number.isInteger(previewSeconds) ||
             previewSeconds < 0 ||
@@ -69,16 +71,11 @@ let PodcastAccessService = class PodcastAccessService {
             select: { videoId: true, isPremium: true, previewSeconds: true },
         });
     }
-    findVideo(videoId) {
-        const video = (0, public_videos_1.findPublicVideo)(videoId);
-        if (!video)
-            throw new common_1.NotFoundException('Không tìm thấy podcast này.');
-        return video;
-    }
 };
 exports.PodcastAccessService = PodcastAccessService;
 exports.PodcastAccessService = PodcastAccessService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        podcast_catalog_service_1.PodcastCatalogService])
 ], PodcastAccessService);
 //# sourceMappingURL=podcast-access.service.js.map
