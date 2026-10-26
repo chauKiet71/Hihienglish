@@ -1734,3 +1734,14 @@ final result: passed
 - Shortened the preview dialog description to “Nâng cấp Premium để nghe tiếp toàn bộ podcast.” and the secondary button to “Nghe lại”.
 - X, Escape and Nghe lại use one replay handler: close the dialog, clear a previous sentence replay endpoint, seek to zero and call playVideo. The preview gate remains active for the next pass; zero-length Premium previews cannot autoplay.
 - Validation: player/admin suite 27/27, scoped Premium TypeScript and Vite client build pass. Existing regression coverage now verifies automatic restart via both X and Nghe lại, keyboard close, and locking again at the preview boundary.
+
+## Preview transcript bottom spacing — 2026-10-26
+
+- Replaced the 45vh transcript bottom padding with a normal 16px inset when the video has a preview limit, preventing a large empty scroll region after the last available subtitle. Full-access transcript scrolling keeps its existing alignment padding.
+
+## Production Premium replay correction — 2026-10-26
+
+- Reproduced both X and Nghe lại leaving the upgrade dialog open at the public H5qcIEH1iVs production URL. No browser console errors appeared. A regression with delayed iframe time updates reproduced the immediate re-lock with the old handler for both buttons before the fix.
+- Replay now uses loadVideoById with startSeconds=0 and the configured endSeconds. A bounded restart state waits for the iframe to acknowledge time near zero, ignores stale end events, reapplies the selected playback rate, and stops again if restart never acknowledges within 10 seconds. Policy/player changes cancel that state.
+- Actual YouTube browser verification on the production build served at localhost:3000: initial playback opened the gate at 20 seconds; Nghe lại closed it, returned the app timeline to 00:00 and automatically advanced to 00:04 with the pause control visible. The next pass locked again. X then returned to 00:00 and automatically advanced to 00:04 as well. Evidence: design-qa-evidence/podcast-replay-from-x.png. The live website has not been deployed by this task.
+- Validation: Premium player/admin 32/32, Podcast 14/14 and YouTube 17/17 pass; scoped Premium TypeScript and Vite production build pass. Existing large bundle warnings remain.

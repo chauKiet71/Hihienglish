@@ -89,6 +89,7 @@ export function VideoLesson({
   const previewLimit = policy.access?.previewLimitSeconds ?? null;
   const [premiumOpen, setPremiumOpen] = useState(false);
   const premiumOpenRef = useRef(false);
+  const replayDeadlineRef = useRef<number | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const saved = isFavorite(videoFavoriteId(video.id));
   const {
@@ -117,6 +118,7 @@ export function VideoLesson({
   );
   const lockPreview = useCallback(
     (target = playerRef.current) => {
+      replayDeadlineRef.current = null;
       // Native pause/seek commands emit more player events. Do not seek again
       // while the gate is open, or those events can trigger a buffering loop.
       if (premiumOpenRef.current) {
@@ -138,9 +140,23 @@ export function VideoLesson({
   );
   const enforcePreview = useCallback(
     (target: YoutubePlayer) => {
+      const current = target.getCurrentTime();
+      if (replayDeadlineRef.current !== null) {
+        // The iframe can keep reporting the old cutoff while a restart is
+        // loading. Wait for an acknowledged rewind instead of reopening the gate.
+        if (current >= 0 && current < Math.min(1, previewLimit ?? 1)) {
+          replayDeadlineRef.current = null;
+          target.setPlaybackRate(rateRef.current);
+        } else if (Date.now() < replayDeadlineRef.current) {
+          return true;
+        } else {
+          lockPreview(target);
+          return true;
+        }
+      }
       if (
         premiumOpenRef.current ||
-        (previewLimit !== null && target.getCurrentTime() >= previewLimit)
+        (previewLimit !== null && current >= previewLimit)
       ) {
         lockPreview(target);
         return true;
@@ -150,6 +166,7 @@ export function VideoLesson({
     [previewLimit, lockPreview],
   );
   useEffect(() => {
+    replayDeadlineRef.current = null;
     premiumOpenRef.current = false;
     setPremiumOpen(false);
     if (accessReady && previewLimit === 0) lockPreview();
@@ -287,14 +304,17 @@ export function VideoLesson({
             },
             onStateChange: ({ data, target }) => {
               if (cancelled) return;
+              if (enforcePreview(target)) return;
               if (
                 previewLimit !== null &&
                 data === window.YT?.PlayerState.ENDED
               ) {
-                lockPreview(target);
+                // ENDED from the previous pass may arrive after the rewind.
+                // Native end events can also stop just short of the exact limit.
+                if (target.getCurrentTime() >= previewLimit - 0.5)
+                  lockPreview(target);
                 return;
               }
-              if (enforcePreview(target)) return;
               if (data === window.YT?.PlayerState.ENDED && loopRef.current) {
                 target.seekTo(0, true);
                 target.playVideo();
@@ -327,6 +347,7 @@ export function VideoLesson({
       cancelled = true;
       window.clearTimeout(timeout);
       window.clearInterval(interval);
+      replayDeadlineRef.current = null;
       playerRef.current = null;
       player?.destroy();
     };
@@ -377,15 +398,23 @@ export function VideoLesson({
   );
 
   const replayFromStart = useCallback(() => {
+    const player = playerRef.current;
+    if (!player || !accessReady || previewLimit === 0) return;
+    if (replayDeadlineRef.current !== null) return;
+    replayDeadlineRef.current = Date.now() + 10_000;
     premiumOpenRef.current = false;
     setPremiumOpen(false);
     replayEnd.current = null;
     setTime(0);
-    const player = playerRef.current;
-    if (!player || !accessReady || previewLimit === 0) return;
-    player.seekTo(0, true);
-    player.playVideo();
-  }, [accessReady, previewLimit]);
+    setPlaying(false);
+    // Reloading the same video starts playback and reapplies the native end
+    // boundary, which seekTo would otherwise discard inside the YouTube player.
+    player.loadVideoById({
+      videoId: video.id,
+      startSeconds: 0,
+      ...(previewLimit !== null ? { endSeconds: previewLimit } : {}),
+    });
+  }, [video.id, accessReady, previewLimit]);
 
   const playSentence = useCallback(
     (index: number) => {
@@ -565,7 +594,7 @@ export function VideoLesson({
           ref={listRef}
           aria-label="Phụ đề bài học"
           aria-busy={loading}
-          className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 pb-[45vh] pt-4"
+          className={`min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 pt-4 ${previewLimit !== null ? 'pb-4' : 'pb-[45vh]'}`}
         >
           {loading && (
             <div

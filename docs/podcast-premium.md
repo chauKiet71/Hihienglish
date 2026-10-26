@@ -23,8 +23,12 @@ retrying failed saves without losing the draft.
 - At the limit, playback pauses, time is clamped to the boundary, and the upgrade
   dialog receives keyboard focus. Its description is “Nâng cấp Premium để nghe
   tiếp toàn bộ podcast.” For a positive preview duration, both the X button and
-  “Nghe lại” close the dialog, clear any sentence replay endpoint, seek to zero
-  and automatically play again. The configured preview limit still applies.
+  “Nghe lại” close the dialog, clear any sentence replay endpoint, and reload
+  the same video at zero with `loadVideoById`, including the native `endSeconds`
+  limit. The player waits for the iframe to acknowledge the rewind before
+  checking the old cutoff again; stale end events cannot reopen the dialog.
+  A restart that does not acknowledge within 10 seconds stops at the gate.
+  The configured preview limit still applies on every replay.
   A zero-length preview continues to require Premium before any playback.
 - Access is checked again on focus, visibility changes, local policy updates,
   every 30 seconds, and at the subscription expiry time. Expiry/unavailable access

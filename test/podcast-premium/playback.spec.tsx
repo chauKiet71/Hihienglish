@@ -65,6 +65,15 @@ const player = {
   getDuration: () => video.duration,
   playVideo: jest.fn(),
   pauseVideo: jest.fn(),
+  loadVideoById: jest.fn(
+    (request: {
+      videoId: string;
+      startSeconds: number;
+      endSeconds?: number;
+    }) => {
+      currentTime = request.startSeconds;
+    },
+  ),
   seekTo: jest.fn((time: number) => {
     currentTime = time;
   }),
@@ -74,6 +83,12 @@ const player = {
 beforeEach(() => {
   jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
   jest.clearAllMocks();
+  player.seekTo.mockReset().mockImplementation((time) => {
+    currentTime = time;
+  });
+  player.loadVideoById.mockReset().mockImplementation((request) => {
+    currentTime = request.startSeconds;
+  });
   localStorage.clear();
   currentTime = 0;
   jest
@@ -278,6 +293,56 @@ it('fails closed with a retry action when the access API fails', async () => {
 });
 
 it.each(['Nghe lại', 'Đóng thông báo Premium'])(
+  'keeps %s closed while YouTube still reports the previous cutoff during replay',
+  async (button) => {
+    jest.mocked(api.getPodcastPlaybackAccess).mockResolvedValue({
+      ...limited,
+      previewSeconds: 20,
+      previewLimitSeconds: 20,
+    });
+    await open('?end=5');
+    currentTime = 20;
+    await tick();
+    const restart = () => {
+      // YouTube commands use postMessage; the old time/events can arrive
+      // before the iframe acknowledges the new playback request.
+      options.events.onStateChange({ data: 3, target: player });
+      options.events.onStateChange({ data: 0, target: player });
+      window.setTimeout(() => {
+        currentTime = 0;
+        options.events.onStateChange({ data: 1, target: player });
+      }, 600);
+    };
+    player.seekTo.mockImplementation((time) => {
+      if (time === 0) restart();
+      else currentTime = time;
+    });
+    player.loadVideoById.mockImplementationOnce(restart);
+    fireEvent.click(screen.getByRole('button', { name: button, exact: true }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await tick(500);
+    expect(currentTime).toBe(20);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await tick(100);
+    expect(currentTime).toBe(0);
+    expect(screen.getByRole('button', { name: 'Tạm dừng video' })).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // A delayed ENDED from the previous pass must not lock the new pass.
+    await act(async () => {
+      options.events.onStateChange({ data: 0, target: player });
+    });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    currentTime = 6;
+    player.pauseVideo.mockClear();
+    await tick();
+    expect(player.pauseVideo).not.toHaveBeenCalled();
+    currentTime = 20;
+    await tick();
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  },
+);
+
+it.each(['Nghe lại', 'Đóng thông báo Premium'])(
   'restarts playback at zero via %s and still enforces the preview limit',
   async (button) => {
     await open();
@@ -285,8 +350,11 @@ it.each(['Nghe lại', 'Đóng thông báo Premium'])(
     await tick();
     fireEvent.click(screen.getByRole('button', { name: button, exact: true }));
     expect(currentTime).toBe(0);
-    expect(player.seekTo).toHaveBeenLastCalledWith(0, true);
-    expect(player.playVideo).toHaveBeenCalledTimes(1);
+    expect(player.loadVideoById).toHaveBeenLastCalledWith({
+      videoId: video.id,
+      startSeconds: 0,
+      endSeconds: 120,
+    });
     await tick();
     expect(screen.queryByRole('dialog')).toBeNull();
     currentTime = 120;
@@ -294,6 +362,52 @@ it.each(['Nghe lại', 'Đóng thông báo Premium'])(
     expect(screen.getByRole('dialog')).toBeTruthy();
   },
 );
+
+it('stops a stalled restart instead of leaving the preview guard suspended', async () => {
+  await open();
+  currentTime = 120;
+  await tick();
+  player.loadVideoById.mockImplementationOnce(() => {});
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Nghe lại', exact: true }),
+  );
+  await tick(9900);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  await tick(100);
+  expect(screen.getByRole('dialog')).toBeTruthy();
+  expect(player.pauseVideo).toHaveBeenCalled();
+});
+
+it('locks at a native preview end slightly before the exact boundary', async () => {
+  await open();
+  currentTime = 119.9;
+  await act(async () => {
+    options.events.onStateChange({ data: 0, target: player });
+  });
+  expect(screen.getByRole('dialog')).toBeTruthy();
+});
+
+it('cancels a pending restart when the server changes the preview policy', async () => {
+  await open();
+  currentTime = 120;
+  await tick();
+  player.loadVideoById.mockImplementationOnce(() => {});
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Nghe lại', exact: true }),
+  );
+  jest.mocked(api.getPodcastPlaybackAccess).mockResolvedValue({
+    ...limited,
+    previewSeconds: 10,
+    previewLimitSeconds: 10,
+  });
+  await act(async () => {
+    window.dispatchEvent(new Event(PODCAST_ACCESS_CHANGED));
+  });
+  await tick();
+  expect(options.playerVars.end).toBe(10);
+  expect(screen.getByRole('dialog')).toBeTruthy();
+  expect(currentTime).toBe(10);
+});
 
 it('does not expose transcript rows after the preview even if an old response contained them', async () => {
   await open();
@@ -373,7 +487,7 @@ it('closing with Escape replays from zero without granting more playback', async
   await tick();
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.body.style.overflow).toBe('');
-  expect(player.playVideo).toHaveBeenCalledTimes(1);
+  expect(player.loadVideoById).toHaveBeenCalledTimes(1);
   currentTime = 130;
   await tick();
   expect(screen.getByRole('dialog')).toBeTruthy();
