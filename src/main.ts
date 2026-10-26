@@ -3,7 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { join } from 'path';
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from 'express';
 import { AppModule } from './app.module';
 import { syncDatabaseSchema } from './prisma/database-sync';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -51,11 +55,14 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new GlobalExceptionFilter());
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, transform: true }),
-  );
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const expressApp = app.getHttpAdapter().getInstance();
+
+  // Generated podcast files must go through the entitlement-aware API.
+  expressApp.use('/media/featured-videos', (_req: Request, res: Response) =>
+    res.sendStatus(404),
+  );
 
   expressApp.use(
     '/media',

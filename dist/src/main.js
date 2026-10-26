@@ -50,6 +50,7 @@ async function bootstrap() {
     app.useGlobalFilters(new global_exception_filter_1.GlobalExceptionFilter());
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));
     const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.use('/media/featured-videos', (_req, res) => res.sendStatus(404));
     expressApp.use('/media', express_1.default.static((0, path_1.join)(process.cwd(), 'storage'), {
         fallthrough: false,
         index: false,

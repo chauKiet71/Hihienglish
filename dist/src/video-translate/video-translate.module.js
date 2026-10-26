@@ -13,12 +13,13 @@ const video_translate_controller_1 = require("./video-translate.controller");
 const video_translate_service_1 = require("./video-translate.service");
 const featured_video_controller_1 = require("./featured-video.controller");
 const featured_video_service_1 = require("./featured-video.service");
+const podcast_module_1 = require("../podcast/podcast.module");
 let VideoTranslateModule = class VideoTranslateModule {
 };
 exports.VideoTranslateModule = VideoTranslateModule;
 exports.VideoTranslateModule = VideoTranslateModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule],
+        imports: [auth_module_1.AuthModule, podcast_module_1.PodcastModule],
         controllers: [video_translate_controller_1.VideoTranslateController, featured_video_controller_1.FeaturedVideoController],
         providers: [video_translate_service_1.VideoTranslateService, featured_video_service_1.FeaturedVideoService],
         exports: [featured_video_service_1.FeaturedVideoService],

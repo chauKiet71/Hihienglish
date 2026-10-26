@@ -28,6 +28,7 @@
     "test:podcast": "jest --config test/podcast/jest.config.cjs --runInBand",
     "test:video-import": "jest --config test/video-import/jest.config.cjs --runInBand",
     "test:prefetch": "jest --config test/prefetch/jest.config.cjs --runInBand",
+    "test:podcast-premium": "jest --config test/podcast-premium/jest.config.cjs --runInBand",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

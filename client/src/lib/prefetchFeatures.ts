@@ -81,6 +81,7 @@ export function prefetchAppFeatures(
   const tasks: Promise<unknown>[] = [
     fetchActivePackages(),
     api.getLessonAccessMap(),
+    api.getPodcastAccessMap(),
   ];
 
   if (authReady)

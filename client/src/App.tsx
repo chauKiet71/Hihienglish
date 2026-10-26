@@ -30,6 +30,7 @@ import GoogleCallbackPage from './pages/GoogleCallbackPage';
 import AdminOverviewPage from './pages/admin/AdminOverviewPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminLessonsPage from './pages/admin/AdminLessonsPage';
+import AdminPodcastsPage from './pages/admin/AdminPodcastsPage';
 import AdminPackagesPage from './pages/admin/AdminPackagesPage';
 import AdminTransactionsPage from './pages/admin/AdminTransactionsPage';
 import AdminStatsPage from './pages/admin/AdminStatsPage';
@@ -152,6 +153,14 @@ export default function App() {
                         <GuestRoute>
                           <ResetPasswordPage />
                         </GuestRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin/content/podcasts"
+                      element={
+                        <ProtectedRoute adminOnly>
+                          <AdminPodcastsPage />
+                        </ProtectedRoute>
                       }
                     />
                     <Route path="/trinh-do" element={<LevelPage />} />

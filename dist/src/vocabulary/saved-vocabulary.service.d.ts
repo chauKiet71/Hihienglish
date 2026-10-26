@@ -11,22 +11,22 @@ export declare class SavedVocabularyService {
     list(userId: string, query?: SavedVocabularyQueryDto): Promise<{
         words: {
             id: string;
-            word: string;
-            meaning: string;
-            phonetic: string | null;
-            partOfSpeech: string | null;
-            definition: string | null;
             status: import("@prisma/client").$Enums.VocabularyProgressStatus;
+            createdAt: Date;
+            updatedAt: Date;
+            word: string;
+            lastReviewedAt: Date | null;
+            nextReviewAt: Date;
+            phonetic: string | null;
+            meaning: string;
             reviewCount: number;
             correctCount: number;
             streak: number;
             lapses: number;
             intervalDays: number;
             easeFactor: number;
-            nextReviewAt: Date;
-            lastReviewedAt: Date | null;
-            createdAt: Date;
-            updatedAt: Date;
+            partOfSpeech: string | null;
+            definition: string | null;
             sources: SavedVocabularySource[];
         }[];
         stats: {
@@ -42,22 +42,22 @@ export declare class SavedVocabularyService {
     session(userId: string, query?: SavedVocabularyQueryDto): Promise<{
         words: {
             id: string;
-            word: string;
-            meaning: string;
-            phonetic: string | null;
-            partOfSpeech: string | null;
-            definition: string | null;
             status: import("@prisma/client").$Enums.VocabularyProgressStatus;
+            createdAt: Date;
+            updatedAt: Date;
+            word: string;
+            lastReviewedAt: Date | null;
+            nextReviewAt: Date;
+            phonetic: string | null;
+            meaning: string;
             reviewCount: number;
             correctCount: number;
             streak: number;
             lapses: number;
             intervalDays: number;
             easeFactor: number;
-            nextReviewAt: Date;
-            lastReviewedAt: Date | null;
-            createdAt: Date;
-            updatedAt: Date;
+            partOfSpeech: string | null;
+            definition: string | null;
             sources: SavedVocabularySource[];
         }[];
     }>;
@@ -70,22 +70,22 @@ export declare class SavedVocabularyService {
     }>;
     save(userId: string, dto: SaveVocabularyDto): Promise<{
         id: string;
-        word: string;
-        meaning: string;
-        phonetic: string | null;
-        partOfSpeech: string | null;
-        definition: string | null;
         status: import("@prisma/client").$Enums.VocabularyProgressStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        word: string;
+        lastReviewedAt: Date | null;
+        nextReviewAt: Date;
+        phonetic: string | null;
+        meaning: string;
         reviewCount: number;
         correctCount: number;
         streak: number;
         lapses: number;
         intervalDays: number;
         easeFactor: number;
-        nextReviewAt: Date;
-        lastReviewedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        partOfSpeech: string | null;
+        definition: string | null;
         sources: SavedVocabularySource[];
     }>;
     remove(userId: string, id: string): Promise<{
@@ -93,22 +93,22 @@ export declare class SavedVocabularyService {
     }>;
     review(userId: string, id: string, dto: ReviewSavedVocabularyDto): Promise<{
         id: string;
-        word: string;
-        meaning: string;
-        phonetic: string | null;
-        partOfSpeech: string | null;
-        definition: string | null;
         status: import("@prisma/client").$Enums.VocabularyProgressStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        word: string;
+        lastReviewedAt: Date | null;
+        nextReviewAt: Date;
+        phonetic: string | null;
+        meaning: string;
         reviewCount: number;
         correctCount: number;
         streak: number;
         lapses: number;
         intervalDays: number;
         easeFactor: number;
-        nextReviewAt: Date;
-        lastReviewedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
+        partOfSpeech: string | null;
+        definition: string | null;
         sources: SavedVocabularySource[];
     }>;
     replay(userId: string, id: string, sourceId: string): Promise<{

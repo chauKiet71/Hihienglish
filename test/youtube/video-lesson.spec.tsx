@@ -18,6 +18,7 @@ import { VOLKA_VIDEOS } from '../../client/src/features/youtube/catalog';
 
 jest.mock('../../client/src/lib/api', () => ({
   api: {
+    getPodcastPlaybackAccess: jest.fn(),
     prepareFeaturedVideoTranscript: jest.fn(),
     getFeaturedVideoTranscript: jest.fn(),
     lookupVocabularyWord: jest.fn(),
@@ -66,6 +67,16 @@ const player = {
 beforeEach(() => {
   jest.clearAllMocks();
   localStorage.clear();
+  jest
+    .mocked(api.getPodcastPlaybackAccess)
+    .mockImplementation(async (videoId) => ({
+      videoId,
+      isPremium: false,
+      previewSeconds: 120,
+      canListenFull: true,
+      previewLimitSeconds: null,
+      premiumExpiresAt: null,
+    }));
   player.getCurrentTime.mockReturnValue(0);
   jest.mocked(useShadowing).mockReturnValue(shadowing);
   jest.mocked(api.lookupVocabularyWord).mockResolvedValue({
@@ -170,17 +181,33 @@ it('opens the existing contextual dictionary without seeking the video', async (
 });
 
 it('saves a selected word with the featured-video source and original timestamps', async () => {
-  jest.mocked(api.saveVocabularyWord).mockResolvedValue({ id: 'saved-word', sources: [] } as never);
+  jest
+    .mocked(api.saveVocabularyWord)
+    .mockResolvedValue({ id: 'saved-word', sources: [] } as never);
   renderLesson();
-  const trigger = await screen.findByRole('button', { name: 'Xem chi tiết từ hello' });
-  await waitFor(() => expect((trigger as HTMLButtonElement).disabled).toBe(false));
+  const trigger = await screen.findByRole('button', {
+    name: 'Xem chi tiết từ hello',
+  });
+  await waitFor(() =>
+    expect((trigger as HTMLButtonElement).disabled).toBe(false),
+  );
   fireEvent.click(trigger);
-  fireEvent.click(await screen.findByRole('button', { name: 'Lưu từ vựng', exact: true }));
+  fireEvent.click(
+    await screen.findByRole('button', { name: 'Lưu từ vựng', exact: true }),
+  );
   await screen.findByRole('button', { name: 'Đã lưu từ vựng' });
-  expect(api.saveVocabularyWord).toHaveBeenCalledWith(expect.objectContaining({
-    word: 'hello', requestedWord: 'hello',
-    source: { type: 'featured-video', id: 'ErP_AKE3riY', startTime: 0, endTime: 2 },
-  }));
+  expect(api.saveVocabularyWord).toHaveBeenCalledWith(
+    expect.objectContaining({
+      word: 'hello',
+      requestedWord: 'hello',
+      source: {
+        type: 'featured-video',
+        id: 'ErP_AKE3riY',
+        startTime: 0,
+        endTime: 2,
+      },
+    }),
+  );
 });
 
 it('persists saved videos across visits and allows removing them', async () => {

@@ -1,6 +1,12 @@
 import { lookupInSource, saveLookedUpWord } from '../lib/savedVocabulary';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import { findPublicVideo } from '../../../src/catalog/public-videos';
 import {
   ArrowLeft,
   BookOpen,
@@ -967,6 +973,17 @@ export default function VideoTranslatePage() {
   const ready = job?.status === 'READY';
   const mediaIsAudio = isAudioMediaUrl(job?.mediaUrl);
   const visibleRecent = showAllRecent ? recent : recent.slice(0, 2);
+  const publicVideo =
+    ready && job.youtubeVideoId ? findPublicVideo(job.youtubeVideoId) : null;
+  if (publicVideo) {
+    const replay = new URLSearchParams();
+    if (searchParams.has('t')) replay.set('t', searchParams.get('t')!);
+    if (searchParams.has('end')) replay.set('end', searchParams.get('end')!);
+    const suffix = replay.size
+      ? `${publicVideo.lessonPath.includes('?') ? '&' : '?'}${replay}`
+      : '';
+    return <Navigate to={`${publicVideo.lessonPath}${suffix}`} replace />;
+  }
 
   if (!ready) {
     return (

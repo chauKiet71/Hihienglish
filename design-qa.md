@@ -1709,3 +1709,28 @@ final result: passed
 - Cache invalidates on relevant vocabulary/media/access changes and login/logout. Late invalidated responses cannot restore old account data. Failed reads remain retryable and independent; cancelling a vocabulary view does not cancel another cache consumer.
 - Validation: background prefetch 18/18; video import 9/9; Podcast 14/14; YouTube lessons 17/17; listening practice 80/80. Scoped prefetch and listening TypeScript checks pass. Vite client build passes (existing large bundle warning). Full client TypeScript still reports five existing errors in Explore, History, Profile and the unused SpeakingHistory page; no new errors were reported.
 - Details and cache lifetimes: `docs/background-prefetch.md`.
+
+## Podcast Premium preview — 2026-10-26
+
+- Added Admin → Nội dung → Podcast with catalog/channel/status search, per-video Premium switch, validated preview seconds (120 = 02:00, 0 = immediate gate), explicit save, persisted policy and editable retry after failures. Existing settings remain open until admin saves a Premium policy.
+- Added admin-only PUT and read-only access APIs. Entitlements are resolved server-side for guests, Free, expired Premium, active Premium and admins. Generated transcript responses are filtered at the preview boundary and marked private/no-store; generated featured storage is blocked from direct public /media access.
+- Shared YouTube/Podcast player waits for entitlement, caps the native embed, checks timeline/deep-link/native state/repeat paths, pauses/clamps at cutoff, then opens the accessible upgrade dialog. Replay/close returns to paused preview; logout/expiry removes previously granted full playback/transcripts. Access refreshes on visibility/focus/local changes and every 30 seconds. Known catalog imports route through the same guarded catalog player.
+- Database: regenerated Prisma Client; applied only the additive podcast_access table SQL using the project's PostgreSQL driver after Prisma CLI hit a Windows TLS error. No individual video setting was changed. Read-only runtime endpoint returned 200 with the default open policy; a known cached transcript file returned 404 via direct /media access.
+- Runtime browser: admin URL correctly redirected the unauthenticated test tab to login. The existing open Volka lesson loaded the new entitlement API, native player and cached bilingual transcript successfully. Admin save and the cutoff/upgrade states were tested through rendered React components with isolated API/player mocks; no user account or live policy was changed for browser QA.
+- Validation: 27 backend authorization/service/transcript tests and 24 player/admin tests passed. Existing regressions: Podcast 14, YouTube 17, background prefetch 18, video import 9 passed. Backend Nest build, Vite client build and scoped Premium/prefetch TypeScript checks passed. Full client typecheck retains five pre-existing errors outside this feature; Vite retains the existing large bundle warning.
+- Product limit: public YouTube source uploads remain independently accessible; this is an application preview restriction rather than DRM. Setup and behavior: docs/podcast-premium.md.
+
+## Podcast cutoff correction — 2026-10-26
+
+- Reproduced the reported H5qcIEH1iVs case in the user's Chrome context. The profile displayed a Free plan while the account could access admin content. The original iframe had no end limit and was at 00:22. Public settings correctly contained Premium=true and previewSeconds=20.
+- Root cause: PodcastAccessService treated ADMIN role as an unconditional Premium entitlement. Removed that override; managing settings and having an active Premium subscription are now independent. Free/expired admins receive the same preview limit as other Free users; valid Premium admins retain their subscription expiry deadline.
+- Restarted the identified local backend on port 3000 after rebuilding so the compiled server used the corrected rule. The configured video policy stayed at 20 seconds.
+- Browser verification: the same signed-in Free account then received the 00:20 preview banner, a limited transcript and an iframe with end=20. Playing the real YouTube video opened the Nâng cấp Premium dialog with the 00:20 cutoff message. Evidence: design-qa-evidence/podcast-20s-verified.png.
+- Also guarded repeated native pause/seek callbacks while the gate is open to avoid repeated seeks and buffering loops.
+- Tests: backend 31/31 and player/admin 26/26 pass; scoped frontend TypeScript, Nest build and Vite client build pass. Added explicit Free-admin/20-second, expired-admin, Premium-admin deadline and native player callback regression coverage.
+
+## Premium dialog copy and replay — 2026-10-26
+
+- Shortened the preview dialog description to “Nâng cấp Premium để nghe tiếp toàn bộ podcast.” and the secondary button to “Nghe lại”.
+- X, Escape and Nghe lại use one replay handler: close the dialog, clear a previous sentence replay endpoint, seek to zero and call playVideo. The preview gate remains active for the next pass; zero-length Premium previews cannot autoplay.
+- Validation: player/admin suite 27/27, scoped Premium TypeScript and Vite client build pass. Existing regression coverage now verifies automatic restart via both X and Nghe lại, keyboard close, and locking again at the preview boundary.

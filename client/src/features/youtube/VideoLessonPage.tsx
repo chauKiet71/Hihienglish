@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   ChevronLeft,
+  Crown,
   ExternalLink,
   Loader2,
   Pause,
@@ -20,6 +21,8 @@ import VideoLessonToolbar from './VideoLessonToolbar';
 import VideoTranscriptRow from './VideoTranscriptRow';
 import { activeTranscriptWord, transcriptWords } from './transcriptWords';
 import { useVideoVocabulary } from './useVideoVocabulary';
+import { usePodcastAccess } from '../podcast/usePodcastAccess';
+import PodcastPremiumDialog from '../podcast/PodcastPremiumDialog';
 import {
   CHANNEL_PATH,
   VOLKA_VIDEOS,
@@ -54,8 +57,12 @@ export function VideoLesson({
   backLabel?: string;
 }) {
   const [searchParams] = useSearchParams();
-  const replayStart = searchParams.has('t') ? Number(searchParams.get('t')) : null;
-  const replayEnd = useRef<number | null>(searchParams.has('end') ? Number(searchParams.get('end')) : null);
+  const replayStart = searchParams.has('t')
+    ? Number(searchParams.get('t'))
+    : null;
+  const replayEnd = useRef<number | null>(
+    searchParams.has('end') ? Number(searchParams.get('end')) : null,
+  );
   const mountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YoutubePlayer | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -77,6 +84,11 @@ export function VideoLesson({
   const [rate, setRate] = useState(1);
   const [looping, setLooping] = useState(false);
   const [shadowingIndex, setShadowingIndex] = useState<number | null>(null);
+  const policy = usePodcastAccess(video.id);
+  const accessReady = policy.access !== null;
+  const previewLimit = policy.access?.previewLimitSeconds ?? null;
+  const [premiumOpen, setPremiumOpen] = useState(false);
+  const premiumOpenRef = useRef(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const saved = isFavorite(videoFavoriteId(video.id));
   const {
@@ -87,15 +99,67 @@ export function VideoLesson({
     toggleRecording,
     reset: resetShadowing,
   } = useShadowing();
-  const interactionLocked = isRecording || isFetching;
+  const interactionLocked =
+    isRecording || isFetching || premiumOpen || !accessReady;
   const pause = useCallback(() => {
     playerRef.current?.pauseVideo();
     setPlaying(false);
   }, []);
   const vocabulary = useVideoVocabulary(pause, video.id);
+  const visibleSegments = useMemo(
+    () =>
+      !accessReady
+        ? []
+        : previewLimit === null
+          ? segments
+          : segments.filter((segment) => segment.end <= previewLimit),
+    [segments, accessReady, previewLimit],
+  );
+  const lockPreview = useCallback(
+    (target = playerRef.current) => {
+      // Native pause/seek commands emit more player events. Do not seek again
+      // while the gate is open, or those events can trigger a buffering loop.
+      if (premiumOpenRef.current) {
+        target?.pauseVideo();
+        return;
+      }
+      premiumOpenRef.current = true;
+      target?.pauseVideo();
+      if (previewLimit !== null) {
+        target?.seekTo(previewLimit, true);
+        setTime(previewLimit);
+      }
+      setPlaying(false);
+      setPremiumOpen(true);
+      if (document.fullscreenElement)
+        void document.exitFullscreen().catch(() => {});
+    },
+    [previewLimit],
+  );
+  const enforcePreview = useCallback(
+    (target: YoutubePlayer) => {
+      if (
+        premiumOpenRef.current ||
+        (previewLimit !== null && target.getCurrentTime() >= previewLimit)
+      ) {
+        lockPreview(target);
+        return true;
+      }
+      return false;
+    },
+    [previewLimit, lockPreview],
+  );
+  useEffect(() => {
+    premiumOpenRef.current = false;
+    setPremiumOpen(false);
+    if (accessReady && previewLimit === 0) lockPreview();
+  }, [accessReady, previewLimit, lockPreview]);
+  useEffect(() => {
+    if (premiumOpen || !accessReady) vocabulary.close();
+  }, [premiumOpen, accessReady]);
   const wordsBySegment = useMemo(
-    () => segments.map(transcriptWords),
-    [segments],
+    () => visibleSegments.map(transcriptWords),
+    [visibleSegments],
   );
   const setRowRef = useCallback(
     (element: HTMLElement | null, index: number) => {
@@ -103,11 +167,16 @@ export function VideoLesson({
     },
     [],
   );
-  const activeIndex = segments.findLastIndex(
+  const activeIndex = visibleSegments.findLastIndex(
     (segment) => segment.start <= time + 0.05,
   );
 
   useEffect(() => {
+    setSegments([]);
+    if (!accessReady || previewLimit === 0) {
+      setLoading(false);
+      return;
+    }
     const controller = new AbortController();
     let timer: number | undefined;
     const started = Date.now();
@@ -148,7 +217,7 @@ export function VideoLesson({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [video.id, transcriptAttempt]);
+  }, [video.id, transcriptAttempt, accessReady, previewLimit]);
 
   useEffect(() => {
     let cancelled = false;
@@ -157,6 +226,7 @@ export function VideoLesson({
     setReady(false);
     setPlaying(false);
     setPlayerError('');
+    if (!accessReady || previewLimit === 0) return;
     const timeout = window.setTimeout(() => {
       if (!cancelled)
         setPlayerError(
@@ -177,6 +247,7 @@ export function VideoLesson({
             controls: 1,
             rel: 0,
             origin: window.location.origin,
+            ...(previewLimit !== null ? { end: previewLimit } : {}),
           },
           events: {
             onReady: ({ target }) => {
@@ -184,22 +255,46 @@ export function VideoLesson({
               window.clearTimeout(timeout);
               playerRef.current = target;
               target.setPlaybackRate(rateRef.current);
-              if (replayStart !== null && Number.isFinite(replayStart) && replayStart >= 0 && replayStart < video.duration) { target.seekTo(replayStart, true); target.playVideo(); }
+              if (
+                replayStart !== null &&
+                Number.isFinite(replayStart) &&
+                replayStart >= 0 &&
+                replayStart < video.duration
+              ) {
+                if (previewLimit !== null && replayStart >= previewLimit)
+                  lockPreview(target);
+                else {
+                  target.seekTo(replayStart, true);
+                  target.playVideo();
+                }
+              }
               setReady(true);
               setPlayerError('');
               const actualDuration = target.getDuration();
               if (actualDuration > 0) setDuration(actualDuration);
-              interval = window.setInterval(
-                () => {
-                  const current = target.getCurrentTime();
-                  setTime(current);
-                  if (replayEnd.current !== null && current >= replayEnd.current) { target.pauseVideo(); replayEnd.current = null; }
-                },
-                100,
-              );
+              interval = window.setInterval(() => {
+                if (enforcePreview(target)) return;
+                const current = target.getCurrentTime();
+                setTime(current);
+                if (
+                  replayEnd.current !== null &&
+                  current >= replayEnd.current
+                ) {
+                  target.pauseVideo();
+                  replayEnd.current = null;
+                }
+              }, 100);
             },
             onStateChange: ({ data, target }) => {
               if (cancelled) return;
+              if (
+                previewLimit !== null &&
+                data === window.YT?.PlayerState.ENDED
+              ) {
+                lockPreview(target);
+                return;
+              }
+              if (enforcePreview(target)) return;
               if (data === window.YT?.PlayerState.ENDED && loopRef.current) {
                 target.seekTo(0, true);
                 target.playVideo();
@@ -235,7 +330,14 @@ export function VideoLesson({
       playerRef.current = null;
       player?.destroy();
     };
-  }, [video.id, playerAttempt]);
+  }, [
+    video.id,
+    playerAttempt,
+    accessReady,
+    previewLimit,
+    enforcePreview,
+    lockPreview,
+  ]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -262,22 +364,43 @@ export function VideoLesson({
   const seek = useCallback(
     (nextTime: number, play = false) => {
       const next = Math.max(0, Math.min(duration, nextTime));
+      if (!accessReady) return;
+      if (previewLimit !== null && next >= previewLimit) {
+        lockPreview();
+        return;
+      }
       playerRef.current?.seekTo(next, true);
       setTime(next);
       if (play) playerRef.current?.playVideo();
     },
-    [duration],
+    [duration, accessReady, previewLimit, lockPreview],
   );
+
+  const replayFromStart = useCallback(() => {
+    premiumOpenRef.current = false;
+    setPremiumOpen(false);
+    replayEnd.current = null;
+    setTime(0);
+    const player = playerRef.current;
+    if (!player || !accessReady || previewLimit === 0) return;
+    player.seekTo(0, true);
+    player.playVideo();
+  }, [accessReady, previewLimit]);
 
   const playSentence = useCallback(
     (index: number) => {
-      const segment = segments[index];
+      const segment = visibleSegments[index];
       if (segment) seek(segment.start, true);
     },
-    [seek, segments],
+    [seek, visibleSegments],
   );
 
   function toggleLoop() {
+    if (
+      !accessReady ||
+      (playerRef.current && enforcePreview(playerRef.current))
+    )
+      return;
     loopRef.current = !loopRef.current;
     setLooping(loopRef.current);
     if (loopRef.current) {
@@ -289,7 +412,7 @@ export function VideoLesson({
   function speak() {
     if (isFetching) return;
     const index = isRecording ? shadowingIndex : Math.max(0, activeIndex);
-    const segment = index === null ? undefined : segments[index];
+    const segment = index === null ? undefined : visibleSegments[index];
     if (!segment) return;
     pause();
     if (!isRecording) {
@@ -301,7 +424,10 @@ export function VideoLesson({
 
   return (
     <main className="bg-[#f8f9fb] text-[#142034] dark:bg-neutral-950 dark:text-neutral-100">
-      <div className="mx-auto flex h-dvh min-h-[600px] max-w-lg flex-col">
+      <div
+        inert={premiumOpen}
+        className="mx-auto flex h-dvh min-h-[600px] max-w-lg flex-col"
+      >
         <header className="relative flex min-h-13 shrink-0 items-center justify-center border-b border-slate-100 bg-white px-14 py-3 dark:border-neutral-800 dark:bg-neutral-900">
           <Link
             to={backTo}
@@ -324,7 +450,20 @@ export function VideoLesson({
               inert={interactionLocked}
               className="h-full w-full [&>iframe]:h-full [&>iframe]:w-full"
             />
-            {!ready && !playerError && (
+            {accessReady && previewLimit === 0 && (
+              <button
+                type="button"
+                onClick={() => lockPreview()}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950 text-white"
+              >
+                <Crown size={36} />
+                <span className="font-semibold">Podcast Premium</span>
+                <span className="text-sm text-violet-200">
+                  Nâng cấp để nghe trọn bài
+                </span>
+              </button>
+            )}
+            {!ready && !playerError && !policy.error && previewLimit !== 0 && (
               <div
                 role="status"
                 className="pointer-events-none absolute inset-0 flex items-center justify-center text-white"
@@ -334,16 +473,20 @@ export function VideoLesson({
               </div>
             )}
           </div>
-          {playerError && (
+          {(playerError || policy.error) && (
             <div
               role="alert"
               className="space-y-2 bg-slate-100 px-4 py-3 text-xs leading-5 dark:bg-neutral-900"
             >
-              <p>{playerError}</p>
+              <p>{policy.error || playerError}</p>
               <div className="flex gap-4">
                 <button
                   type="button"
-                  onClick={() => setPlayerAttempt((attempt) => attempt + 1)}
+                  onClick={() =>
+                    policy.error
+                      ? policy.retry()
+                      : setPlayerAttempt((attempt) => attempt + 1)
+                  }
                   className="font-semibold text-primary"
                 >
                   Thử lại
@@ -392,7 +535,9 @@ export function VideoLesson({
                   onClick={() =>
                     playing
                       ? playerRef.current?.pauseVideo()
-                      : playerRef.current?.playVideo()
+                      : playerRef.current &&
+                        !enforcePreview(playerRef.current) &&
+                        playerRef.current.playVideo()
                   }
                   aria-label={playing ? 'Tạm dừng video' : 'Phát video'}
                   className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white disabled:opacity-40"
@@ -455,12 +600,16 @@ export function VideoLesson({
               </button>
             </div>
           )}
-          {!loading && !transcriptError && !segments.length && (
-            <p className="py-8 text-center text-sm text-slate-500">
-              Video chưa có phụ đề.
-            </p>
-          )}
-          {segments.map((segment, index) => (
+          {!loading &&
+            !transcriptError &&
+            accessReady &&
+            previewLimit !== 0 &&
+            !visibleSegments.length && (
+              <p className="py-8 text-center text-sm text-slate-500">
+                Video chưa có phụ đề.
+              </p>
+            )}
+          {visibleSegments.map((segment, index) => (
             <VideoTranscriptRow
               key={`${segment.start}-${index}`}
               segment={segment}
@@ -490,7 +639,7 @@ export function VideoLesson({
           saved={saved}
           looping={looping}
           ready={ready}
-          speakingAvailable={segments.length > 0}
+          speakingAvailable={visibleSegments.length > 0 && !interactionLocked}
           recording={isRecording}
           processing={isFetching}
           onRate={(value) => {
@@ -517,6 +666,14 @@ export function VideoLesson({
           />
         )}
       </div>
+      {premiumOpen && previewLimit !== null && (
+        <PodcastPremiumDialog
+          previewSeconds={previewLimit}
+          backTo={backTo}
+          onClose={replayFromStart}
+          onReplay={replayFromStart}
+        />
+      )}
     </main>
   );
 }

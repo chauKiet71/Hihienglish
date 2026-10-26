@@ -5,6 +5,11 @@ import type {
   User,
 } from '../types/auth';
 import {
+  PODCAST_ACCESS_CHANGED,
+  type PodcastPolicy,
+  type PodcastPlaybackAccess,
+} from './podcastAccess';
+import {
   cachedFetch,
   invalidateCache,
   invalidateCacheByPrefix,
@@ -614,6 +619,35 @@ export const api = {
       `/speaking/sessions/${encodeURIComponent(id)}/complete`,
       { method: 'POST' },
     );
+  },
+
+  getPodcastAccessMap(force = false) {
+    return cachedFetch(
+      PageDataKeys.podcastAccess,
+      () => request<Record<string, PodcastPolicy>>('/podcasts/access'),
+      { ttlMs: 30_000, force },
+    );
+  },
+
+  getPodcastPlaybackAccess(videoId: string, signal?: AbortSignal) {
+    return request<PodcastPlaybackAccess>(
+      `/podcasts/${encodeURIComponent(videoId)}/access`,
+      { signal },
+    );
+  },
+
+  setPodcastAccess(
+    videoId: string,
+    payload: { isPremium: boolean; previewSeconds: number },
+  ) {
+    return request<PodcastPolicy>(
+      `/podcasts/${encodeURIComponent(videoId)}/access`,
+      { method: 'PUT', body: JSON.stringify(payload) },
+    ).then((result) => {
+      invalidateCache(PageDataKeys.podcastAccess);
+      window.dispatchEvent(new Event(PODCAST_ACCESS_CHANGED));
+      return result;
+    });
   },
 
   getVideoTranslateQuota() {

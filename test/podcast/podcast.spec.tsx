@@ -15,6 +15,7 @@ import SavedVideoLessons from '../../client/src/features/youtube/SavedVideoLesso
 
 jest.mock('../../client/src/lib/api', () => ({
   api: {
+    getPodcastPlaybackAccess: jest.fn(),
     prepareFeaturedVideoTranscript: jest.fn(),
     getFeaturedVideoTranscript: jest.fn(),
     lookupVocabularyWord: jest.fn(),
@@ -72,6 +73,16 @@ beforeAll(() => {
   Element.prototype.scrollTo = jest.fn();
 });
 beforeEach(() => {
+  jest
+    .mocked(api.getPodcastPlaybackAccess)
+    .mockImplementation(async (videoId) => ({
+      videoId,
+      isPremium: false,
+      previewSeconds: 120,
+      canListenFull: true,
+      previewLimitSeconds: null,
+      premiumExpiresAt: null,
+    }));
   jest.clearAllMocks();
   localStorage.clear();
   window.YT = {

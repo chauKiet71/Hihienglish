@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Lock, LockOpen, Search } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
+import AdminContentTabs from '../../components/AdminContentTabs';
 import { peekCache, setCache } from '../../lib/prefetchCache';
 import {
   AdminPrefetchKeys,
@@ -34,7 +35,11 @@ export default function AdminLessonsPage() {
       const map = await fetchAdminLessonAccess(force);
       setAccessMap(map);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể tải trạng thái khóa bài học');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Không thể tải trạng thái khóa bài học',
+      );
     } finally {
       setLoading(false);
     }
@@ -60,7 +65,11 @@ export default function AdminLessonsPage() {
         return next;
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Không thể cập nhật trạng thái khóa');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Không thể cập nhật trạng thái khóa',
+      );
     } finally {
       setSavingId(null);
     }
@@ -69,7 +78,8 @@ export default function AdminLessonsPage() {
   const filteredLessons = useMemo(() => {
     const query = search.trim().toLowerCase();
     return lessons.filter((lesson) => {
-      if (categoryId !== 'all' && lesson.categoryId !== categoryId) return false;
+      if (categoryId !== 'all' && lesson.categoryId !== categoryId)
+        return false;
       const locked = isLocked(lesson.id);
       if (filterTab === 'locked' && !locked) return false;
       if (filterTab === 'unlocked' && locked) return false;
@@ -92,6 +102,7 @@ export default function AdminLessonsPage() {
       title="Quản lý khóa bài học"
       subtitle="Bài bị khóa chỉ thành viên Pro mới nghe được. Bài mới thêm vào JSON mặc định đang mở."
     >
+      <AdminContentTabs />
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-gray-100 p-4">
           <p className="text-2xl font-bold text-gray-900">{lessons.length}</p>
@@ -102,7 +113,9 @@ export default function AdminLessonsPage() {
           <p className="text-sm text-gray-500 mt-0.5">Bài đang khóa (Pro)</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <p className="text-2xl font-bold text-green-600">{lessons.length - lockedCount}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {lessons.length - lockedCount}
+          </p>
           <p className="text-sm text-gray-500 mt-0.5">Bài đang mở</p>
         </div>
       </div>
@@ -110,7 +123,10 @@ export default function AdminLessonsPage() {
       <div className="bg-white rounded-xl border border-gray-100">
         <div className="p-4 border-b border-gray-50 flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[220px] max-w-md">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               value={search}
@@ -134,11 +150,13 @@ export default function AdminLessonsPage() {
           </select>
 
           <div className="flex gap-1">
-            {([
-              ['all', 'Tất cả'],
-              ['locked', 'Đang khóa'],
-              ['unlocked', 'Đang mở'],
-            ] as const).map(([id, label]) => (
+            {(
+              [
+                ['all', 'Tất cả'],
+                ['locked', 'Đang khóa'],
+                ['unlocked', 'Đang mở'],
+              ] as const
+            ).map(([id, label]) => (
               <button
                 key={id}
                 type="button"
@@ -176,13 +194,19 @@ export default function AdminLessonsPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-gray-400"
+                  >
                     Đang tải...
                   </td>
                 </tr>
               ) : filteredLessons.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-gray-400"
+                  >
                     Không có bài học phù hợp.
                   </td>
                 </tr>
@@ -191,13 +215,21 @@ export default function AdminLessonsPage() {
                   const locked = isLocked(lesson.id);
                   const saving = savingId === lesson.id;
                   return (
-                    <tr key={lesson.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                    <tr
+                      key={lesson.id}
+                      className="border-b border-gray-50 hover:bg-gray-50/50"
+                    >
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{lesson.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{lesson.id}</p>
+                        <p className="font-medium text-gray-900">
+                          {lesson.title}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {lesson.id}
+                        </p>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {getCategoryById(lesson.categoryId)?.name ?? lesson.topic}
+                        {getCategoryById(lesson.categoryId)?.name ??
+                          lesson.topic}
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
@@ -228,7 +260,9 @@ export default function AdminLessonsPage() {
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-60 ${
                             locked ? 'bg-red-500' : 'bg-gray-300'
                           }`}
-                          aria-label={locked ? 'Mở khóa bài học' : 'Khóa bài học Pro'}
+                          aria-label={
+                            locked ? 'Mở khóa bài học' : 'Khóa bài học Pro'
+                          }
                         >
                           <span
                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${

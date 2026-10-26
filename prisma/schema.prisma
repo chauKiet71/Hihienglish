@@ -118,6 +118,16 @@ model User {
   @@map("users")
 }
 
+model PodcastAccess {
+  videoId        String   @id @map("video_id")
+  isPremium      Boolean  @default(false) @map("is_premium")
+  previewSeconds Int      @default(120) @map("preview_seconds")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("podcast_access")
+}
+
 model PasswordReset {
   id         String   @id @default(uuid())
   email      String
