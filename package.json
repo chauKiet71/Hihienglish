@@ -9,7 +9,7 @@
   },
   "scripts": {
     "postinstall": "prisma generate && node scripts/install-yt-dlp.mjs",
-    "build": "prisma generate && npm run build:client && nest build",
+    "build": "node scripts/podcast-transcript-bundle.mjs --verify && prisma generate && npm run build:client && nest build && node scripts/podcast-transcript-bundle.mjs --copy-to-dist",
     "build:client": "node scripts/build-home-featured.mjs && vite build --config client/vite.config.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -21,6 +21,8 @@
     "cache:up": "docker compose -f docker-compose.cache.yml up -d",
     "cache:down": "docker compose -f docker-compose.cache.yml down",
     "test:public-cache:redis": "node test/public-cache/redis.integration.mjs",
+    "verify:podcast-transcripts": "node scripts/podcast-transcript-bundle.mjs --verify",
+    "test:podcast-transcript-bundle": "node --test test/podcast-transcript-bundle.test.mjs",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { FeaturedVideoService } from './featured-video.service';
 import { findPublicVideo } from '../catalog/public-videos';
+import { gzipSync } from 'zlib';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
@@ -137,6 +138,59 @@ describe('FeaturedVideoService with database catalog', () => {
       );
     jest.mocked(readFileSync).mockReturnValue(JSON.stringify(segments));
     expect((await service.prepareTranscript(id)).status).toBe('READY');
+    expect(prepare).not.toHaveBeenCalled();
+  });
+  it('loads the deployed bundle when runtime storage is empty', async () => {
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) => String(path).endsWith('.json.gz'));
+    jest
+      .mocked(readFileSync)
+      .mockReturnValue(gzipSync(JSON.stringify(segments)));
+    expect(await service.prepareTranscript(id)).toEqual({
+      status: 'READY',
+      segments,
+      errorMessage: null,
+    });
+    expect(prepare).not.toHaveBeenCalled();
+    expect(writeFileSync).not.toHaveBeenCalled();
+  });
+  it('uses the deployed bundle when a legacy cache fails validation', async () => {
+    jest
+      .mocked(existsSync)
+      .mockImplementation(
+        (path) => !String(path).endsWith('transcript-v3.json'),
+      );
+    jest
+      .mocked(readFileSync)
+      .mockImplementation((path) =>
+        String(path).endsWith('.gz')
+          ? gzipSync(JSON.stringify(segments))
+          : JSON.stringify([{ ...segments[0], end: -1 }]),
+      );
+    expect((await service.prepareTranscript(id)).segments).toEqual(segments);
+    expect(prepare).not.toHaveBeenCalled();
+  });
+  it('recovers an earlier failure when a ready transcript becomes available', async () => {
+    prepare.mockRejectedValueOnce(new Error('Provider unavailable'));
+    await service.prepareTranscript(id);
+    await Promise.resolve();
+    expect((await service.getTranscript(id)).status).toBe('FAILED');
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) => String(path).endsWith('.json.gz'));
+    jest
+      .mocked(readFileSync)
+      .mockReturnValue(gzipSync(JSON.stringify(segments)));
+    expect((await service.getTranscript(id)).segments).toEqual(segments);
+    expect(prepare).toHaveBeenCalledTimes(1);
+  });
+  it('rejects a corrupted deployed bundle without starting processing from GET', async () => {
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) => String(path).endsWith('.json.gz'));
+    jest.mocked(readFileSync).mockReturnValue(Buffer.from('broken gzip'));
+    expect((await service.getTranscript(id)).status).toBe('PENDING');
     expect(prepare).not.toHaveBeenCalled();
   });
   it.each(

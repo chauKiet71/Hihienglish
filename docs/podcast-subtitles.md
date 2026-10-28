@@ -43,3 +43,30 @@ Kiểm thử công cụ:
 ```powershell
 node --test test/subtitle-maintenance.test.mjs
 ```
+
+## Phụ đề có ở local nhưng mất sau khi deploy
+
+`storage/` không nằm trong Git. Một container Railway mới không có các tệp đã tạo trên máy phát triển, và dữ liệu ghi vào filesystem tạm cũng có thể mất sau redeploy. Vì vậy, trạng thái danh mục có thể khác với dữ liệu thực tế trên máy chủ.
+
+Các bản đã hoàn tất được đóng gói tại `resources/podcast-transcripts/`, ngoài thư mục static `public/`. Gói hiện có 134 video, 62.785 đoạn Anh–Việt; không chứa audio, khóa API hoặc các bản dịch còn dang dở. Mỗi tệp được nén riêng, có SHA-256 và số đoạn trong `manifest.json`.
+
+`npm run build` kiểm tra toàn bộ checksum, câu và mốc thời gian, rồi chép gói vào `dist/resources/podcast-transcripts/`. Cần triển khai cả mã nguồn, manifest và các tệp `.json.gz`; không chỉ chép file TypeScript. Có thể kiểm tra riêng bằng:
+
+```powershell
+npm.cmd run verify:podcast-transcripts
+npm.cmd run test:podcast-transcript-bundle
+```
+
+Backend ưu tiên phụ đề hợp lệ trong runtime `storage`, sau đó dùng bản đã đóng gói nếu runtime chưa có hoặc không đọc được. Các bản đóng gói không cần gọi lại dịch vụ nhận dạng/dịch, và vẫn đọc được sau khi khởi động lại với thư mục lưu trữ rỗng. Một trạng thái lỗi trước đó không chặn việc nhận tệp hoàn chỉnh được bổ sung sau này.
+
+Chỉ API phụ đề mới phục vụ nội dung, sau khi kiểm tra video còn hiển thị và quyền Free/Premium. Gói này không được đưa vào frontend hoặc phục vụ trực tiếp qua đường dẫn static. Giới hạn 20 giây vẫn lọc các đoạn vượt phạm vi nghe thử.
+
+Để cập nhật gói từ báo cáo các video đã hoàn tất có `id`, `file`, `duration`, `sha256` trong mảng `videos`:
+
+```powershell
+node scripts/podcast-transcript-bundle.mjs --from-report output/podcast-bilingual-generation-2026-10-27.json
+```
+
+Lệnh kiểm tra toàn bộ nguồn trước khi ghi, chỉ nhận đường dẫn `storage/featured-videos/<id>/transcript-v3.json` và giữ nguyên các tệp nguồn. Không đóng gói checkpoint hoặc bản dịch chưa đầy đủ. Khi tạo thêm phụ đề, cập nhật báo cáo và gói trong lần phát hành tiếp theo; các tệp mới chỉ có trong filesystem của production vẫn cần volume/lưu trữ bền vững để tồn tại qua redeploy.
+
+12 video chưa có bản song ngữ hoàn chỉnh từ đợt tạo trước vẫn cần được tạo riêng. Bản sửa đóng gói khôi phục 134 video đã hoàn tất, không tự coi các checkpoint của 12 video đó là phụ đề sẵn sàng.

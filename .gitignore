@@ -11,5 +11,7 @@ public/*
 # Video translate media + local yt-dlp binary
 /storage/**
 !/storage/.gitkeep
+/dist/resources/
+/src/storage/cache-qa/
 /tools/yt-dlp.exe
 /tools/yt-dlp

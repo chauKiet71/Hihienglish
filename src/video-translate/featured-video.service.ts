@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { gunzipSync } from 'zlib';
 import { PodcastCatalogService } from '../podcast/podcast-catalog.service';
 import {
   VideoTranslateService,
@@ -31,13 +32,30 @@ export class FeaturedVideoService {
 
   private readTranscript(id: string): FeaturedVideoTranscript {
     const existing = this.lessons.get(id);
-    if (existing) return existing;
-    for (const path of [this.cachePath(id), this.cachePath(id, 2)]) {
+    if (existing?.status === 'READY' || existing?.status === 'PROCESSING')
+      return existing;
+    // storage is optional on a fresh Railway container; the deployment also carries
+    // the verified transcripts outside the public/static directories.
+    for (const path of [
+      this.cachePath(id),
+      this.cachePath(id, 2),
+      join(
+        __dirname,
+        '..',
+        '..',
+        'resources',
+        'podcast-transcripts',
+        `${id}.json.gz`,
+      ),
+    ]) {
       if (!existsSync(path)) continue;
       try {
-        const segments = JSON.parse(
-          readFileSync(path, 'utf8'),
-        ) as VideoSegment[];
+        const contents = path.endsWith('.gz')
+          ? gunzipSync(readFileSync(path), {
+              maxOutputLength: 16 * 1024 * 1024,
+            }).toString('utf8')
+          : readFileSync(path, 'utf8');
+        const segments = JSON.parse(contents) as VideoSegment[];
         if (
           Array.isArray(segments) &&
           segments.length &&
@@ -79,7 +97,7 @@ export class FeaturedVideoService {
         // A damaged cache can be regenerated on the next explicit request.
       }
     }
-    return { status: 'PENDING', segments: [], errorMessage: null };
+    return existing ?? { status: 'PENDING', segments: [], errorMessage: null };
   }
 
   async prepareTranscript(id: string): Promise<FeaturedVideoTranscript> {
