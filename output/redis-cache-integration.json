@@ -1,0 +1,23 @@
+{
+  "sharedRequests": 30,
+  "sourceLoads": 1,
+  "crossProcessInvalidation": "passed",
+  "ttlExpiry": "passed",
+  "corruptPayload": "passed",
+  "a": {
+    "configured": true,
+    "connected": true,
+    "hits": 1,
+    "misses": 4,
+    "loads": 4,
+    "errors": 0
+  },
+  "b": {
+    "configured": true,
+    "connected": true,
+    "hits": 1,
+    "misses": 2,
+    "loads": 2,
+    "errors": 0
+  }
+}

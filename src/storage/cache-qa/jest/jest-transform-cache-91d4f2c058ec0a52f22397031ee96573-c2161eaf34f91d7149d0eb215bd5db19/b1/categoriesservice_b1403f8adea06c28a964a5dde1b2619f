@@ -1,0 +1,46 @@
+c7595dd9cfbe593decbb509dd63a198c
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CategoriesService = void 0;
+const common_1 = require("@nestjs/common");
+const content_catalog_1 = require("../catalog/content-catalog");
+const prisma_service_1 = require("../prisma/prisma.service");
+let CategoriesService = class CategoriesService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async findAll() {
+        const catalog = (0, content_catalog_1.listCatalogCategories)();
+        if (catalog.length > 0)
+            return catalog;
+        return this.prisma.category.findMany({
+            orderBy: { lessonCount: 'desc' },
+        });
+    }
+    async findPopular() {
+        const catalog = (0, content_catalog_1.listCatalogCategories)(true);
+        if (catalog.length > 0)
+            return catalog;
+        return this.prisma.category.findMany({
+            where: { isPopular: true },
+            orderBy: { lessonCount: 'desc' },
+        });
+    }
+};
+exports.CategoriesService = CategoriesService;
+exports.CategoriesService = CategoriesService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof prisma_service_1.PrismaService !== "undefined" && prisma_service_1.PrismaService) === "function" ? _a : Object])
+], CategoriesService);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcY2F0ZWdvcmllc1xcY2F0ZWdvcmllcy5zZXJ2aWNlLnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7QUFBQSwyQ0FBNEM7QUFDNUMsZ0VBQW1FO0FBQ25FLDZEQUF5RDtBQUdsRCxJQUFNLGlCQUFpQixHQUF2QixNQUFNLGlCQUFpQjtJQUNSO0lBQXBCLFlBQW9CLE1BQXFCO1FBQXJCLFdBQU0sR0FBTixNQUFNLENBQWU7SUFBRyxDQUFDO0lBRTdDLEtBQUssQ0FBQyxPQUFPO1FBQ1gsTUFBTSxPQUFPLEdBQUcsSUFBQSx1Q0FBcUIsR0FBRSxDQUFDO1FBQ3hDLElBQUksT0FBTyxDQUFDLE1BQU0sR0FBRyxDQUFDO1lBQUUsT0FBTyxPQUFPLENBQUM7UUFDdkMsT0FBTyxJQUFJLENBQUMsTUFBTSxDQUFDLFFBQVEsQ0FBQyxRQUFRLENBQUM7WUFDbkMsT0FBTyxFQUFFLEVBQUUsV0FBVyxFQUFFLE1BQU0sRUFBRTtTQUNqQyxDQUFDLENBQUM7SUFDTCxDQUFDO0lBRUQsS0FBSyxDQUFDLFdBQVc7UUFDZixNQUFNLE9BQU8sR0FBRyxJQUFBLHVDQUFxQixFQUFDLElBQUksQ0FBQyxDQUFDO1FBQzVDLElBQUksT0FBTyxDQUFDLE1BQU0sR0FBRyxDQUFDO1lBQUUsT0FBTyxPQUFPLENBQUM7UUFDdkMsT0FBTyxJQUFJLENBQUMsTUFBTSxDQUFDLFFBQVEsQ0FBQyxRQUFRLENBQUM7WUFDbkMsS0FBSyxFQUFFLEVBQUUsU0FBUyxFQUFFLElBQUksRUFBRTtZQUMxQixPQUFPLEVBQUUsRUFBRSxXQUFXLEVBQUUsTUFBTSxFQUFFO1NBQ2pDLENBQUMsQ0FBQztJQUNMLENBQUM7Q0FDRixDQUFBO0FBbkJZLDhDQUFpQjs0QkFBakIsaUJBQWlCO0lBRDdCLElBQUEsbUJBQVUsR0FBRTt5REFFaUIsOEJBQWEsb0JBQWIsOEJBQWE7R0FEOUIsaUJBQWlCLENBbUI3QiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJEOlxcQ29kZVxcSGloaUVuZ2xpc2hcXDIxdGg5XFxIaWhpZW5nbGlzaFxcc3JjXFxjYXRlZ29yaWVzXFxjYXRlZ29yaWVzLnNlcnZpY2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgSW5qZWN0YWJsZSB9IGZyb20gJ0BuZXN0anMvY29tbW9uJztcclxuaW1wb3J0IHsgbGlzdENhdGFsb2dDYXRlZ29yaWVzIH0gZnJvbSAnLi4vY2F0YWxvZy9jb250ZW50LWNhdGFsb2cnO1xyXG5pbXBvcnQgeyBQcmlzbWFTZXJ2aWNlIH0gZnJvbSAnLi4vcHJpc21hL3ByaXNtYS5zZXJ2aWNlJztcclxuXHJcbkBJbmplY3RhYmxlKClcclxuZXhwb3J0IGNsYXNzIENhdGVnb3JpZXNTZXJ2aWNlIHtcclxuICBjb25zdHJ1Y3Rvcihwcml2YXRlIHByaXNtYTogUHJpc21hU2VydmljZSkge31cclxuXHJcbiAgYXN5bmMgZmluZEFsbCgpIHtcclxuICAgIGNvbnN0IGNhdGFsb2cgPSBsaXN0Q2F0YWxvZ0NhdGVnb3JpZXMoKTtcclxuICAgIGlmIChjYXRhbG9nLmxlbmd0aCA+IDApIHJldHVybiBjYXRhbG9nO1xyXG4gICAgcmV0dXJuIHRoaXMucHJpc21hLmNhdGVnb3J5LmZpbmRNYW55KHtcclxuICAgICAgb3JkZXJCeTogeyBsZXNzb25Db3VudDogJ2Rlc2MnIH0sXHJcbiAgICB9KTtcclxuICB9XHJcblxyXG4gIGFzeW5jIGZpbmRQb3B1bGFyKCkge1xyXG4gICAgY29uc3QgY2F0YWxvZyA9IGxpc3RDYXRhbG9nQ2F0ZWdvcmllcyh0cnVlKTtcclxuICAgIGlmIChjYXRhbG9nLmxlbmd0aCA+IDApIHJldHVybiBjYXRhbG9nO1xyXG4gICAgcmV0dXJuIHRoaXMucHJpc21hLmNhdGVnb3J5LmZpbmRNYW55KHtcclxuICAgICAgd2hlcmU6IHsgaXNQb3B1bGFyOiB0cnVlIH0sXHJcbiAgICAgIG9yZGVyQnk6IHsgbGVzc29uQ291bnQ6ICdkZXNjJyB9LFxyXG4gICAgfSk7XHJcbiAgfVxyXG59XHJcbiJdLCJ2ZXJzaW9uIjozfQ==

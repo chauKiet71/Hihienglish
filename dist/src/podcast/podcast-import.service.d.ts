@@ -1,15 +1,17 @@
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { YoutubeCatalogService } from './youtube-catalog.service';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
 import type { CatalogImportJob, ImportMode } from './catalog.types';
 export declare class PodcastImportService implements OnModuleInit, OnModuleDestroy {
     private readonly prisma;
     private readonly youtube;
+    private readonly cache?;
     private readonly logger;
     private timer?;
     private running;
     private stopped;
-    constructor(prisma: PrismaService, youtube: YoutubeCatalogService);
+    constructor(prisma: PrismaService, youtube: YoutubeCatalogService, cache?: PublicCatalogCacheService | undefined);
     onModuleInit(): void;
     onModuleDestroy(): void;
     private publicJob;

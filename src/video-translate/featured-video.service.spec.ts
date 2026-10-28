@@ -82,7 +82,7 @@ describe('FeaturedVideoService with database catalog', () => {
       errorMessage: null,
     });
     expect(writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining('transcript-v2.json'),
+      expect.stringContaining('transcript-v3.json'),
       JSON.stringify(segments),
       'utf8',
     );
@@ -95,6 +95,80 @@ describe('FeaturedVideoService with database catalog', () => {
     expect((await service.prepareTranscript(id)).status).toBe('READY');
     expect(prepare).not.toHaveBeenCalled();
   });
+
+  it('rebuilds oversized v2 captions on explicit preparation and leaves the old file intact', async () => {
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) =>
+        String(path).endsWith('transcript-v2.json'),
+      );
+    jest.mocked(readFileSync).mockReturnValue(
+      JSON.stringify([
+        {
+          start: 0,
+          end: 120,
+          en: Array(300).fill('word').join(' '),
+          vi: 'Old translation.',
+        },
+      ]),
+    );
+    expect((await service.getTranscript(id)).status).toBe('PENDING');
+    expect(prepare).not.toHaveBeenCalled();
+    await service.prepareTranscript(id);
+    await Promise.resolve();
+    expect((await service.getTranscript(id)).status).toBe('READY');
+    expect(writeFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('transcript-v3.json'),
+      expect.any(String),
+      'utf8',
+    );
+    expect(writeFileSync).not.toHaveBeenCalledWith(
+      expect.stringContaining('transcript-v2.json'),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it('keeps a readable legacy cache without regenerating translations', async () => {
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) =>
+        String(path).endsWith('transcript-v2.json'),
+      );
+    jest.mocked(readFileSync).mockReturnValue(JSON.stringify(segments));
+    expect((await service.prepareTranscript(id)).status).toBe('READY');
+    expect(prepare).not.toHaveBeenCalled();
+  });
+  it.each(
+    [
+      [
+        { start: 0, end: 3, en: 'First.', vi: 'Thứ nhất.' },
+        { start: 2, end: 4, en: 'Second.', vi: 'Thứ hai.' },
+      ],
+      [
+        {
+          start: 0,
+          end: 2,
+          en: 'Hello.',
+          vi: 'Xin chào.',
+          words: [{ text: 'Hello.', start: 1, end: 1 }],
+        },
+      ],
+      [{ start: 0, end: 2, en: 'Hello.', vi: ' ' }],
+    ].map((cached) => [cached]),
+  )(
+    'does not serve overlapping, invalid word timing or empty translation caches',
+    async (cached) => {
+      jest.mocked(existsSync).mockReturnValue(true);
+      jest.mocked(readFileSync).mockReturnValue(JSON.stringify(cached));
+      expect((await service.getTranscript(id)).status).toBe('PENDING');
+      expect(prepare).not.toHaveBeenCalled();
+      await service.prepareTranscript(id);
+      await Promise.resolve();
+      expect((await service.getTranscript(id)).status).toBe('READY');
+      expect(prepare).toHaveBeenCalledTimes(1);
+    },
+  );
   it('exposes failure and retries on explicit preparation', async () => {
     prepare.mockRejectedValueOnce(new Error('Provider unavailable'));
     await service.prepareTranscript(id);

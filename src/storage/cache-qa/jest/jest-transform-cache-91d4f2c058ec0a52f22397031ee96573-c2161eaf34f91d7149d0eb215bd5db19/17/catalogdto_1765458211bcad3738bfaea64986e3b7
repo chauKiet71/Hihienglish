@@ -1,0 +1,66 @@
+d06eb8e812fb681912cf11287c4d6a63
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CommitPodcastImportDto = exports.CreatePodcastImportDto = exports.PodcastVisibilityDto = exports.AddPodcastChannelDto = void 0;
+const class_validator_1 = require("class-validator");
+class AddPodcastChannelDto {
+    url;
+}
+exports.AddPodcastChannelDto = AddPodcastChannelDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(500),
+    __metadata("design:type", String)
+], AddPodcastChannelDto.prototype, "url", void 0);
+class PodcastVisibilityDto {
+    isVisible;
+}
+exports.PodcastVisibilityDto = PodcastVisibilityDto;
+__decorate([
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], PodcastVisibilityDto.prototype, "isVisible", void 0);
+class CreatePodcastImportDto {
+    mode;
+    count;
+    videoUrl;
+}
+exports.CreatePodcastImportDto = CreatePodcastImportDto;
+__decorate([
+    (0, class_validator_1.IsIn)(['OLDER', 'NEWER', 'URL']),
+    __metadata("design:type", Object)
+], CreatePodcastImportDto.prototype, "mode", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(100),
+    __metadata("design:type", Number)
+], CreatePodcastImportDto.prototype, "count", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(500),
+    __metadata("design:type", String)
+], CreatePodcastImportDto.prototype, "videoUrl", void 0);
+class CommitPodcastImportDto {
+    videoIds;
+}
+exports.CommitPodcastImportDto = CommitPodcastImportDto;
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1),
+    (0, class_validator_1.ArrayMaxSize)(100),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.MaxLength)(11, { each: true }),
+    __metadata("design:type", Array)
+], CommitPodcastImportDto.prototype, "videoIds", void 0);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xccG9kY2FzdFxcZHRvXFxjYXRhbG9nLmR0by50cyIsIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7QUFBQSxxREFZeUI7QUFFekIsTUFBYSxvQkFBb0I7SUFDSCxHQUFHLENBQVM7Q0FDekM7QUFGRCxvREFFQztBQUQ2QjtJQUEzQixJQUFBLDBCQUFRLEdBQUU7SUFBRSxJQUFBLDJCQUFTLEVBQUMsR0FBRyxDQUFDOztpREFBYTtBQUUxQyxNQUFhLG9CQUFvQjtJQUNsQixTQUFTLENBQVU7Q0FDakM7QUFGRCxvREFFQztBQURjO0lBQVosSUFBQSwyQkFBUyxHQUFFOzt1REFBb0I7QUFFbEMsTUFBYSxzQkFBc0I7SUFDQSxJQUFJLENBQWE7SUFDdkIsS0FBSyxDQUFTO0lBQ0MsUUFBUSxDQUFVO0NBQzdEO0FBSkQsd0RBSUM7QUFIa0M7SUFBaEMsSUFBQSxzQkFBSSxFQUFDLENBQUMsT0FBTyxFQUFFLE9BQU8sRUFBRSxLQUFLLENBQUMsQ0FBQzs7b0RBQWtCO0FBQ3ZCO0lBQTFCLElBQUEsdUJBQUssR0FBRTtJQUFFLElBQUEscUJBQUcsRUFBQyxDQUFDLENBQUM7SUFBRSxJQUFBLHFCQUFHLEVBQUMsR0FBRyxDQUFDOztxREFBZTtBQUNDO0lBQXpDLElBQUEsNEJBQVUsR0FBRTtJQUFFLElBQUEsMEJBQVEsR0FBRTtJQUFFLElBQUEsMkJBQVMsRUFBQyxHQUFHLENBQUM7O3dEQUFtQjtBQUU5RCxNQUFhLHNCQUFzQjtJQU1qQyxRQUFRLENBQVc7Q0FDcEI7QUFQRCx3REFPQztBQURDO0lBTEMsSUFBQSx5QkFBTyxHQUFFO0lBQ1QsSUFBQSw4QkFBWSxFQUFDLENBQUMsQ0FBQztJQUNmLElBQUEsOEJBQVksRUFBQyxHQUFHLENBQUM7SUFDakIsSUFBQSwwQkFBUSxFQUFDLEVBQUUsSUFBSSxFQUFFLElBQUksRUFBRSxDQUFDO0lBQ3hCLElBQUEsMkJBQVMsRUFBQyxFQUFFLEVBQUUsRUFBRSxJQUFJLEVBQUUsSUFBSSxFQUFFLENBQUM7O3dEQUNYIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkQ6XFxDb2RlXFxIaWhpRW5nbGlzaFxcMjF0aDlcXEhpaGllbmdsaXNoXFxzcmNcXHBvZGNhc3RcXGR0b1xcY2F0YWxvZy5kdG8udHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtcbiAgQXJyYXlNYXhTaXplLFxuICBBcnJheU1pblNpemUsXG4gIElzQXJyYXksXG4gIElzQm9vbGVhbixcbiAgSXNJbixcbiAgSXNJbnQsXG4gIElzT3B0aW9uYWwsXG4gIElzU3RyaW5nLFxuICBNYXgsXG4gIE1heExlbmd0aCxcbiAgTWluLFxufSBmcm9tICdjbGFzcy12YWxpZGF0b3InO1xuaW1wb3J0IHR5cGUgeyBJbXBvcnRNb2RlIH0gZnJvbSAnLi4vY2F0YWxvZy50eXBlcyc7XG5leHBvcnQgY2xhc3MgQWRkUG9kY2FzdENoYW5uZWxEdG8ge1xuICBASXNTdHJpbmcoKSBATWF4TGVuZ3RoKDUwMCkgdXJsOiBzdHJpbmc7XG59XG5leHBvcnQgY2xhc3MgUG9kY2FzdFZpc2liaWxpdHlEdG8ge1xuICBASXNCb29sZWFuKCkgaXNWaXNpYmxlOiBib29sZWFuO1xufVxuZXhwb3J0IGNsYXNzIENyZWF0ZVBvZGNhc3RJbXBvcnREdG8ge1xuICBASXNJbihbJ09MREVSJywgJ05FV0VSJywgJ1VSTCddKSBtb2RlOiBJbXBvcnRNb2RlO1xuICBASXNJbnQoKSBATWluKDEpIEBNYXgoMTAwKSBjb3VudDogbnVtYmVyO1xuICBASXNPcHRpb25hbCgpIEBJc1N0cmluZygpIEBNYXhMZW5ndGgoNTAwKSB2aWRlb1VybD86IHN0cmluZztcbn1cbmV4cG9ydCBjbGFzcyBDb21taXRQb2RjYXN0SW1wb3J0RHRvIHtcbiAgQElzQXJyYXkoKVxuICBAQXJyYXlNaW5TaXplKDEpXG4gIEBBcnJheU1heFNpemUoMTAwKVxuICBASXNTdHJpbmcoeyBlYWNoOiB0cnVlIH0pXG4gIEBNYXhMZW5ndGgoMTEsIHsgZWFjaDogdHJ1ZSB9KVxuICB2aWRlb0lkczogc3RyaW5nW107XG59XG4iXSwidmVyc2lvbiI6M30=

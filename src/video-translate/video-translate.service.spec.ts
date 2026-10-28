@@ -73,6 +73,119 @@ describe('VideoTranslateService transcript segmentation', () => {
     expect(result[0].end).toBe(1);
   });
 
+  it('does not extend a sentence across a long silent pronunciation exercise', () => {
+    const captions = [
+      { start: 0, end: 6, en: 'Put attention on the end of this sentence.' },
+      { start: 33, end: 36, en: 'Now try again.' },
+    ];
+    const result = finalize(
+      captions,
+      40,
+      buildCaptionWordTimings(captions, 40),
+    );
+    expect(result).toHaveLength(2);
+    expect(result[0].end).toBeLessThanOrEqual(6);
+    expect(result[1].start).toBe(33);
+  });
+
+  it('keeps rapid speaker changes disjoint without losing sentence words', () => {
+    const captions = [
+      { start: 0, end: 4.2, en: 'President Zelensky, how are you doing?' },
+      {
+        start: 5.52,
+        end: 15.52,
+        en: ">> Well, it's hard. Uh, I'll be honest. I",
+      },
+      {
+        start: 12.04,
+        end: 19.72,
+        en: "uh, don't sleep. It's a huge, terrifying pain that I wouldn't wish on anyone.",
+      },
+    ];
+    const result = finalize(
+      captions,
+      20,
+      buildCaptionWordTimings(captions, 20),
+    );
+    expect(result.map((segment) => segment.en).join(' ')).toBe(
+      captions.map((segment) => segment.en).join(' '),
+    );
+    result.forEach((segment, index) => {
+      expect(segment.end).toBeGreaterThan(segment.start);
+      if (index)
+        expect(segment.start).toBeGreaterThanOrEqual(result[index - 1].end);
+      segment.words?.forEach((word) => {
+        expect(word.start).toBeGreaterThanOrEqual(segment.start - 0.001);
+        expect(word.end).toBeLessThanOrEqual(segment.end + 0.001);
+        expect(word.end).toBeGreaterThan(word.start);
+      });
+    });
+  });
+
+  it('separates brief replies in overlapping dialogue caption windows', () => {
+    const captions = [
+      {
+        start: 13.28,
+        end: 19.32,
+        en: 'English, do you speak it? Yes. English.',
+      },
+      { start: 17.48, end: 23.36, en: 'English, do you English.' },
+      {
+        start: 20.48,
+        end: 27.64,
+        en: 'English, do you speak it? Hello again.',
+      },
+    ];
+    const result = finalize(
+      captions,
+      28,
+      buildCaptionWordTimings(captions, 28),
+    );
+    expect(result.some((segment) => segment.en === 'Yes.')).toBe(true);
+    result.forEach((segment, index) => {
+      expect(segment.end).toBeGreaterThan(segment.start);
+      if (index)
+        expect(segment.start).toBeGreaterThanOrEqual(result[index - 1].end);
+    });
+  });
+
+  it('keeps repeated speaker replies in source order when estimated timestamps move backwards', () => {
+    const captions = [
+      {
+        start: 6576.08,
+        end: 6578.04,
+        en: '>> Thank you so much. >> All the best.',
+      },
+      {
+        start: 6577.12,
+        end: 6578.96,
+        en: '>> best. Thank you so much. >> Thank you so much.',
+      },
+      {
+        start: 6578.44,
+        end: 6581.64,
+        en: '>> Thank you. >> Thank you so much.',
+      },
+    ];
+    const result = finalize(
+      captions,
+      6582,
+      buildCaptionWordTimings(captions, 6582),
+    );
+    expect(
+      result.filter((segment) => segment.en === '>> Thank you so much.'),
+    ).toHaveLength(3);
+    result.forEach((segment, index) => {
+      expect(segment.end).toBeGreaterThan(segment.start);
+      if (index)
+        expect(segment.start).toBeGreaterThanOrEqual(result[index - 1].end);
+      segment.words?.forEach((word) => {
+        expect(word.start).toBeGreaterThanOrEqual(segment.start - 0.001);
+        expect(word.end).toBeLessThanOrEqual(segment.end + 0.001);
+      });
+    });
+  });
+
   it('keeps unfinished fragments together below the 0.5 second threshold', () => {
     const result = finalize([
       { start: 0, end: 1, en: 'Let me' },
@@ -129,6 +242,94 @@ describe('VideoTranslateService transcript segmentation', () => {
     expect(result[0].en).toBe(
       'This is an old historical road, which is actually now one of the most modern pedestrian streets in all of China and Guangzhou.',
     );
+  });
+
+  it('bounds continuous unpunctuated captions without dropping or reordering words', () => {
+    const captions = Array.from({ length: 30 }, (_, index) => ({
+      start: index * 2,
+      end: index * 2 + 1.9,
+      en: `word${index} alpha${index} beta${index} gamma${index}`,
+    }));
+    const result = finalize(captions, 60);
+    expect(result.length).toBeGreaterThan(2);
+    expect(
+      result.every((segment) => segment.en.split(/\s+/).length <= 40),
+    ).toBe(true);
+    expect(result.map((segment) => segment.en).join(' ')).toBe(
+      captions.map((segment) => segment.en).join(' '),
+    );
+  });
+
+  it('maps repeated sentences to successive words instead of reusing earlier timestamps', () => {
+    const result = finalize([{ start: 0, end: 2, en: 'I know. I know.' }], 2, [
+      { start: 0, end: 0.2, en: 'I' },
+      { start: 0.2, end: 0.9, en: 'know' },
+      { start: 1, end: 1.2, en: 'I' },
+      { start: 1.2, end: 2, en: 'know' },
+    ]);
+    expect(result).toHaveLength(2);
+    expect(result[0].start).toBe(0);
+    expect(result[1].start).toBe(1);
+    expect(result[0].end).toBeLessThanOrEqual(result[1].start);
+  });
+
+  it('preserves an intentionally repeated completed sentence after a positive gap', () => {
+    expect(
+      finalize([
+        { start: 0, end: 1, en: 'I know.' },
+        { start: 1.1, end: 2, en: 'I know.' },
+      ]),
+    ).toHaveLength(2);
+  });
+
+  it('splits a single oversized cue using its word timestamps', () => {
+    const tokens = Array.from({ length: 100 }, (_, index) => `word${index}`);
+    const words = tokens.map((en, index) => ({
+      en,
+      start: index * 0.5,
+      end: index * 0.5 + 0.45,
+    }));
+    const result = finalize(
+      [{ start: 0, end: 50, en: tokens.join(' ') }],
+      50,
+      words,
+    );
+    expect(result.length).toBeGreaterThan(2);
+    expect(result.map((segment) => segment.en).join(' ')).toBe(
+      tokens.join(' '),
+    );
+    expect(result[1].start).toBe(result[1].words![0].start);
+    expect(result.every((segment) => segment.words!.length <= 40)).toBe(true);
+  });
+
+  it('keeps overlapping multi-sentence captions in speech order', () => {
+    const captions = [
+      { start: 0, end: 10, en: 'Actually, you know what? I will do it.' },
+      {
+        start: 5,
+        end: 12,
+        en: 'For this video, you can go to the description.',
+      },
+      { start: 10, end: 14, en: 'You can ask questions.' },
+    ];
+    const result = finalize(
+      captions,
+      14,
+      buildCaptionWordTimings(captions, 14),
+    );
+    expect(result.map((segment) => segment.en)).toEqual([
+      'Actually, you know what?',
+      'I will do it.',
+      'For this video, you can go to the description.',
+      'You can ask questions.',
+    ]);
+    expect(result[2].end - result[2].start).toBeGreaterThan(2);
+    expect(
+      result.every(
+        (segment, index) =>
+          !index || segment.start >= result[index - 1].end - 0.001,
+      ),
+    ).toBe(true);
   });
 
   it('uses punctuated Whisper segments instead of bare word tokens', () => {

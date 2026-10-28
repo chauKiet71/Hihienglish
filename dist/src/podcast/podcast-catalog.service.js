@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PodcastCatalogService = void 0;
 const common_1 = require("@nestjs/common");
@@ -17,12 +20,16 @@ const volka_videos_1 = require("../catalog/volka-videos");
 const youtube_catalog_service_1 = require("./youtube-catalog.service");
 const fs_1 = require("fs");
 const path_1 = require("path");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
 let PodcastCatalogService = class PodcastCatalogService {
     prisma;
     youtube;
-    constructor(prisma, youtube) {
+    cache;
+    constructor(prisma, youtube, cache) {
         this.prisma = prisma;
         this.youtube = youtube;
+        this.cache = cache;
     }
     async onModuleInit() {
         const seeds = [
@@ -35,8 +42,9 @@ let PodcastCatalogService = class PodcastCatalogService {
             },
             ...podcast_1.PODCAST_CHANNELS,
         ];
+        let seeded = false;
         await this.prisma.$transaction(async (tx) => {
-            await tx.podcastChannel.createMany({
+            const channels = await tx.podcastChannel.createMany({
                 data: seeds.map((channel, index) => ({
                     id: channel.id,
                     youtubeChannelId: channel.channelId,
@@ -49,14 +57,15 @@ let PodcastCatalogService = class PodcastCatalogService {
                 })),
                 skipDuplicates: true,
             });
-            await tx.podcastVideo.createMany({
+            const videos = await tx.podcastVideo.createMany({
                 data: seeds.flatMap((channel) => channel.videos.map((video, sortOrder) => ({
                     id: video.id,
                     channelId: channel.id,
                     title: video.title,
                     duration: video.duration,
                     sortOrder,
-                    transcriptStatus: (0, fs_1.existsSync)((0, path_1.join)(process.cwd(), 'storage', 'featured-videos', video.id, 'transcript-v2.json'))
+                    transcriptStatus: (0, fs_1.existsSync)((0, path_1.join)(process.cwd(), 'storage', 'featured-videos', video.id, 'transcript-v3.json')) ||
+                        (0, fs_1.existsSync)((0, path_1.join)(process.cwd(), 'storage', 'featured-videos', video.id, 'transcript-v2.json'))
                         ? 'READY'
                         : 'PENDING',
                     publishedAt: 'publishedAt' in video
@@ -65,7 +74,10 @@ let PodcastCatalogService = class PodcastCatalogService {
                 }))),
                 skipDuplicates: true,
             });
+            seeded = !!(channels?.count || videos?.count);
         }, { maxWait: 15_000, timeout: 20_000 });
+        if (seeded)
+            await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
     }
     async list(admin = false) {
         const channels = await this.prisma.podcastChannel.findMany({
@@ -128,13 +140,15 @@ let PodcastCatalogService = class PodcastCatalogService {
             _max: { sortOrder: true },
         });
         try {
-            return await this.prisma.podcastChannel.create({
+            const channel = await this.prisma.podcastChannel.create({
                 data: {
                     ...data,
                     id: data.youtubeChannelId,
                     sortOrder: (last._max.sortOrder ?? 0) + 1,
                 },
             });
+            await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
+            return channel;
         }
         catch (error) {
             if (error.code === 'P2002')
@@ -145,29 +159,37 @@ let PodcastCatalogService = class PodcastCatalogService {
     async setChannelVisible(id, isVisible) {
         if (!(await this.prisma.podcastChannel.findUnique({ where: { id } })))
             throw new common_1.NotFoundException('Không tìm thấy kênh.');
-        return this.prisma.podcastChannel.update({
+        const channel = await this.prisma.podcastChannel.update({
             where: { id },
             data: { isVisible },
         });
+        await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
+        return channel;
     }
     async setVideoVisible(id, isVisible) {
         await this.findVideo(id, true);
-        return this.prisma.podcastVideo.update({
+        const video = await this.prisma.podcastVideo.update({
             where: { id },
             data: { isVisible },
         });
+        await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
+        return video;
     }
     async setTranscriptStatus(id, status) {
-        await this.prisma.podcastVideo.updateMany({
-            where: { id },
+        const updated = await this.prisma.podcastVideo.updateMany({
+            where: { id, transcriptStatus: { not: status } },
             data: { transcriptStatus: status },
         });
+        if (updated?.count)
+            await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
     }
 };
 exports.PodcastCatalogService = PodcastCatalogService;
 exports.PodcastCatalogService = PodcastCatalogService = __decorate([
     (0, common_1.Injectable)(),
+    __param(2, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        youtube_catalog_service_1.YoutubeCatalogService])
+        youtube_catalog_service_1.YoutubeCatalogService,
+        public_catalog_cache_service_1.PublicCatalogCacheService])
 ], PodcastCatalogService);
 //# sourceMappingURL=podcast-catalog.service.js.map

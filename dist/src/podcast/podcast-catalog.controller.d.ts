@@ -2,9 +2,11 @@ import { PodcastCatalogService } from './podcast-catalog.service';
 import { PodcastImportService } from './podcast-import.service';
 import { YoutubeCatalogService } from './youtube-catalog.service';
 import { AddPodcastChannelDto, CommitPodcastImportDto, CreatePodcastImportDto, PodcastVisibilityDto } from './dto/catalog.dto';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
 export declare class PodcastCatalogController {
     private readonly catalog;
-    constructor(catalog: PodcastCatalogService);
+    private readonly cache?;
+    constructor(catalog: PodcastCatalogService, cache?: PublicCatalogCacheService | undefined);
     list(): Promise<import("./catalog.types").CatalogChannel[]>;
 }
 export declare class AdminPodcastCatalogController {

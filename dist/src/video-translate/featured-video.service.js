@@ -33,8 +33,9 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
         const existing = this.lessons.get(id);
         if (existing)
             return existing;
-        const path = this.cachePath(id);
-        if ((0, fs_1.existsSync)(path)) {
+        for (const path of [this.cachePath(id), this.cachePath(id, 2)]) {
+            if (!(0, fs_1.existsSync)(path))
+                continue;
             try {
                 const segments = JSON.parse((0, fs_1.readFileSync)(path, 'utf8'));
                 if (Array.isArray(segments) &&
@@ -42,9 +43,21 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
                     segments.every((segment, index) => Number.isFinite(segment.start) &&
                         Number.isFinite(segment.end) &&
                         segment.end > segment.start &&
-                        segment.start >= (segments[index - 1]?.start ?? 0) &&
+                        segment.start >= (segments[index - 1]?.end ?? 0) - 0.001 &&
                         typeof segment.en === 'string' &&
-                        typeof segment.vi === 'string')) {
+                        typeof segment.vi === 'string' &&
+                        segment.en.trim().length > 0 &&
+                        segment.vi.trim().length > 0 &&
+                        (!segment.words ||
+                            segment.words.every((word) => Number.isFinite(word.start) &&
+                                Number.isFinite(word.end) &&
+                                word.end > word.start &&
+                                word.start >= segment.start - 0.001 &&
+                                word.end <= segment.end + 0.001)) &&
+                        segment.en.split(/\s+/).filter(Boolean).length <=
+                            video_translate_service_1.TRANSCRIPT_RULES.maxWords &&
+                        (segment.end - segment.start <= video_translate_service_1.TRANSCRIPT_RULES.maxDurationSec ||
+                            segment.en.split(/\s+/).filter(Boolean).length < 8))) {
                     const result = {
                         status: 'READY',
                         segments,
@@ -98,8 +111,8 @@ let FeaturedVideoService = FeaturedVideoService_1 = class FeaturedVideoService {
     saveStatus(id, status) {
         void this.catalog.setTranscriptStatus(id, status).catch(() => { });
     }
-    cachePath(id) {
-        return (0, path_1.join)(process.cwd(), 'storage', 'featured-videos', id, 'transcript-v2.json');
+    cachePath(id, version = 3) {
+        return (0, path_1.join)(process.cwd(), 'storage', 'featured-videos', id, `transcript-v${version}.json`);
     }
 };
 exports.FeaturedVideoService = FeaturedVideoService;

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PODCAST_CHANNELS } from '../catalog/podcast';
@@ -11,12 +12,15 @@ import { YoutubeCatalogService } from './youtube-catalog.service';
 import type { CatalogChannel } from './catalog.types';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
+import { PublicCatalogKeys } from '../public-cache/public-catalog.keys';
 
 @Injectable()
 export class PodcastCatalogService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly youtube: YoutubeCatalogService,
+    @Optional() private readonly cache?: PublicCatalogCacheService,
   ) {}
 
   async onModuleInit() {
@@ -31,9 +35,10 @@ export class PodcastCatalogService implements OnModuleInit {
       },
       ...PODCAST_CHANNELS,
     ];
+    let seeded = false;
     await this.prisma.$transaction(
       async (tx) => {
-        await tx.podcastChannel.createMany({
+        const channels = await tx.podcastChannel.createMany({
           data: seeds.map((channel, index) => ({
             id: channel.id,
             youtubeChannelId: channel.channelId,
@@ -46,7 +51,7 @@ export class PodcastCatalogService implements OnModuleInit {
           })),
           skipDuplicates: true,
         });
-        await tx.podcastVideo.createMany({
+        const videos = await tx.podcastVideo.createMany({
           data: seeds.flatMap((channel) =>
             channel.videos.map((video, sortOrder) => ({
               id: video.id,
@@ -54,17 +59,27 @@ export class PodcastCatalogService implements OnModuleInit {
               title: video.title,
               duration: video.duration,
               sortOrder,
-              transcriptStatus: existsSync(
-                join(
-                  process.cwd(),
-                  'storage',
-                  'featured-videos',
-                  video.id,
-                  'transcript-v2.json',
-                ),
-              )
-                ? 'READY'
-                : 'PENDING',
+              transcriptStatus:
+                existsSync(
+                  join(
+                    process.cwd(),
+                    'storage',
+                    'featured-videos',
+                    video.id,
+                    'transcript-v3.json',
+                  ),
+                ) ||
+                existsSync(
+                  join(
+                    process.cwd(),
+                    'storage',
+                    'featured-videos',
+                    video.id,
+                    'transcript-v2.json',
+                  ),
+                )
+                  ? 'READY'
+                  : 'PENDING',
               publishedAt:
                 'publishedAt' in video
                   ? new Date(video.publishedAt as string)
@@ -73,9 +88,11 @@ export class PodcastCatalogService implements OnModuleInit {
           ),
           skipDuplicates: true,
         });
+        seeded = !!(channels?.count || videos?.count);
       },
       { maxWait: 15_000, timeout: 20_000 },
     );
+    if (seeded) await this.cache?.invalidate(PublicCatalogKeys.podcasts);
   }
 
   async list(admin = false): Promise<CatalogChannel[]> {
@@ -157,13 +174,15 @@ export class PodcastCatalogService implements OnModuleInit {
       _max: { sortOrder: true },
     });
     try {
-      return await this.prisma.podcastChannel.create({
+      const channel = await this.prisma.podcastChannel.create({
         data: {
           ...data,
           id: data.youtubeChannelId,
           sortOrder: (last._max.sortOrder ?? 0) + 1,
         },
       });
+      await this.cache?.invalidate(PublicCatalogKeys.podcasts);
+      return channel;
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002')
         throw new ConflictException('Kênh này đã có trong danh sách.');
@@ -174,22 +193,28 @@ export class PodcastCatalogService implements OnModuleInit {
   async setChannelVisible(id: string, isVisible: boolean) {
     if (!(await this.prisma.podcastChannel.findUnique({ where: { id } })))
       throw new NotFoundException('Không tìm thấy kênh.');
-    return this.prisma.podcastChannel.update({
+    const channel = await this.prisma.podcastChannel.update({
       where: { id },
       data: { isVisible },
     });
+    await this.cache?.invalidate(PublicCatalogKeys.podcasts);
+    return channel;
   }
   async setVideoVisible(id: string, isVisible: boolean) {
     await this.findVideo(id, true);
-    return this.prisma.podcastVideo.update({
+    const video = await this.prisma.podcastVideo.update({
       where: { id },
       data: { isVisible },
     });
+    await this.cache?.invalidate(PublicCatalogKeys.podcasts);
+    return video;
   }
   async setTranscriptStatus(id: string, status: string) {
-    await this.prisma.podcastVideo.updateMany({
-      where: { id },
+    const updated = await this.prisma.podcastVideo.updateMany({
+      where: { id, transcriptStatus: { not: status } },
       data: { transcriptStatus: status },
     });
+    if (updated?.count)
+      await this.cache?.invalidate(PublicCatalogKeys.podcasts);
   }
 }

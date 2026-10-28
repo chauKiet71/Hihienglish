@@ -1,0 +1,185 @@
+{
+  "/api/podcasts/catalog": {
+    "samples": [
+      {
+        "ttfbMs": 30.69279999999999,
+        "totalMs": 32.471000000000004,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 4.7928,
+        "totalMs": 5.265100000000004,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 3.81519999999999,
+        "totalMs": 4.236799999999988,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 4.1768,
+        "totalMs": 4.587700000000012,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 3.6942999999999984,
+        "totalMs": 4.156400000000005,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 3.6141999999999967,
+        "totalMs": 3.987799999999993,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      },
+      {
+        "ttfbMs": 3.1410999999999945,
+        "totalMs": 3.512199999999993,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 9726,
+        "jsonBytes": 44809
+      }
+    ],
+    "medianTtfbMs": 3.81519999999999
+  },
+  "/api/categories": {
+    "samples": [
+      {
+        "ttfbMs": 2.304700000000011,
+        "totalMs": 2.6681000000000097,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 2.2643000000000058,
+        "totalMs": 2.5134000000000043,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 2.585400000000007,
+        "totalMs": 2.8378000000000014,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 2.6958000000000055,
+        "totalMs": 2.9044999999999987,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 2.129099999999994,
+        "totalMs": 2.333500000000015,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 1.7412999999999954,
+        "totalMs": 1.9463999999999828,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      },
+      {
+        "ttfbMs": 1.7608000000000175,
+        "totalMs": 1.9575000000000102,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 1902,
+        "jsonBytes": 6907
+      }
+    ],
+    "medianTtfbMs": 2.2643000000000058
+  },
+  "/api/lessons?featured=true": {
+    "samples": [
+      {
+        "ttfbMs": 4.168000000000006,
+        "totalMs": 4.490000000000009,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 3.399300000000011,
+        "totalMs": 3.7069999999999936,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 3.527200000000022,
+        "totalMs": 3.8548000000000116,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 3.454499999999996,
+        "totalMs": 3.762500000000017,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 3.754799999999989,
+        "totalMs": 4.208500000000015,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 3.7117999999999824,
+        "totalMs": 4.028699999999986,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      },
+      {
+        "ttfbMs": 4.087500000000006,
+        "totalMs": 4.4221,
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 8974,
+        "jsonBytes": 72736
+      }
+    ],
+    "medianTtfbMs": 3.7117999999999824
+  }
+}

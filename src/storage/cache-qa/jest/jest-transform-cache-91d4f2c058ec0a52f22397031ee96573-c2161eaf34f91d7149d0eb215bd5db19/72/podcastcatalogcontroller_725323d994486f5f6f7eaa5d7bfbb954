@@ -1,0 +1,157 @@
+24e57517c39a326d56f7cfa6f70dd566
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminPodcastCatalogController = exports.PodcastCatalogController = void 0;
+const common_1 = require("@nestjs/common");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const admin_guard_1 = require("../auth/admin.guard");
+const podcast_catalog_service_1 = require("./podcast-catalog.service");
+const podcast_import_service_1 = require("./podcast-import.service");
+const youtube_catalog_service_1 = require("./youtube-catalog.service");
+const catalog_dto_1 = require("./dto/catalog.dto");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
+let PodcastCatalogController = class PodcastCatalogController {
+    catalog;
+    cache;
+    constructor(catalog, cache) {
+        this.catalog = catalog;
+        this.cache = cache;
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.podcasts, public_catalog_keys_1.PODCAST_CATALOG_TTL_MS, () => catalog.list());
+    }
+    list() {
+        return (this.cache?.getOrLoad(public_catalog_keys_1.PublicCatalogKeys.podcasts, public_catalog_keys_1.PODCAST_CATALOG_TTL_MS, () => this.catalog.list()) ?? this.catalog.list());
+    }
+};
+exports.PodcastCatalogController = PodcastCatalogController;
+__decorate([
+    (0, common_1.Get)('catalog'),
+    (0, common_1.Header)('Cache-Control', 'no-store'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PodcastCatalogController.prototype, "list", null);
+exports.PodcastCatalogController = PodcastCatalogController = __decorate([
+    (0, common_1.Controller)('podcasts'),
+    __param(1, (0, common_1.Optional)()),
+    __metadata("design:paramtypes", [typeof (_a = typeof podcast_catalog_service_1.PodcastCatalogService !== "undefined" && podcast_catalog_service_1.PodcastCatalogService) === "function" ? _a : Object, typeof (_b = typeof public_catalog_cache_service_1.PublicCatalogCacheService !== "undefined" && public_catalog_cache_service_1.PublicCatalogCacheService) === "function" ? _b : Object])
+], PodcastCatalogController);
+let AdminPodcastCatalogController = class AdminPodcastCatalogController {
+    catalog;
+    imports;
+    youtube;
+    constructor(catalog, imports, youtube) {
+        this.catalog = catalog;
+        this.imports = imports;
+        this.youtube = youtube;
+    }
+    async list() {
+        return {
+            channels: await this.catalog.list(true),
+            youtubeConfigured: this.youtube.configured,
+        };
+    }
+    add(dto) {
+        return this.catalog.addChannel(dto.url);
+    }
+    channelVisibility(id, dto) {
+        return this.catalog.setChannelVisible(id, dto.isVisible);
+    }
+    videoVisibility(id, dto) {
+        return this.catalog.setVideoVisible(id, dto.isVisible);
+    }
+    jobs(id) {
+        return this.imports.list(id);
+    }
+    start(id, dto) {
+        return this.imports.create(id, dto.mode, dto.count, dto.videoUrl);
+    }
+    job(id) {
+        return this.imports.get(id);
+    }
+    commit(id, dto) {
+        return this.imports.commit(id, dto.videoIds);
+    }
+};
+exports.AdminPodcastCatalogController = AdminPodcastCatalogController;
+__decorate([
+    (0, common_1.Get)('catalog'),
+    (0, common_1.Header)('Cache-Control', 'private, no-store'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminPodcastCatalogController.prototype, "list", null);
+__decorate([
+    (0, common_1.Post)('channels'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_f = typeof catalog_dto_1.AddPodcastChannelDto !== "undefined" && catalog_dto_1.AddPodcastChannelDto) === "function" ? _f : Object]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "add", null);
+__decorate([
+    (0, common_1.Patch)('channels/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, typeof (_g = typeof catalog_dto_1.PodcastVisibilityDto !== "undefined" && catalog_dto_1.PodcastVisibilityDto) === "function" ? _g : Object]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "channelVisibility", null);
+__decorate([
+    (0, common_1.Patch)('videos/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, typeof (_h = typeof catalog_dto_1.PodcastVisibilityDto !== "undefined" && catalog_dto_1.PodcastVisibilityDto) === "function" ? _h : Object]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "videoVisibility", null);
+__decorate([
+    (0, common_1.Get)('channels/:id/imports'),
+    (0, common_1.Header)('Cache-Control', 'private, no-store'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "jobs", null);
+__decorate([
+    (0, common_1.Post)('channels/:id/imports'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, typeof (_j = typeof catalog_dto_1.CreatePodcastImportDto !== "undefined" && catalog_dto_1.CreatePodcastImportDto) === "function" ? _j : Object]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "start", null);
+__decorate([
+    (0, common_1.Get)('imports/:id'),
+    (0, common_1.Header)('Cache-Control', 'private, no-store'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "job", null);
+__decorate([
+    (0, common_1.Post)('imports/:id/commit'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, typeof (_k = typeof catalog_dto_1.CommitPodcastImportDto !== "undefined" && catalog_dto_1.CommitPodcastImportDto) === "function" ? _k : Object]),
+    __metadata("design:returntype", void 0)
+], AdminPodcastCatalogController.prototype, "commit", null);
+exports.AdminPodcastCatalogController = AdminPodcastCatalogController = __decorate([
+    (0, common_1.Controller)('admin/podcasts'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    __metadata("design:paramtypes", [typeof (_c = typeof podcast_catalog_service_1.PodcastCatalogService !== "undefined" && podcast_catalog_service_1.PodcastCatalogService) === "function" ? _c : Object, typeof (_d = typeof podcast_import_service_1.PodcastImportService !== "undefined" && podcast_import_service_1.PodcastImportService) === "function" ? _d : Object, typeof (_e = typeof youtube_catalog_service_1.YoutubeCatalogService !== "undefined" && youtube_catalog_service_1.YoutubeCatalogService) === "function" ? _e : Object])
+], AdminPodcastCatalogController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xccG9kY2FzdFxccG9kY2FzdC1jYXRhbG9nLmNvbnRyb2xsZXIudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLDJDQVV3QjtBQUN4QiwyREFBc0Q7QUFDdEQscURBQWlEO0FBQ2pELHVFQUFrRTtBQUNsRSxxRUFBZ0U7QUFDaEUsdUVBQWtFO0FBQ2xFLG1EQUsyQjtBQUMzQiwrRkFBeUY7QUFDekYsNkVBRzZDO0FBR3RDLElBQU0sd0JBQXdCLEdBQTlCLE1BQU0sd0JBQXdCO0lBRWhCO0lBQ1k7SUFGL0IsWUFDbUIsT0FBOEIsRUFDbEIsS0FBaUM7UUFEN0MsWUFBTyxHQUFQLE9BQU8sQ0FBdUI7UUFDbEIsVUFBSyxHQUFMLEtBQUssQ0FBNEI7UUFFOUQsS0FBSyxFQUFFLFFBQVEsQ0FBQyx1Q0FBaUIsQ0FBQyxRQUFRLEVBQUUsNENBQXNCLEVBQUUsR0FBRyxFQUFFLENBQ3ZFLE9BQU8sQ0FBQyxJQUFJLEVBQUUsQ0FDZixDQUFDO0lBQ0osQ0FBQztJQUNvRCxJQUFJO1FBQ3ZELE9BQU8sQ0FDTCxJQUFJLENBQUMsS0FBSyxFQUFFLFNBQVMsQ0FDbkIsdUNBQWlCLENBQUMsUUFBUSxFQUMxQiw0Q0FBc0IsRUFDdEIsR0FBRyxFQUFFLENBQUMsSUFBSSxDQUFDLE9BQU8sQ0FBQyxJQUFJLEVBQUUsQ0FDMUIsSUFBSSxJQUFJLENBQUMsT0FBTyxDQUFDLElBQUksRUFBRSxDQUN6QixDQUFDO0lBQ0osQ0FBQztDQUNGLENBQUE7QUFsQlksNERBQXdCO0FBU2tCO0lBQXBELElBQUEsWUFBRyxFQUFDLFNBQVMsQ0FBQztJQUFFLElBQUEsZUFBTSxFQUFDLGVBQWUsRUFBRSxVQUFVLENBQUM7Ozs7b0RBUW5EO21DQWpCVSx3QkFBd0I7SUFEcEMsSUFBQSxtQkFBVSxFQUFDLFVBQVUsQ0FBQztJQUlsQixXQUFBLElBQUEsaUJBQVEsR0FBRSxDQUFBO3lEQURlLCtDQUFxQixvQkFBckIsK0NBQXFCLG9EQUNWLHdEQUF5QixvQkFBekIsd0RBQXlCO0dBSHJELHdCQUF3QixDQWtCcEM7QUFJTSxJQUFNLDZCQUE2QixHQUFuQyxNQUFNLDZCQUE2QjtJQUVyQjtJQUNBO0lBQ0E7SUFIbkIsWUFDbUIsT0FBOEIsRUFDOUIsT0FBNkIsRUFDN0IsT0FBOEI7UUFGOUIsWUFBTyxHQUFQLE9BQU8sQ0FBdUI7UUFDOUIsWUFBTyxHQUFQLE9BQU8sQ0FBc0I7UUFDN0IsWUFBTyxHQUFQLE9BQU8sQ0FBdUI7SUFDOUMsQ0FBQztJQUNnRSxBQUFOLEtBQUssQ0FBQyxJQUFJO1FBQ3RFLE9BQU87WUFDTCxRQUFRLEVBQUUsTUFBTSxJQUFJLENBQUMsT0FBTyxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUM7WUFDdkMsaUJBQWlCLEVBQUUsSUFBSSxDQUFDLE9BQU8sQ0FBQyxVQUFVO1NBQzNDLENBQUM7SUFDSixDQUFDO0lBQ2lCLEdBQUcsQ0FBUyxHQUF5QjtRQUNyRCxPQUFPLElBQUksQ0FBQyxPQUFPLENBQUMsVUFBVSxDQUFDLEdBQUcsQ0FBQyxHQUFHLENBQUMsQ0FBQztJQUMxQyxDQUFDO0lBQ3NCLGlCQUFpQixDQUN6QixFQUFVLEVBQ2YsR0FBeUI7UUFFakMsT0FBTyxJQUFJLENBQUMsT0FBTyxDQUFDLGlCQUFpQixDQUFDLEVBQUUsRUFBRSxHQUFHLENBQUMsU0FBUyxDQUFDLENBQUM7SUFDM0QsQ0FBQztJQUNvQixlQUFlLENBQ3JCLEVBQVUsRUFDZixHQUF5QjtRQUVqQyxPQUFPLElBQUksQ0FBQyxPQUFPLENBQUMsZUFBZSxDQUFDLEVBQUUsRUFBRSxHQUFHLENBQUMsU0FBUyxDQUFDLENBQUM7SUFDekQsQ0FBQztJQUdELElBQUksQ0FBYyxFQUFVO1FBQzFCLE9BQU8sSUFBSSxDQUFDLE9BQU8sQ0FBQyxJQUFJLENBQUMsRUFBRSxDQUFDLENBQUM7SUFDL0IsQ0FBQztJQUM2QixLQUFLLENBQ3BCLEVBQVUsRUFDZixHQUEyQjtRQUVuQyxPQUFPLElBQUksQ0FBQyxPQUFPLENBQUMsTUFBTSxDQUFDLEVBQUUsRUFBRSxHQUFHLENBQUMsSUFBSSxFQUFFLEdBQUcsQ0FBQyxLQUFLLEVBQUUsR0FBRyxDQUFDLFFBQVEsQ0FBQyxDQUFDO0lBQ3BFLENBQUM7SUFDaUUsR0FBRyxDQUN0RCxFQUFVO1FBRXZCLE9BQU8sSUFBSSxDQUFDLE9BQU8sQ0FBQyxHQUFHLENBQUMsRUFBRSxDQUFDLENBQUM7SUFDOUIsQ0FBQztJQUMyQixNQUFNLENBQ25CLEVBQVUsRUFDZixHQUEyQjtRQUVuQyxPQUFPLElBQUksQ0FBQyxPQUFPLENBQUMsTUFBTSxDQUFDLEVBQUUsRUFBRSxHQUFHLENBQUMsUUFBUSxDQUFDLENBQUM7SUFDL0MsQ0FBQztDQUNGLENBQUE7QUFqRFksc0VBQTZCO0FBTTRCO0lBQW5FLElBQUEsWUFBRyxFQUFDLFNBQVMsQ0FBQztJQUFFLElBQUEsZUFBTSxFQUFDLGVBQWUsRUFBRSxtQkFBbUIsQ0FBQzs7Ozt5REFLNUQ7QUFDaUI7SUFBakIsSUFBQSxhQUFJLEVBQUMsVUFBVSxDQUFDO0lBQU0sV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOzt5REFBTSxrQ0FBb0Isb0JBQXBCLGtDQUFvQjs7d0RBRXREO0FBQ3NCO0lBQXRCLElBQUEsY0FBSyxFQUFDLGNBQWMsQ0FBQztJQUNuQixXQUFBLElBQUEsY0FBSyxFQUFDLElBQUksQ0FBQyxDQUFBO0lBQ1gsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOztpRUFBTSxrQ0FBb0Isb0JBQXBCLGtDQUFvQjs7c0VBR2xDO0FBQ29CO0lBQXBCLElBQUEsY0FBSyxFQUFDLFlBQVksQ0FBQztJQUNqQixXQUFBLElBQUEsY0FBSyxFQUFDLElBQUksQ0FBQyxDQUFBO0lBQ1gsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOztpRUFBTSxrQ0FBb0Isb0JBQXBCLGtDQUFvQjs7b0VBR2xDO0FBR0Q7SUFGQyxJQUFBLFlBQUcsRUFBQyxzQkFBc0IsQ0FBQztJQUMzQixJQUFBLGVBQU0sRUFBQyxlQUFlLEVBQUUsbUJBQW1CLENBQUM7SUFDdkMsV0FBQSxJQUFBLGNBQUssRUFBQyxJQUFJLENBQUMsQ0FBQTs7Ozt5REFFaEI7QUFDNkI7SUFBN0IsSUFBQSxhQUFJLEVBQUMsc0JBQXNCLENBQUM7SUFDMUIsV0FBQSxJQUFBLGNBQUssRUFBQyxJQUFJLENBQUMsQ0FBQTtJQUNYLFdBQUEsSUFBQSxhQUFJLEdBQUUsQ0FBQTs7aUVBQU0sb0NBQXNCLG9CQUF0QixvQ0FBc0I7OzBEQUdwQztBQUNpRTtJQUFqRSxJQUFBLFlBQUcsRUFBQyxhQUFhLENBQUM7SUFBRSxJQUFBLGVBQU0sRUFBQyxlQUFlLEVBQUUsbUJBQW1CLENBQUM7SUFDOUQsV0FBQSxJQUFBLGNBQUssRUFBQyxJQUFJLENBQUMsQ0FBQTs7Ozt3REFHYjtBQUMyQjtJQUEzQixJQUFBLGFBQUksRUFBQyxvQkFBb0IsQ0FBQztJQUN4QixXQUFBLElBQUEsY0FBSyxFQUFDLElBQUksQ0FBQyxDQUFBO0lBQ1gsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOztpRUFBTSxvQ0FBc0Isb0JBQXRCLG9DQUFzQjs7MkRBR3BDO3dDQWhEVSw2QkFBNkI7SUFGekMsSUFBQSxtQkFBVSxFQUFDLGdCQUFnQixDQUFDO0lBQzVCLElBQUEsa0JBQVMsRUFBQyw2QkFBWSxFQUFFLHdCQUFVLENBQUM7eURBR04sK0NBQXFCLG9CQUFyQiwrQ0FBcUIsb0RBQ3JCLDZDQUFvQixvQkFBcEIsNkNBQW9CLG9EQUNwQiwrQ0FBcUIsb0JBQXJCLCtDQUFxQjtHQUp0Qyw2QkFBNkIsQ0FpRHpDIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkQ6XFxDb2RlXFxIaWhpRW5nbGlzaFxcMjF0aDlcXEhpaGllbmdsaXNoXFxzcmNcXHBvZGNhc3RcXHBvZGNhc3QtY2F0YWxvZy5jb250cm9sbGVyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7XG4gIEJvZHksXG4gIENvbnRyb2xsZXIsXG4gIEdldCxcbiAgSGVhZGVyLFxuICBQYXJhbSxcbiAgUGF0Y2gsXG4gIFBvc3QsXG4gIFVzZUd1YXJkcyxcbiAgT3B0aW9uYWwsXG59IGZyb20gJ0BuZXN0anMvY29tbW9uJztcbmltcG9ydCB7IEp3dEF1dGhHdWFyZCB9IGZyb20gJy4uL2F1dGgvand0LWF1dGguZ3VhcmQnO1xuaW1wb3J0IHsgQWRtaW5HdWFyZCB9IGZyb20gJy4uL2F1dGgvYWRtaW4uZ3VhcmQnO1xuaW1wb3J0IHsgUG9kY2FzdENhdGFsb2dTZXJ2aWNlIH0gZnJvbSAnLi9wb2RjYXN0LWNhdGFsb2cuc2VydmljZSc7XG5pbXBvcnQgeyBQb2RjYXN0SW1wb3J0U2VydmljZSB9IGZyb20gJy4vcG9kY2FzdC1pbXBvcnQuc2VydmljZSc7XG5pbXBvcnQgeyBZb3V0dWJlQ2F0YWxvZ1NlcnZpY2UgfSBmcm9tICcuL3lvdXR1YmUtY2F0YWxvZy5zZXJ2aWNlJztcbmltcG9ydCB7XG4gIEFkZFBvZGNhc3RDaGFubmVsRHRvLFxuICBDb21taXRQb2RjYXN0SW1wb3J0RHRvLFxuICBDcmVhdGVQb2RjYXN0SW1wb3J0RHRvLFxuICBQb2RjYXN0VmlzaWJpbGl0eUR0byxcbn0gZnJvbSAnLi9kdG8vY2F0YWxvZy5kdG8nO1xuaW1wb3J0IHsgUHVibGljQ2F0YWxvZ0NhY2hlU2VydmljZSB9IGZyb20gJy4uL3B1YmxpYy1jYWNoZS9wdWJsaWMtY2F0YWxvZy1jYWNoZS5zZXJ2aWNlJztcbmltcG9ydCB7XG4gIFB1YmxpY0NhdGFsb2dLZXlzLFxuICBQT0RDQVNUX0NBVEFMT0dfVFRMX01TLFxufSBmcm9tICcuLi9wdWJsaWMtY2FjaGUvcHVibGljLWNhdGFsb2cua2V5cyc7XG5cbkBDb250cm9sbGVyKCdwb2RjYXN0cycpXG5leHBvcnQgY2xhc3MgUG9kY2FzdENhdGFsb2dDb250cm9sbGVyIHtcbiAgY29uc3RydWN0b3IoXG4gICAgcHJpdmF0ZSByZWFkb25seSBjYXRhbG9nOiBQb2RjYXN0Q2F0YWxvZ1NlcnZpY2UsXG4gICAgQE9wdGlvbmFsKCkgcHJpdmF0ZSByZWFkb25seSBjYWNoZT86IFB1YmxpY0NhdGFsb2dDYWNoZVNlcnZpY2UsXG4gICkge1xuICAgIGNhY2hlPy5yZWdpc3RlcihQdWJsaWNDYXRhbG9nS2V5cy5wb2RjYXN0cywgUE9EQ0FTVF9DQVRBTE9HX1RUTF9NUywgKCkgPT5cbiAgICAgIGNhdGFsb2cubGlzdCgpLFxuICAgICk7XG4gIH1cbiAgQEdldCgnY2F0YWxvZycpIEBIZWFkZXIoJ0NhY2hlLUNvbnRyb2wnLCAnbm8tc3RvcmUnKSBsaXN0KCkge1xuICAgIHJldHVybiAoXG4gICAgICB0aGlzLmNhY2hlPy5nZXRPckxvYWQoXG4gICAgICAgIFB1YmxpY0NhdGFsb2dLZXlzLnBvZGNhc3RzLFxuICAgICAgICBQT0RDQVNUX0NBVEFMT0dfVFRMX01TLFxuICAgICAgICAoKSA9PiB0aGlzLmNhdGFsb2cubGlzdCgpLFxuICAgICAgKSA/PyB0aGlzLmNhdGFsb2cubGlzdCgpXG4gICAgKTtcbiAgfVxufVxuXG5AQ29udHJvbGxlcignYWRtaW4vcG9kY2FzdHMnKVxuQFVzZUd1YXJkcyhKd3RBdXRoR3VhcmQsIEFkbWluR3VhcmQpXG5leHBvcnQgY2xhc3MgQWRtaW5Qb2RjYXN0Q2F0YWxvZ0NvbnRyb2xsZXIge1xuICBjb25zdHJ1Y3RvcihcbiAgICBwcml2YXRlIHJlYWRvbmx5IGNhdGFsb2c6IFBvZGNhc3RDYXRhbG9nU2VydmljZSxcbiAgICBwcml2YXRlIHJlYWRvbmx5IGltcG9ydHM6IFBvZGNhc3RJbXBvcnRTZXJ2aWNlLFxuICAgIHByaXZhdGUgcmVhZG9ubHkgeW91dHViZTogWW91dHViZUNhdGFsb2dTZXJ2aWNlLFxuICApIHt9XG4gIEBHZXQoJ2NhdGFsb2cnKSBASGVhZGVyKCdDYWNoZS1Db250cm9sJywgJ3ByaXZhdGUsIG5vLXN0b3JlJykgYXN5bmMgbGlzdCgpIHtcbiAgICByZXR1cm4ge1xuICAgICAgY2hhbm5lbHM6IGF3YWl0IHRoaXMuY2F0YWxvZy5saXN0KHRydWUpLFxuICAgICAgeW91dHViZUNvbmZpZ3VyZWQ6IHRoaXMueW91dHViZS5jb25maWd1cmVkLFxuICAgIH07XG4gIH1cbiAgQFBvc3QoJ2NoYW5uZWxzJykgYWRkKEBCb2R5KCkgZHRvOiBBZGRQb2RjYXN0Q2hhbm5lbER0bykge1xuICAgIHJldHVybiB0aGlzLmNhdGFsb2cuYWRkQ2hhbm5lbChkdG8udXJsKTtcbiAgfVxuICBAUGF0Y2goJ2NoYW5uZWxzLzppZCcpIGNoYW5uZWxWaXNpYmlsaXR5KFxuICAgIEBQYXJhbSgnaWQnKSBpZDogc3RyaW5nLFxuICAgIEBCb2R5KCkgZHRvOiBQb2RjYXN0VmlzaWJpbGl0eUR0byxcbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMuY2F0YWxvZy5zZXRDaGFubmVsVmlzaWJsZShpZCwgZHRvLmlzVmlzaWJsZSk7XG4gIH1cbiAgQFBhdGNoKCd2aWRlb3MvOmlkJykgdmlkZW9WaXNpYmlsaXR5KFxuICAgIEBQYXJhbSgnaWQnKSBpZDogc3RyaW5nLFxuICAgIEBCb2R5KCkgZHRvOiBQb2RjYXN0VmlzaWJpbGl0eUR0byxcbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMuY2F0YWxvZy5zZXRWaWRlb1Zpc2libGUoaWQsIGR0by5pc1Zpc2libGUpO1xuICB9XG4gIEBHZXQoJ2NoYW5uZWxzLzppZC9pbXBvcnRzJylcbiAgQEhlYWRlcignQ2FjaGUtQ29udHJvbCcsICdwcml2YXRlLCBuby1zdG9yZScpXG4gIGpvYnMoQFBhcmFtKCdpZCcpIGlkOiBzdHJpbmcpIHtcbiAgICByZXR1cm4gdGhpcy5pbXBvcnRzLmxpc3QoaWQpO1xuICB9XG4gIEBQb3N0KCdjaGFubmVscy86aWQvaW1wb3J0cycpIHN0YXJ0KFxuICAgIEBQYXJhbSgnaWQnKSBpZDogc3RyaW5nLFxuICAgIEBCb2R5KCkgZHRvOiBDcmVhdGVQb2RjYXN0SW1wb3J0RHRvLFxuICApIHtcbiAgICByZXR1cm4gdGhpcy5pbXBvcnRzLmNyZWF0ZShpZCwgZHRvLm1vZGUsIGR0by5jb3VudCwgZHRvLnZpZGVvVXJsKTtcbiAgfVxuICBAR2V0KCdpbXBvcnRzLzppZCcpIEBIZWFkZXIoJ0NhY2hlLUNvbnRyb2wnLCAncHJpdmF0ZSwgbm8tc3RvcmUnKSBqb2IoXG4gICAgQFBhcmFtKCdpZCcpIGlkOiBzdHJpbmcsXG4gICkge1xuICAgIHJldHVybiB0aGlzLmltcG9ydHMuZ2V0KGlkKTtcbiAgfVxuICBAUG9zdCgnaW1wb3J0cy86aWQvY29tbWl0JykgY29tbWl0KFxuICAgIEBQYXJhbSgnaWQnKSBpZDogc3RyaW5nLFxuICAgIEBCb2R5KCkgZHRvOiBDb21taXRQb2RjYXN0SW1wb3J0RHRvLFxuICApIHtcbiAgICByZXR1cm4gdGhpcy5pbXBvcnRzLmNvbW1pdChpZCwgZHRvLnZpZGVvSWRzKTtcbiAgfVxufVxuIl0sInZlcnNpb24iOjN9

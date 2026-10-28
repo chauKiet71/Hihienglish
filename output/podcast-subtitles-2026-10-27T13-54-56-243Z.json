@@ -1,0 +1,2490 @@
+{
+  "startedAt": "2026-10-27T13:54:56.243Z",
+  "applied": false,
+  "channels": 8,
+  "totalVideos": 146,
+  "before": [
+    {
+      "id": "-dgmtJzmOic",
+      "title": "Can GERMAN STUDENTS Make CONVERSATIONS in ENGLISH? | Easy English 222",
+      "channel": "Easy English",
+      "duration": 716,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0W6PymVdXVw",
+      "title": "I enjoy flying ✈️ but airports are stressful 🛄 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 341,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0cA6E8ZIahA",
+      "title": "Positive News! Is the World Actually Getting Better?",
+      "channel": "The British English Podcast",
+      "duration": 4437,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0q6nFVaJ2MY",
+      "title": "Everyday Grammar Video: Feedback on Writing Submissions",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "15mPkpIbjaU",
+      "title": "British Wedding Culture Explained: What Is a Stag Do?",
+      "channel": "The British English Podcast",
+      "duration": 2475,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "1VQNMDSzWpE",
+      "title": "What is that unpleasant feeling on our skin and is scratching good for us? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 362,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "1c_7SEjNXNA",
+      "title": "Want Better English? Stop Trying So Hard!",
+      "channel": "The British English Podcast",
+      "duration": 1040,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "2ZuZV-dlyto",
+      "title": "Why are students protesting in France? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 410,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "33S5rvjSONU",
+      "title": "Debating Skills in English 🗣️ (with Ray Addam) [996]",
+      "channel": "Luke's English Podcast",
+      "duration": 9058,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "3Y5KpLXsMSQ",
+      "title": "Testing My Friends on English Grammar / Irregular Verbs with Amber & Paul 🎯 [1003]",
+      "channel": "Luke's English Podcast",
+      "duration": 9473,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "3xdy_2SUo4Q",
+      "title": "How to Pronounce: Difficult terms - Artificial General Intelligence",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "41jE1ijuf_4",
+      "title": "Everyday Grammar Video: A Popular Person in Turkey",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "4j989z-fP7w",
+      "title": "Sir David Attenborough 🌍 Britain's #1 National Treasure [1005]",
+      "channel": "Luke's English Podcast",
+      "duration": 5713,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5mVHR3qW-yo",
+      "title": "Funny Childhood Memories & Stories ⚡️👦 (with Martin) [997]",
+      "channel": "Luke's English Podcast",
+      "duration": 6468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5skWbChJy-8",
+      "title": "Neuroscience & Learning English 🧠 11 Surprising Facts [1002]",
+      "channel": "Luke's English Podcast",
+      "duration": 5297,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5x9dkYIRb58",
+      "title": "President Zelenskyy: I MUST Tell You The Truth About The War! They Found 500 Bodies!",
+      "channel": "The Diary Of A CEO",
+      "duration": 6598,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "b70a7dcf1ae8a40318ba55ddfad04b055bff0c46f26560cad8955bf1bdf76cc4",
+      "rows": 1558,
+      "maxWords": 40,
+      "maxSeconds": 17.577632653060846,
+      "issues": []
+    },
+    {
+      "id": "63KXWNeRx9c",
+      "title": "James Madison, Rescued rower, Imagery, Guilty pleasure",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "6TqJ61h7OmQ",
+      "title": "The Easy English Podcast #95 - 10 Different Ways to Say 'SORRY' | Easy English 230",
+      "channel": "Easy English",
+      "duration": 677,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "a5777326c5a885131013fe9ae42c6a5493f431ab4cbad0b88bd894d0a3ba0158",
+      "rows": 267,
+      "maxWords": 40,
+      "maxSeconds": 14.360000000000014,
+      "issues": []
+    },
+    {
+      "id": "7PH5cAxtF3A",
+      "title": "Episode 1000! 🎉",
+      "channel": "Luke's English Podcast",
+      "duration": 12978,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "81iS7JsTGmk",
+      "title": "How Sharing Books Makes You Less Lonely | Rebecca Toh | TED",
+      "channel": "TED",
+      "duration": 606,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "8WWrNbHvd44",
+      "title": "Why You Need the Growth Mindset of a Weed | Stephen Nobles | TED",
+      "channel": "TED",
+      "duration": 949,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "8oIHc0LHYoY",
+      "title": "How to Pronounce: Intonation and Function Words in Science and Technology",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9Kn14bCrtK0",
+      "title": "Conversations in English on ZOOM | Easy English 237",
+      "channel": "Easy English",
+      "duration": 602,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9ZdPuQtQyUU",
+      "title": "Is this the end of British drinking culture? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 373,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9i1LVL3_xpU",
+      "title": "Why We Blew Up Four Dams — and Saved a River | Amy Bowers Cordalis | TED",
+      "channel": "TED",
+      "duration": 777,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "AGO9wqE0pSc",
+      "title": "Drunk Words Every Brit Knows | Learn English with a Short Story (B2+)",
+      "channel": "The British English Podcast",
+      "duration": 820,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "AcK_zgJjnoo",
+      "title": "Human Lie Detector: The #1 Sign They’re Lying To You, Catch Liars Instantly! | Dr Leanne ten Brinke",
+      "channel": "The Diary Of A CEO",
+      "duration": 6349,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "BZRChsC0JzY",
+      "title": "Music, Marketing & Memories with Jez Booker 🥁 [993]",
+      "channel": "Luke's English Podcast",
+      "duration": 7356,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Boqx4warkt0",
+      "title": "Philadelphia’s history, Spring green, Lunar landings, Scene",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "C5o3tgr-AgI",
+      "title": "The Man Who Predicted The Iran War: The Next 9/11 Will Target Your Bank Account! | Professor Jiang",
+      "channel": "The Diary Of A CEO",
+      "duration": 6469,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "CKAyfGItpgg",
+      "title": "How to Start Any Conversation the Right Way | Chris Fenning | TED",
+      "channel": "TED",
+      "duration": 668,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "CelIpn03m1w",
+      "title": "Why gold is so valuable ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 389,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DJmnSXDGrBc",
+      "title": "News Words: Illusion",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DL_wfKddoLs",
+      "title": "Sew and Knit, Adverbs, Yellowstone, Open Boat 2",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DR-aseNKM4A",
+      "title": "👄 Let me out! Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ErP_AKE3riY",
+      "title": "How to Introduce Yourself in English Naturally | ENGLISH 101",
+      "channel": "Volka English",
+      "duration": 822,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "fed152fe51e6333326be2ae04966a9721ab54111c1e250edd4e9dd9861d2b6b0",
+      "rows": 174,
+      "maxWords": 36,
+      "maxSeconds": 14.608000000000061,
+      "issues": []
+    },
+    {
+      "id": "GDwLjLHsGGg",
+      "title": "What can science tell us about the pain of a broken heart? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 365,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "GJtlADCaVHQ",
+      "title": "I Married My Wife’s Best Friend",
+      "channel": "The British English Podcast",
+      "duration": 2144,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "GlaSnROMqRY",
+      "title": "Hospice Doctor: Weeks Before Death, Patients Start Having Visions! | Dr Christopher Kerr",
+      "channel": "The Diary Of A CEO",
+      "duration": 5007,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "H5qcIEH1iVs",
+      "title": "I'll Talk About My Day. You Practice Your English",
+      "channel": "Volka English",
+      "duration": 1426,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "7a3eada89f975cbc9be8f3b73045f0f5f1cae7776d39bf1dfc425f71da223de7",
+      "rows": 489,
+      "maxWords": 34,
+      "maxSeconds": 14.875999999999976,
+      "issues": []
+    },
+    {
+      "id": "HU9wGpwUa4U",
+      "title": "CONVERSATIONS and Vocabulary for TOURISTS | Easy English 223",
+      "channel": "Easy English",
+      "duration": 690,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Hd8npxrnpuo",
+      "title": "How AI Unleashed (Not Replaced) My Creativity | Kelly A. Boesch | TED",
+      "channel": "TED",
+      "duration": 423,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Hrz82VdlsxY",
+      "title": "I Made a Better Way to Learn Phrasal Verbs",
+      "channel": "The British English Podcast",
+      "duration": 513,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "f9438a503fb4c59f06b80628439ebdfb09ecc1e848c6e569b815afa5d7f537c5",
+      "rows": 97,
+      "maxWords": 38,
+      "maxSeconds": 16.57962500000002,
+      "issues": []
+    },
+    {
+      "id": "I4G9TjlbdtM",
+      "title": "Films at home or at the cinema - which is better? 🍿 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 401,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "IQ4JVWdj4Q0",
+      "title": "Billionaire's WARNING: If You Grow Faster Than You Can Handle, You WILL Crash! | Adam Neumann",
+      "channel": "The Diary Of A CEO",
+      "duration": 8032,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "IkhmdTqSvJw",
+      "title": "UFO Cover-Up Analyst: The Secret Alien Programs Nobody Is Talking About! | Eric Weinstein",
+      "channel": "The Diary Of A CEO",
+      "duration": 6778,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "J8EWSLZ36s0",
+      "title": "English in a Minute: Dish It Out but Can't Take It",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JYjXBX5kVCg",
+      "title": "Why are so many young people around the world protesting? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 478,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "5b99f010a538451078409a0414df8ef2475677e4ffe2f3bfc9b9cdca5455ccde",
+      "rows": 100,
+      "maxWords": 33,
+      "maxSeconds": 16.64,
+      "issues": []
+    },
+    {
+      "id": "JjEJQzRQFa0",
+      "title": "Conversations in the Past/Present/Future Tense | Easy English 235",
+      "channel": "Easy English",
+      "duration": 554,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JlWff3Opb9M",
+      "title": "I travelled alone in Vietnam 🇻🇳 Here's what happened [992]",
+      "channel": "Luke's English Podcast",
+      "duration": 11239,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JtmfRwBZONY",
+      "title": "The Easy English Podcast #102 -  How to be Indirect in Conversations | Easy English 236",
+      "channel": "Easy English",
+      "duration": 1024,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "K-7GnMzlIEs",
+      "title": "Her Wild Teenage Years | British English Listening Practice (B2+)",
+      "channel": "The British English Podcast",
+      "duration": 2172,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "KHimUkNBDiQ",
+      "title": "Famous sites around the UK - which do you know? 🎡 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 419,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "LTVk3yUb5Mg",
+      "title": "The Easiest Way to Learn English? My Real Daily Routine | POV Vlog",
+      "channel": "Volka English",
+      "duration": 1115,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "2eda92db72c79ec0a7e607bdd104c03fa5a3592fc7c0b55ed0305256bad714b9",
+      "rows": 271,
+      "maxWords": 38,
+      "maxSeconds": 13.349473684210519,
+      "issues": []
+    },
+    {
+      "id": "Lf5oqGOCRCM",
+      "title": "The Man Who Calls BS On AI: They’re LYING About AI, 2027 Is When It All Breaks! | Ed Zitron",
+      "channel": "The Diary Of A CEO",
+      "duration": 8870,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "M6gAF_YCzGY",
+      "title": "Trump and Xi to meet in Washington summit | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 516,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "MGxcosNuC8k",
+      "title": "Andrew Huberman: The Real Reason You Can't Get Deep Sleep & Wake Up Exhausted",
+      "channel": "The Diary Of A CEO",
+      "duration": 8208,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "MJUKtPaGlSQ",
+      "title": "How to Pronounce: Science and Technology: 'Asteroid'",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "NeaeHcwl1rQ",
+      "title": "Sherlock Holmes & The Adventure of the Man with the Twisted Lip 🕵 [999]",
+      "channel": "Luke's English Podcast",
+      "duration": 11652,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "OYg6BTjb90E",
+      "title": "David Friedberg: The US Empire Is Declining And Socialism Is Coming Next!",
+      "channel": "The Diary Of A CEO",
+      "duration": 7491,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "OhOmLqR5nN4",
+      "title": "AI Experts Debate: The AI Labs Are Lying To Everyone, Is There A 99% Chance Of Human Extinction?",
+      "channel": "The Diary Of A CEO",
+      "duration": 8666,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "PpEUTpzWt2M",
+      "title": "How the Wealth Gap Is Reshaping Politics | Xochitl Gonzalez | TED",
+      "channel": "TED",
+      "duration": 637,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Ppyt3MptX5k",
+      "title": "Testosterone Expert: The Truth About DAD BOD & Why Women Find Fathers More Attractive!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5339,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Q-DFC0AnbY4",
+      "title": "Dana White: This Generation Thinks You Can Build A Business From Home, It's Impossible!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5292,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Qifsxitq_q4",
+      "title": "Professor Brian Greene: The Threat of AI, Consciousness & The End of Humanity",
+      "channel": "The Diary Of A CEO",
+      "duration": 7904,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "RCNO3k4QL5M",
+      "title": "How to Use Tech to Outsmart Dictators | Leopoldo López | TED",
+      "channel": "TED",
+      "duration": 890,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "RI4cxw5xecs",
+      "title": "👄 Who stole my crisps?! Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 519,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "SEfFJqt7QXM",
+      "title": "9 True Ghost Stories & Unexplained Mysteries from Listeners 👀🕯️ LEPster Writing Competition [1006]",
+      "channel": "Luke's English Podcast",
+      "duration": 5644,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "SqLB95OE2BU",
+      "title": "How Brits ACTUALLY Catch Up at the Pub | 5 Real British English Phrases",
+      "channel": "The British English Podcast",
+      "duration": 808,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TRuu-eZsl1c",
+      "title": "I Thought I Was Lazy. Turns Out I Had a Sleep Disorder | Lindsay Scola | TED",
+      "channel": "TED",
+      "duration": 534,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TrgRHnp91hw",
+      "title": "Learn British English Through Funny Childhood Stories Video Podcast",
+      "channel": "The British English Podcast",
+      "duration": 1927,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TwBYlBjbokU",
+      "title": "Everyday Conversations with Strangers | Easy English 224",
+      "channel": "Easy English",
+      "duration": 634,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UNTZMlgf2To",
+      "title": "The Secret to Lasting Love | Eli J. Finkel | TED",
+      "channel": "TED",
+      "duration": 754,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UQ3O04Wtqa4",
+      "title": "Shawn Ryan: There's A Battle For Your Soul, It's Happening Right Now",
+      "channel": "The Diary Of A CEO",
+      "duration": 5982,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UXwhnaavwJ8",
+      "title": "Can You Understand a Native Speaker for a Full Day?",
+      "channel": "Volka English",
+      "duration": 1201,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UcfT3qOhyF0",
+      "title": "\"I love autumn!\" 🍁🍄🎃 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 413,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UhzI1fg8rCA",
+      "title": "Druski: They're Lying To You About Overnight Success!",
+      "channel": "The Diary Of A CEO",
+      "duration": 6522,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UsvNXyblKz8",
+      "title": "CONVERSATIONS with Retired People: Life Advice | Easy English 226",
+      "channel": "Easy English",
+      "duration": 684,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VFhlD8kt6sQ",
+      "title": "How to Pronounce: Stress and listening - Artificial intelligence",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VN2tctF1PRM",
+      "title": "WORLD CUP RAMBLE 3 ⚽️ FIFA 2026 with Fred [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 4466,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VRhbdiDS80Q",
+      "title": "Vanessa Had Her First Kiss HOW Young?! British vs American Life",
+      "channel": "The British English Podcast",
+      "duration": 2238,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Wdqt70ebr4Y",
+      "title": "Emma Saw GHOSTS as a Child?! Growing Up British",
+      "channel": "The British English Podcast",
+      "duration": 1915,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "XWMEzACl6Xs",
+      "title": "The Easy English Podcast #93 - We Tested Our Relationship… English Conversation | Easy English 229",
+      "channel": "Easy English",
+      "duration": 1098,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "XpAxGjcs5dU",
+      "title": "Coasts, Time change, Open Boat",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Y43T7VQGtOs",
+      "title": "Konstantin Kisin’s WARNING: Our Leaders Have Lost Control, We’re Headed For Conflict And Violence!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5640,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "YVijbzh48kk",
+      "title": "CONVERSATIONS in British Pubs | Easy English 225",
+      "channel": "Easy English",
+      "duration": 748,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "YfvD3KpHY2A",
+      "title": "How to Pronounce: Fun Practice - Exaggeration Activities",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Z5sjzG4ZF_w",
+      "title": "👄George's travel hot spots | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 454,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ZNDQW7Y4ctc",
+      "title": "Can You Understand This Classic British Short Story? | B2+ English",
+      "channel": "The British English Podcast",
+      "duration": 1406,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "_2QcoQfXsr8",
+      "title": "What's happened at Riyadh airport? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 394,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "_O8Qt7hW1LA",
+      "title": "London Accents & Study Tips with Patricio Languages 🗣️🇬🇧 [994]",
+      "channel": "Luke's English Podcast",
+      "duration": 5425,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "a5lYa-U2fX4",
+      "title": "Real English Learning Stories from Around the World 🌏 Listener Comments & Questions [1001]",
+      "channel": "Luke's English Podcast",
+      "duration": 9889,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "a_GiFiHXJ6g",
+      "title": "Rick Rubin: The Only Skill That Matters Now Is The One Thing AI Can Never Steal!",
+      "channel": "The Diary Of A CEO",
+      "duration": 9990,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "b7WcAmzNZ88",
+      "title": "Everyday CONVERSATIONS and VOCABULARY for Shopping | Easy English 227",
+      "channel": "Easy English",
+      "duration": 505,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "bD0E_8XhGPU",
+      "title": "Rambling in the Countryside 🏡 (feat. my daughter) [998]",
+      "channel": "Luke's English Podcast",
+      "duration": 3468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "bsrT3tETGaQ",
+      "title": "Get Confident Speaking English in Weeks!",
+      "channel": "Easy English",
+      "duration": 168,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "cJniaswOsRs",
+      "title": "How to talk about HEATWAVES like a (sweaty) British man 🥵 [995]",
+      "channel": "Luke's English Podcast",
+      "duration": 6422,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "cTHwSER_l-8",
+      "title": "How to Stop Homelessness Before It Starts | Jen Loving | TED",
+      "channel": "TED",
+      "duration": 546,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "eieV6WIz-YM",
+      "title": "How to Pronounce: Self-monitoring and improvement",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "gBYnewP1MmY",
+      "title": "English in a Minute: Pie in the Sky",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "gW9urRPg6Uk",
+      "title": "A Big Life Update… | Learn English with My Story",
+      "channel": "The British English Podcast",
+      "duration": 2814,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "iJpcWkP8aJw",
+      "title": "How to Stop Feeling Left Out in English Conversations: Try This Simple Technique",
+      "channel": "The British English Podcast",
+      "duration": 1303,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j11fPNKe5mY",
+      "title": "Inside the “Play Labs” Helping Refugee Kids Heal | Erum Mariam | TED",
+      "channel": "TED",
+      "duration": 663,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j1fh6RTIxx4",
+      "title": "Conversations and Vocabulary for WORK | Easy English 231",
+      "channel": "Easy English",
+      "duration": 568,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j53ZUncFzhw",
+      "title": "Mental distress is a real issue, says new review | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 464,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "jfBDcoWUKHs",
+      "title": "The Easy English Podcast #100 -  We Answer YOUR Questions | Easy English 234",
+      "channel": "Easy English",
+      "duration": 1457,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "lxoMNDsktlY",
+      "title": "A Day in China | English Listening Practice",
+      "channel": "Volka English",
+      "duration": 1422,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "768dde850d8da5c85886945145c34fd5fc4469a82d97f5e884a53500e80790ef",
+      "rows": 546,
+      "maxWords": 32,
+      "maxSeconds": 14.975000000000136,
+      "issues": []
+    },
+    {
+      "id": "m7_IbdlBzno",
+      "title": "Do Brits Abandon Their Ageing Parents?",
+      "channel": "The British English Podcast",
+      "duration": 824,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mgYE-v02kds",
+      "title": "ESSENTIAL Vocabulary... with REAL Phone CONVERSATIONS | Easy English 232",
+      "channel": "Easy English",
+      "duration": 729,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mgfBmnD04Q8",
+      "title": "LEARN ENGLISH by Listening to Slow, Natural Conversations",
+      "channel": "Volka English",
+      "duration": 1249,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "ac80f0fa78d48fb1ca2bb5738783939a4a68f0d5632b260a15328968dfbf6bfe",
+      "rows": 235,
+      "maxWords": 39,
+      "maxSeconds": 16.792500000000018,
+      "issues": []
+    },
+    {
+      "id": "mnL4TuPPE5I",
+      "title": "Why Good English Is Not Enough to Tell a Great Story",
+      "channel": "The British English Podcast",
+      "duration": 1218,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mzNcsRmuK7I",
+      "title": "CONVERSATIONS with COUPLES in BRIGHTON | Easy English 229",
+      "channel": "Easy English",
+      "duration": 606,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "nAEKNUt6t6s",
+      "title": "Conversations with Non-native English Speakers | Easy English 219",
+      "channel": "Easy English",
+      "duration": 744,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ny26teC-4bU",
+      "title": "AI and the End of Loneliness | Paul Bloom | TED",
+      "channel": "TED",
+      "duration": 735,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oBM8y3A7AAg",
+      "title": "Golden Gate, Physical Therapy, Deep ocean, Help for spinal cord problems",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oEBbBmR3468",
+      "title": "Do Brits Really Respect Their Mothers?",
+      "channel": "The British English Podcast",
+      "duration": 1014,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ohpIw6iGXNA",
+      "title": "Why I’m Building Libraries Inside Prisons | Reginald Dwayne Betts | TED",
+      "channel": "TED",
+      "duration": 749,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oyRxhiAC9u8",
+      "title": "Why the Future is Human … Plus AI | Esther Perel and Sal Khan",
+      "channel": "TED",
+      "duration": 1248,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "pjFlVc-EDzc",
+      "title": "Can your diet help you sleep better? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 393,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "61d1fad069fe6a15400d2a4c668f55ea90f3e1dd2f1c2e178bff9b72c2a4ea9d",
+      "rows": 78,
+      "maxWords": 36,
+      "maxSeconds": 13.399999999999977,
+      "issues": []
+    },
+    {
+      "id": "q2cg1gEYWJQ",
+      "title": "Vanessa Van Edwards: The Conversation Habit That Makes Smart People Unlikable",
+      "channel": "The Diary Of A CEO",
+      "duration": 8786,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "q4PkX8_xUYk",
+      "title": "Everyday Grammar Video: Ramen, A Popular Food in Japan",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "912064307c03f3f148522f961b014d8019b37738bf324494db2caaf2b13319ee",
+      "rows": 27,
+      "maxWords": 23,
+      "maxSeconds": 8.27999969482422,
+      "issues": []
+    },
+    {
+      "id": "q6wq7UoWMIM",
+      "title": "[BONUS] FIFA WORLD CUP 2026 PREVIEW MEGARAMBLE ⚽",
+      "channel": "Luke's English Podcast",
+      "duration": 6604,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "qDzg-xvkeXw",
+      "title": "AI Whistleblower: \"They Are Hiding What Is Really Happening\" | Jeffrey Ladish",
+      "channel": "The Diary Of A CEO",
+      "duration": 7412,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "qaRdGHXLmHI",
+      "title": "Luke’s Improvised Storytelling: Jurassic Park 🦖 [1004] Listen & Learn English",
+      "channel": "Luke's English Podcast",
+      "duration": 7526,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "r48EkZoSFmQ",
+      "title": "The Easy English Podcast #86 - 5 Ways to SURVIVE a British Pub | Easy English 221",
+      "channel": "Easy English",
+      "duration": 956,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "r63spwe1LCI",
+      "title": "The Gravity-Defying Future of Manufacturing | Schendy Kernizan | TED",
+      "channel": "TED",
+      "duration": 288,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sAumTZ1lkZE",
+      "title": "👄 Office dialogue | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 358,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sJukDNGDjX8",
+      "title": "WORLD CUP RAMBLE #4 ⚽️ FIFA 2026 England 🏴󠁧󠁢󠁥󠁮󠁧󠁿 vs Argentina 🇦🇷 and more... (with Zdenek) [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 7515,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sgVPDpp4tJs",
+      "title": "3 Things That Feel Like Progress But Aren't",
+      "channel": "The British English Podcast",
+      "duration": 1317,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "tBfHI8sNWVU",
+      "title": "The Three Words That Saved My Life | Blake Mycoskie | TED",
+      "channel": "TED",
+      "duration": 938,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "tjaLn7URdlA",
+      "title": "👄 What is 'shadowing'? Pronunciation Shadowing Tutorial",
+      "channel": "BBC Learning English",
+      "duration": 307,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uCKr2IZo-7s",
+      "title": "Everyday Grammar Video: Population",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uSOZaWMVv8c",
+      "title": "A Big Talk about Small Talk 🗣️ (with Ray Addam) Improve your Speaking Skills in English",
+      "channel": "Luke's English Podcast",
+      "duration": 7988,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ueOxonBk970",
+      "title": "Campaigns Spend Millions to Influence Voters. This Works Better | Katie Paris | TED",
+      "channel": "TED",
+      "duration": 657,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uuYpEPqCYYs",
+      "title": "How to Pronounce: Studying pauses and connections",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "v8ecvyglvJ8",
+      "title": "Conversations in English For Tourists | Easy English 233",
+      "channel": "Easy English",
+      "duration": 584,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "vfbNzpd6cIw",
+      "title": "What Makes a Good Game? | Eric Zimmerman | TED",
+      "channel": "TED",
+      "duration": 741,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "vyPofYmxIJA",
+      "title": "Everyday Grammar Video: 'Population' in Sentences",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "w5XS3DIR0uo",
+      "title": "WORLD CUP RAMBLE 2 ⚽️ FIFA 2026 with Zdenek [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 7768,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "wsstlwuE5XY",
+      "title": "How to Clean Up the World’s Dirtiest Industry | Joojin Kim | TED",
+      "channel": "TED",
+      "duration": 459,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "y64RDBeR19c",
+      "title": "The Shape-Shifting Sounds of the Accordion | Maria Telesheva | TED",
+      "channel": "TED",
+      "duration": 486,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yRQnhTxTMrM",
+      "title": "IELTS Speaking Part 1: Don’t Make These Mistakes When Talking About Your Home",
+      "channel": "The British English Podcast",
+      "duration": 1233,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yePLuwL3FbM",
+      "title": "No.1 Neuroscientist Reveals How To Unlock Superhuman Focus & Perfect Memory! - Dr. Sahar Yousef",
+      "channel": "The Diary Of A CEO",
+      "duration": 8165,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yl--RTTtKLs",
+      "title": "English Conversations for Shopping | Easy English 220",
+      "channel": "Easy English",
+      "duration": 807,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ywGo1GI9c2I",
+      "title": "👄 Coffee shop dialogue | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 331,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "zdn0UDVZ88E",
+      "title": "What Brits Say When It’s Their Round at the Pub | Scene 3",
+      "channel": "The British English Podcast",
+      "duration": 740,
+      "visible": true,
+      "state": "MISSING"
+    }
+  ],
+  "repaired": [],
+  "failed": [],
+  "after": [
+    {
+      "id": "-dgmtJzmOic",
+      "title": "Can GERMAN STUDENTS Make CONVERSATIONS in ENGLISH? | Easy English 222",
+      "channel": "Easy English",
+      "duration": 716,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0W6PymVdXVw",
+      "title": "I enjoy flying ✈️ but airports are stressful 🛄 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 341,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0cA6E8ZIahA",
+      "title": "Positive News! Is the World Actually Getting Better?",
+      "channel": "The British English Podcast",
+      "duration": 4437,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "0q6nFVaJ2MY",
+      "title": "Everyday Grammar Video: Feedback on Writing Submissions",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "15mPkpIbjaU",
+      "title": "British Wedding Culture Explained: What Is a Stag Do?",
+      "channel": "The British English Podcast",
+      "duration": 2475,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "1VQNMDSzWpE",
+      "title": "What is that unpleasant feeling on our skin and is scratching good for us? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 362,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "1c_7SEjNXNA",
+      "title": "Want Better English? Stop Trying So Hard!",
+      "channel": "The British English Podcast",
+      "duration": 1040,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "2ZuZV-dlyto",
+      "title": "Why are students protesting in France? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 410,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "33S5rvjSONU",
+      "title": "Debating Skills in English 🗣️ (with Ray Addam) [996]",
+      "channel": "Luke's English Podcast",
+      "duration": 9058,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "3Y5KpLXsMSQ",
+      "title": "Testing My Friends on English Grammar / Irregular Verbs with Amber & Paul 🎯 [1003]",
+      "channel": "Luke's English Podcast",
+      "duration": 9473,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "3xdy_2SUo4Q",
+      "title": "How to Pronounce: Difficult terms - Artificial General Intelligence",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "41jE1ijuf_4",
+      "title": "Everyday Grammar Video: A Popular Person in Turkey",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "4j989z-fP7w",
+      "title": "Sir David Attenborough 🌍 Britain's #1 National Treasure [1005]",
+      "channel": "Luke's English Podcast",
+      "duration": 5713,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5mVHR3qW-yo",
+      "title": "Funny Childhood Memories & Stories ⚡️👦 (with Martin) [997]",
+      "channel": "Luke's English Podcast",
+      "duration": 6468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5skWbChJy-8",
+      "title": "Neuroscience & Learning English 🧠 11 Surprising Facts [1002]",
+      "channel": "Luke's English Podcast",
+      "duration": 5297,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "5x9dkYIRb58",
+      "title": "President Zelenskyy: I MUST Tell You The Truth About The War! They Found 500 Bodies!",
+      "channel": "The Diary Of A CEO",
+      "duration": 6598,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "b70a7dcf1ae8a40318ba55ddfad04b055bff0c46f26560cad8955bf1bdf76cc4",
+      "rows": 1558,
+      "maxWords": 40,
+      "maxSeconds": 17.577632653060846,
+      "issues": []
+    },
+    {
+      "id": "63KXWNeRx9c",
+      "title": "James Madison, Rescued rower, Imagery, Guilty pleasure",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "6TqJ61h7OmQ",
+      "title": "The Easy English Podcast #95 - 10 Different Ways to Say 'SORRY' | Easy English 230",
+      "channel": "Easy English",
+      "duration": 677,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "a5777326c5a885131013fe9ae42c6a5493f431ab4cbad0b88bd894d0a3ba0158",
+      "rows": 267,
+      "maxWords": 40,
+      "maxSeconds": 14.360000000000014,
+      "issues": []
+    },
+    {
+      "id": "7PH5cAxtF3A",
+      "title": "Episode 1000! 🎉",
+      "channel": "Luke's English Podcast",
+      "duration": 12978,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "81iS7JsTGmk",
+      "title": "How Sharing Books Makes You Less Lonely | Rebecca Toh | TED",
+      "channel": "TED",
+      "duration": 606,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "8WWrNbHvd44",
+      "title": "Why You Need the Growth Mindset of a Weed | Stephen Nobles | TED",
+      "channel": "TED",
+      "duration": 949,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "8oIHc0LHYoY",
+      "title": "How to Pronounce: Intonation and Function Words in Science and Technology",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9Kn14bCrtK0",
+      "title": "Conversations in English on ZOOM | Easy English 237",
+      "channel": "Easy English",
+      "duration": 602,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9ZdPuQtQyUU",
+      "title": "Is this the end of British drinking culture? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 373,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "9i1LVL3_xpU",
+      "title": "Why We Blew Up Four Dams — and Saved a River | Amy Bowers Cordalis | TED",
+      "channel": "TED",
+      "duration": 777,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "AGO9wqE0pSc",
+      "title": "Drunk Words Every Brit Knows | Learn English with a Short Story (B2+)",
+      "channel": "The British English Podcast",
+      "duration": 820,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "AcK_zgJjnoo",
+      "title": "Human Lie Detector: The #1 Sign They’re Lying To You, Catch Liars Instantly! | Dr Leanne ten Brinke",
+      "channel": "The Diary Of A CEO",
+      "duration": 6349,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "BZRChsC0JzY",
+      "title": "Music, Marketing & Memories with Jez Booker 🥁 [993]",
+      "channel": "Luke's English Podcast",
+      "duration": 7356,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Boqx4warkt0",
+      "title": "Philadelphia’s history, Spring green, Lunar landings, Scene",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "C5o3tgr-AgI",
+      "title": "The Man Who Predicted The Iran War: The Next 9/11 Will Target Your Bank Account! | Professor Jiang",
+      "channel": "The Diary Of A CEO",
+      "duration": 6469,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "CKAyfGItpgg",
+      "title": "How to Start Any Conversation the Right Way | Chris Fenning | TED",
+      "channel": "TED",
+      "duration": 668,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "CelIpn03m1w",
+      "title": "Why gold is so valuable ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 389,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DJmnSXDGrBc",
+      "title": "News Words: Illusion",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DL_wfKddoLs",
+      "title": "Sew and Knit, Adverbs, Yellowstone, Open Boat 2",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "DR-aseNKM4A",
+      "title": "👄 Let me out! Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ErP_AKE3riY",
+      "title": "How to Introduce Yourself in English Naturally | ENGLISH 101",
+      "channel": "Volka English",
+      "duration": 822,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "fed152fe51e6333326be2ae04966a9721ab54111c1e250edd4e9dd9861d2b6b0",
+      "rows": 174,
+      "maxWords": 36,
+      "maxSeconds": 14.608000000000061,
+      "issues": []
+    },
+    {
+      "id": "GDwLjLHsGGg",
+      "title": "What can science tell us about the pain of a broken heart? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 365,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "GJtlADCaVHQ",
+      "title": "I Married My Wife’s Best Friend",
+      "channel": "The British English Podcast",
+      "duration": 2144,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "GlaSnROMqRY",
+      "title": "Hospice Doctor: Weeks Before Death, Patients Start Having Visions! | Dr Christopher Kerr",
+      "channel": "The Diary Of A CEO",
+      "duration": 5007,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "H5qcIEH1iVs",
+      "title": "I'll Talk About My Day. You Practice Your English",
+      "channel": "Volka English",
+      "duration": 1426,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "7a3eada89f975cbc9be8f3b73045f0f5f1cae7776d39bf1dfc425f71da223de7",
+      "rows": 489,
+      "maxWords": 34,
+      "maxSeconds": 14.875999999999976,
+      "issues": []
+    },
+    {
+      "id": "HU9wGpwUa4U",
+      "title": "CONVERSATIONS and Vocabulary for TOURISTS | Easy English 223",
+      "channel": "Easy English",
+      "duration": 690,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Hd8npxrnpuo",
+      "title": "How AI Unleashed (Not Replaced) My Creativity | Kelly A. Boesch | TED",
+      "channel": "TED",
+      "duration": 423,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Hrz82VdlsxY",
+      "title": "I Made a Better Way to Learn Phrasal Verbs",
+      "channel": "The British English Podcast",
+      "duration": 513,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "f9438a503fb4c59f06b80628439ebdfb09ecc1e848c6e569b815afa5d7f537c5",
+      "rows": 97,
+      "maxWords": 38,
+      "maxSeconds": 16.57962500000002,
+      "issues": []
+    },
+    {
+      "id": "I4G9TjlbdtM",
+      "title": "Films at home or at the cinema - which is better? 🍿 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 401,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "IQ4JVWdj4Q0",
+      "title": "Billionaire's WARNING: If You Grow Faster Than You Can Handle, You WILL Crash! | Adam Neumann",
+      "channel": "The Diary Of A CEO",
+      "duration": 8032,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "IkhmdTqSvJw",
+      "title": "UFO Cover-Up Analyst: The Secret Alien Programs Nobody Is Talking About! | Eric Weinstein",
+      "channel": "The Diary Of A CEO",
+      "duration": 6778,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "J8EWSLZ36s0",
+      "title": "English in a Minute: Dish It Out but Can't Take It",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JYjXBX5kVCg",
+      "title": "Why are so many young people around the world protesting? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 478,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "5b99f010a538451078409a0414df8ef2475677e4ffe2f3bfc9b9cdca5455ccde",
+      "rows": 100,
+      "maxWords": 33,
+      "maxSeconds": 16.64,
+      "issues": []
+    },
+    {
+      "id": "JjEJQzRQFa0",
+      "title": "Conversations in the Past/Present/Future Tense | Easy English 235",
+      "channel": "Easy English",
+      "duration": 554,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JlWff3Opb9M",
+      "title": "I travelled alone in Vietnam 🇻🇳 Here's what happened [992]",
+      "channel": "Luke's English Podcast",
+      "duration": 11239,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "JtmfRwBZONY",
+      "title": "The Easy English Podcast #102 -  How to be Indirect in Conversations | Easy English 236",
+      "channel": "Easy English",
+      "duration": 1024,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "K-7GnMzlIEs",
+      "title": "Her Wild Teenage Years | British English Listening Practice (B2+)",
+      "channel": "The British English Podcast",
+      "duration": 2172,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "KHimUkNBDiQ",
+      "title": "Famous sites around the UK - which do you know? 🎡 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 419,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "LTVk3yUb5Mg",
+      "title": "The Easiest Way to Learn English? My Real Daily Routine | POV Vlog",
+      "channel": "Volka English",
+      "duration": 1115,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "2eda92db72c79ec0a7e607bdd104c03fa5a3592fc7c0b55ed0305256bad714b9",
+      "rows": 271,
+      "maxWords": 38,
+      "maxSeconds": 13.349473684210519,
+      "issues": []
+    },
+    {
+      "id": "Lf5oqGOCRCM",
+      "title": "The Man Who Calls BS On AI: They’re LYING About AI, 2027 Is When It All Breaks! | Ed Zitron",
+      "channel": "The Diary Of A CEO",
+      "duration": 8870,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "M6gAF_YCzGY",
+      "title": "Trump and Xi to meet in Washington summit | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 516,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "MGxcosNuC8k",
+      "title": "Andrew Huberman: The Real Reason You Can't Get Deep Sleep & Wake Up Exhausted",
+      "channel": "The Diary Of A CEO",
+      "duration": 8208,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "MJUKtPaGlSQ",
+      "title": "How to Pronounce: Science and Technology: 'Asteroid'",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "NeaeHcwl1rQ",
+      "title": "Sherlock Holmes & The Adventure of the Man with the Twisted Lip 🕵 [999]",
+      "channel": "Luke's English Podcast",
+      "duration": 11652,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "OYg6BTjb90E",
+      "title": "David Friedberg: The US Empire Is Declining And Socialism Is Coming Next!",
+      "channel": "The Diary Of A CEO",
+      "duration": 7491,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "OhOmLqR5nN4",
+      "title": "AI Experts Debate: The AI Labs Are Lying To Everyone, Is There A 99% Chance Of Human Extinction?",
+      "channel": "The Diary Of A CEO",
+      "duration": 8666,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "PpEUTpzWt2M",
+      "title": "How the Wealth Gap Is Reshaping Politics | Xochitl Gonzalez | TED",
+      "channel": "TED",
+      "duration": 637,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Ppyt3MptX5k",
+      "title": "Testosterone Expert: The Truth About DAD BOD & Why Women Find Fathers More Attractive!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5339,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Q-DFC0AnbY4",
+      "title": "Dana White: This Generation Thinks You Can Build A Business From Home, It's Impossible!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5292,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Qifsxitq_q4",
+      "title": "Professor Brian Greene: The Threat of AI, Consciousness & The End of Humanity",
+      "channel": "The Diary Of A CEO",
+      "duration": 7904,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "RCNO3k4QL5M",
+      "title": "How to Use Tech to Outsmart Dictators | Leopoldo López | TED",
+      "channel": "TED",
+      "duration": 890,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "RI4cxw5xecs",
+      "title": "👄 Who stole my crisps?! Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 519,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "SEfFJqt7QXM",
+      "title": "9 True Ghost Stories & Unexplained Mysteries from Listeners 👀🕯️ LEPster Writing Competition [1006]",
+      "channel": "Luke's English Podcast",
+      "duration": 5644,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "SqLB95OE2BU",
+      "title": "How Brits ACTUALLY Catch Up at the Pub | 5 Real British English Phrases",
+      "channel": "The British English Podcast",
+      "duration": 808,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TRuu-eZsl1c",
+      "title": "I Thought I Was Lazy. Turns Out I Had a Sleep Disorder | Lindsay Scola | TED",
+      "channel": "TED",
+      "duration": 534,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TrgRHnp91hw",
+      "title": "Learn British English Through Funny Childhood Stories Video Podcast",
+      "channel": "The British English Podcast",
+      "duration": 1927,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "TwBYlBjbokU",
+      "title": "Everyday Conversations with Strangers | Easy English 224",
+      "channel": "Easy English",
+      "duration": 634,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UNTZMlgf2To",
+      "title": "The Secret to Lasting Love | Eli J. Finkel | TED",
+      "channel": "TED",
+      "duration": 754,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UQ3O04Wtqa4",
+      "title": "Shawn Ryan: There's A Battle For Your Soul, It's Happening Right Now",
+      "channel": "The Diary Of A CEO",
+      "duration": 5982,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UXwhnaavwJ8",
+      "title": "Can You Understand a Native Speaker for a Full Day?",
+      "channel": "Volka English",
+      "duration": 1201,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UcfT3qOhyF0",
+      "title": "\"I love autumn!\" 🍁🍄🎃 | Improve your listening with Real Easy English",
+      "channel": "BBC Learning English",
+      "duration": 413,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UhzI1fg8rCA",
+      "title": "Druski: They're Lying To You About Overnight Success!",
+      "channel": "The Diary Of A CEO",
+      "duration": 6522,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "UsvNXyblKz8",
+      "title": "CONVERSATIONS with Retired People: Life Advice | Easy English 226",
+      "channel": "Easy English",
+      "duration": 684,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VFhlD8kt6sQ",
+      "title": "How to Pronounce: Stress and listening - Artificial intelligence",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VN2tctF1PRM",
+      "title": "WORLD CUP RAMBLE 3 ⚽️ FIFA 2026 with Fred [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 4466,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "VRhbdiDS80Q",
+      "title": "Vanessa Had Her First Kiss HOW Young?! British vs American Life",
+      "channel": "The British English Podcast",
+      "duration": 2238,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Wdqt70ebr4Y",
+      "title": "Emma Saw GHOSTS as a Child?! Growing Up British",
+      "channel": "The British English Podcast",
+      "duration": 1915,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "XWMEzACl6Xs",
+      "title": "The Easy English Podcast #93 - We Tested Our Relationship… English Conversation | Easy English 229",
+      "channel": "Easy English",
+      "duration": 1098,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "XpAxGjcs5dU",
+      "title": "Coasts, Time change, Open Boat",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Y43T7VQGtOs",
+      "title": "Konstantin Kisin’s WARNING: Our Leaders Have Lost Control, We’re Headed For Conflict And Violence!",
+      "channel": "The Diary Of A CEO",
+      "duration": 5640,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "YVijbzh48kk",
+      "title": "CONVERSATIONS in British Pubs | Easy English 225",
+      "channel": "Easy English",
+      "duration": 748,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "YfvD3KpHY2A",
+      "title": "How to Pronounce: Fun Practice - Exaggeration Activities",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "Z5sjzG4ZF_w",
+      "title": "👄George's travel hot spots | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 454,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ZNDQW7Y4ctc",
+      "title": "Can You Understand This Classic British Short Story? | B2+ English",
+      "channel": "The British English Podcast",
+      "duration": 1406,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "_2QcoQfXsr8",
+      "title": "What's happened at Riyadh airport? | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 394,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "_O8Qt7hW1LA",
+      "title": "London Accents & Study Tips with Patricio Languages 🗣️🇬🇧 [994]",
+      "channel": "Luke's English Podcast",
+      "duration": 5425,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "a5lYa-U2fX4",
+      "title": "Real English Learning Stories from Around the World 🌏 Listener Comments & Questions [1001]",
+      "channel": "Luke's English Podcast",
+      "duration": 9889,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "a_GiFiHXJ6g",
+      "title": "Rick Rubin: The Only Skill That Matters Now Is The One Thing AI Can Never Steal!",
+      "channel": "The Diary Of A CEO",
+      "duration": 9990,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "b7WcAmzNZ88",
+      "title": "Everyday CONVERSATIONS and VOCABULARY for Shopping | Easy English 227",
+      "channel": "Easy English",
+      "duration": 505,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "bD0E_8XhGPU",
+      "title": "Rambling in the Countryside 🏡 (feat. my daughter) [998]",
+      "channel": "Luke's English Podcast",
+      "duration": 3468,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "bsrT3tETGaQ",
+      "title": "Get Confident Speaking English in Weeks!",
+      "channel": "Easy English",
+      "duration": 168,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "cJniaswOsRs",
+      "title": "How to talk about HEATWAVES like a (sweaty) British man 🥵 [995]",
+      "channel": "Luke's English Podcast",
+      "duration": 6422,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "cTHwSER_l-8",
+      "title": "How to Stop Homelessness Before It Starts | Jen Loving | TED",
+      "channel": "TED",
+      "duration": 546,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "eieV6WIz-YM",
+      "title": "How to Pronounce: Self-monitoring and improvement",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "gBYnewP1MmY",
+      "title": "English in a Minute: Pie in the Sky",
+      "channel": "VOA Learning English",
+      "duration": 61,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "gW9urRPg6Uk",
+      "title": "A Big Life Update… | Learn English with My Story",
+      "channel": "The British English Podcast",
+      "duration": 2814,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "iJpcWkP8aJw",
+      "title": "How to Stop Feeling Left Out in English Conversations: Try This Simple Technique",
+      "channel": "The British English Podcast",
+      "duration": 1303,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j11fPNKe5mY",
+      "title": "Inside the “Play Labs” Helping Refugee Kids Heal | Erum Mariam | TED",
+      "channel": "TED",
+      "duration": 663,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j1fh6RTIxx4",
+      "title": "Conversations and Vocabulary for WORK | Easy English 231",
+      "channel": "Easy English",
+      "duration": 568,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "j53ZUncFzhw",
+      "title": "Mental distress is a real issue, says new review | BBC Learning English from the News",
+      "channel": "BBC Learning English",
+      "duration": 464,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "jfBDcoWUKHs",
+      "title": "The Easy English Podcast #100 -  We Answer YOUR Questions | Easy English 234",
+      "channel": "Easy English",
+      "duration": 1457,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "lxoMNDsktlY",
+      "title": "A Day in China | English Listening Practice",
+      "channel": "Volka English",
+      "duration": 1422,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "768dde850d8da5c85886945145c34fd5fc4469a82d97f5e884a53500e80790ef",
+      "rows": 546,
+      "maxWords": 32,
+      "maxSeconds": 14.975000000000136,
+      "issues": []
+    },
+    {
+      "id": "m7_IbdlBzno",
+      "title": "Do Brits Abandon Their Ageing Parents?",
+      "channel": "The British English Podcast",
+      "duration": 824,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mgYE-v02kds",
+      "title": "ESSENTIAL Vocabulary... with REAL Phone CONVERSATIONS | Easy English 232",
+      "channel": "Easy English",
+      "duration": 729,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mgfBmnD04Q8",
+      "title": "LEARN ENGLISH by Listening to Slow, Natural Conversations",
+      "channel": "Volka English",
+      "duration": 1249,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "ac80f0fa78d48fb1ca2bb5738783939a4a68f0d5632b260a15328968dfbf6bfe",
+      "rows": 235,
+      "maxWords": 39,
+      "maxSeconds": 16.792500000000018,
+      "issues": []
+    },
+    {
+      "id": "mnL4TuPPE5I",
+      "title": "Why Good English Is Not Enough to Tell a Great Story",
+      "channel": "The British English Podcast",
+      "duration": 1218,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "mzNcsRmuK7I",
+      "title": "CONVERSATIONS with COUPLES in BRIGHTON | Easy English 229",
+      "channel": "Easy English",
+      "duration": 606,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "nAEKNUt6t6s",
+      "title": "Conversations with Non-native English Speakers | Easy English 219",
+      "channel": "Easy English",
+      "duration": 744,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ny26teC-4bU",
+      "title": "AI and the End of Loneliness | Paul Bloom | TED",
+      "channel": "TED",
+      "duration": 735,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oBM8y3A7AAg",
+      "title": "Golden Gate, Physical Therapy, Deep ocean, Help for spinal cord problems",
+      "channel": "VOA Learning English",
+      "duration": 1801,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oEBbBmR3468",
+      "title": "Do Brits Really Respect Their Mothers?",
+      "channel": "The British English Podcast",
+      "duration": 1014,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ohpIw6iGXNA",
+      "title": "Why I’m Building Libraries Inside Prisons | Reginald Dwayne Betts | TED",
+      "channel": "TED",
+      "duration": 749,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "oyRxhiAC9u8",
+      "title": "Why the Future is Human … Plus AI | Esther Perel and Sal Khan",
+      "channel": "TED",
+      "duration": 1248,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "pjFlVc-EDzc",
+      "title": "Can your diet help you sleep better? ⏲️ 6 Minute English",
+      "channel": "BBC Learning English",
+      "duration": 393,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "61d1fad069fe6a15400d2a4c668f55ea90f3e1dd2f1c2e178bff9b72c2a4ea9d",
+      "rows": 78,
+      "maxWords": 36,
+      "maxSeconds": 13.399999999999977,
+      "issues": []
+    },
+    {
+      "id": "q2cg1gEYWJQ",
+      "title": "Vanessa Van Edwards: The Conversation Habit That Makes Smart People Unlikable",
+      "channel": "The Diary Of A CEO",
+      "duration": 8786,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "q4PkX8_xUYk",
+      "title": "Everyday Grammar Video: Ramen, A Popular Food in Japan",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "OK",
+      "version": 3,
+      "sha256": "912064307c03f3f148522f961b014d8019b37738bf324494db2caaf2b13319ee",
+      "rows": 27,
+      "maxWords": 23,
+      "maxSeconds": 8.27999969482422,
+      "issues": []
+    },
+    {
+      "id": "q6wq7UoWMIM",
+      "title": "[BONUS] FIFA WORLD CUP 2026 PREVIEW MEGARAMBLE ⚽",
+      "channel": "Luke's English Podcast",
+      "duration": 6604,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "qDzg-xvkeXw",
+      "title": "AI Whistleblower: \"They Are Hiding What Is Really Happening\" | Jeffrey Ladish",
+      "channel": "The Diary Of A CEO",
+      "duration": 7412,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "qaRdGHXLmHI",
+      "title": "Luke’s Improvised Storytelling: Jurassic Park 🦖 [1004] Listen & Learn English",
+      "channel": "Luke's English Podcast",
+      "duration": 7526,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "r48EkZoSFmQ",
+      "title": "The Easy English Podcast #86 - 5 Ways to SURVIVE a British Pub | Easy English 221",
+      "channel": "Easy English",
+      "duration": 956,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "r63spwe1LCI",
+      "title": "The Gravity-Defying Future of Manufacturing | Schendy Kernizan | TED",
+      "channel": "TED",
+      "duration": 288,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sAumTZ1lkZE",
+      "title": "👄 Office dialogue | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 358,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sJukDNGDjX8",
+      "title": "WORLD CUP RAMBLE #4 ⚽️ FIFA 2026 England 🏴󠁧󠁢󠁥󠁮󠁧󠁿 vs Argentina 🇦🇷 and more... (with Zdenek) [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 7515,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "sgVPDpp4tJs",
+      "title": "3 Things That Feel Like Progress But Aren't",
+      "channel": "The British English Podcast",
+      "duration": 1317,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "tBfHI8sNWVU",
+      "title": "The Three Words That Saved My Life | Blake Mycoskie | TED",
+      "channel": "TED",
+      "duration": 938,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "tjaLn7URdlA",
+      "title": "👄 What is 'shadowing'? Pronunciation Shadowing Tutorial",
+      "channel": "BBC Learning English",
+      "duration": 307,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uCKr2IZo-7s",
+      "title": "Everyday Grammar Video: Population",
+      "channel": "VOA Learning English",
+      "duration": 122,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uSOZaWMVv8c",
+      "title": "A Big Talk about Small Talk 🗣️ (with Ray Addam) Improve your Speaking Skills in English",
+      "channel": "Luke's English Podcast",
+      "duration": 7988,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ueOxonBk970",
+      "title": "Campaigns Spend Millions to Influence Voters. This Works Better | Katie Paris | TED",
+      "channel": "TED",
+      "duration": 657,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "uuYpEPqCYYs",
+      "title": "How to Pronounce: Studying pauses and connections",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "v8ecvyglvJ8",
+      "title": "Conversations in English For Tourists | Easy English 233",
+      "channel": "Easy English",
+      "duration": 584,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "vfbNzpd6cIw",
+      "title": "What Makes a Good Game? | Eric Zimmerman | TED",
+      "channel": "TED",
+      "duration": 741,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "vyPofYmxIJA",
+      "title": "Everyday Grammar Video: 'Population' in Sentences",
+      "channel": "VOA Learning English",
+      "duration": 121,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "w5XS3DIR0uo",
+      "title": "WORLD CUP RAMBLE 2 ⚽️ FIFA 2026 with Zdenek [BONUS]",
+      "channel": "Luke's English Podcast",
+      "duration": 7768,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "wsstlwuE5XY",
+      "title": "How to Clean Up the World’s Dirtiest Industry | Joojin Kim | TED",
+      "channel": "TED",
+      "duration": 459,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "y64RDBeR19c",
+      "title": "The Shape-Shifting Sounds of the Accordion | Maria Telesheva | TED",
+      "channel": "TED",
+      "duration": 486,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yRQnhTxTMrM",
+      "title": "IELTS Speaking Part 1: Don’t Make These Mistakes When Talking About Your Home",
+      "channel": "The British English Podcast",
+      "duration": 1233,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yePLuwL3FbM",
+      "title": "No.1 Neuroscientist Reveals How To Unlock Superhuman Focus & Perfect Memory! - Dr. Sahar Yousef",
+      "channel": "The Diary Of A CEO",
+      "duration": 8165,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "yl--RTTtKLs",
+      "title": "English Conversations for Shopping | Easy English 220",
+      "channel": "Easy English",
+      "duration": 807,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "ywGo1GI9c2I",
+      "title": "👄 Coffee shop dialogue | Pronunciation Shadowing",
+      "channel": "BBC Learning English",
+      "duration": 331,
+      "visible": true,
+      "state": "MISSING"
+    },
+    {
+      "id": "zdn0UDVZ88E",
+      "title": "What Brits Say When It’s Their Round at the Pub | Scene 3",
+      "channel": "The British English Podcast",
+      "duration": 740,
+      "visible": true,
+      "state": "MISSING"
+    }
+  ],
+  "finishedAt": "2026-10-27T13:54:56.314Z",
+  "summary": {
+    "total": 146,
+    "cached": 11,
+    "valid": 11,
+    "missing": 135,
+    "remainingIssues": 0,
+    "repaired": 0,
+    "failed": 0
+  }
+}

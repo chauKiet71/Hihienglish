@@ -13,11 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var VideoTranslateService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VideoTranslateService = exports.DUBBED_PIPELINE_VERSION = exports.DEFAULT_MAX_SECONDS_PREMIUM = exports.DEFAULT_MAX_SECONDS_FREE = exports.FREE_VIDEO_TRANSLATE_PER_DAY = void 0;
+exports.VideoTranslateService = exports.TRANSCRIPT_RULES = exports.DUBBED_PIPELINE_VERSION = exports.DEFAULT_MAX_SECONDS_PREMIUM = exports.DEFAULT_MAX_SECONDS_FREE = exports.FREE_VIDEO_TRANSLATE_PER_DAY = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const client_1 = require("@prisma/client");
 const child_process_1 = require("child_process");
+const crypto_1 = require("crypto");
 const fs_1 = require("fs");
 const path_1 = require("path");
 const util_1 = require("util");
@@ -32,10 +33,12 @@ exports.DEFAULT_MAX_SECONDS_FREE = 600;
 exports.DEFAULT_MAX_SECONDS_PREMIUM = 1200;
 const DEFAULT_TRANSLATION_BATCH_SIZE = 24;
 const DEFAULT_TRANSLATION_CONCURRENCY = 3;
-exports.DUBBED_PIPELINE_VERSION = 13;
-const TRANSCRIPT_RULES = {
+exports.DUBBED_PIPELINE_VERSION = 16;
+exports.TRANSCRIPT_RULES = {
     pauseBreakSec: 0.5,
     timestampEpsilonSec: 0.001,
+    maxWords: 40,
+    maxDurationSec: 18,
 };
 const execFileAsync = (0, util_1.promisify)(child_process_1.execFile);
 let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateService {
@@ -356,7 +359,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             });
             const audioPath = await this.prepareAudioForWhisper(sourcePath, workDir);
             logStage('audio ready');
-            const whisperTranscript = await this.transcribeWithWhisper(audioPath);
+            const whisperTranscript = await this.transcribeWithWhisper(audioPath, durationSec);
             logStage('transcript ready');
             const normalized = whisperTranscript.segments.map((seg) => ({
                 start: seg.start,
@@ -544,27 +547,51 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         }
         return outPath;
     }
-    async prepareFeaturedTranscript(videoId, durationSec, workDir) {
+    async prepareFeaturedTranscript(videoId, durationSec, workDir, onProgress) {
         this.ensureOpenAi();
+        (0, fs_1.mkdirSync)(workDir, { recursive: true });
+        const boundToVideo = (segments) => segments.flatMap((segment) => {
+            const end = Math.min(durationSec, segment.end);
+            if (end <= segment.start)
+                return [];
+            const bounded = { ...segment, end };
+            if (segment.words?.some((word) => word.start < bounded.start ||
+                word.end > end ||
+                word.end <= word.start))
+                return [{ ...bounded, words: this.estimateWordTimings(bounded) }];
+            return [bounded];
+        });
+        const timedPath = (0, path_1.join)(workDir, `english-v${exports.DUBBED_PIPELINE_VERSION}.json`);
+        if ((0, fs_1.existsSync)(timedPath)) {
+            try {
+                const cached = JSON.parse((0, fs_1.readFileSync)(timedPath, 'utf8'));
+                if (cached.durationSec === durationSec && cached.segments?.length)
+                    return this.translateSegments(boundToVideo(cached.segments), workDir, onProgress);
+            }
+            catch {
+            }
+        }
         const readTrack = () => {
-            for (const language of ['en-US', 'en-GB', 'en-orig', 'en']) {
+            const tracks = [];
+            for (const language of ['en-orig', 'en', 'en-US', 'en-GB']) {
                 const path = (0, path_1.join)(workDir, `captions.${language}.json3`);
                 if (!(0, fs_1.existsSync)(path))
                     continue;
                 try {
                     const cues = (0, featured_video_captions_1.parseFeaturedCaptions)(JSON.parse((0, fs_1.readFileSync)(path, 'utf8')), durationSec);
                     if (cues.length)
-                        return this.finalizeSegments(cues, durationSec, this.buildCaptionWordTimings(cues, durationSec))
-                            .map((segment) => ({
-                            ...segment,
-                            end: Math.min(durationSec, segment.end),
-                        }))
-                            .filter((segment) => segment.end > segment.start);
+                        tracks.push(cues);
                 }
                 catch {
                 }
             }
-            return [];
+            const cues = (0, featured_video_captions_1.selectFeaturedCaptionTrack)(tracks);
+            return this.finalizeSegments(cues, durationSec, this.buildCaptionWordTimings(cues, durationSec))
+                .map((segment) => ({
+                ...segment,
+                end: Math.min(durationSec, segment.end),
+            }))
+                .filter((segment) => segment.end > segment.start);
         };
         let timed = readTrack();
         if (!timed.length) {
@@ -593,7 +620,11 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         if (!timed.length) {
             timed = (await this.getTimedTranscript(videoId, (0, youtube_util_1.youtubeWatchUrl)(videoId), workDir, durationSec)).segments;
         }
-        return this.translateSegments(timed);
+        timed = boundToVideo(timed);
+        const temporary = `${timedPath}.${(0, crypto_1.randomUUID)()}.tmp`;
+        (0, fs_1.writeFileSync)(temporary, JSON.stringify({ durationSec, segments: timed }), 'utf8');
+        (0, fs_1.renameSync)(temporary, timedPath);
+        return this.translateSegments(timed, workDir, onProgress);
     }
     async getTimedTranscript(videoId, youtubeUrl, workDir, durationSec) {
         const captionTranscript = await this.tryFetchCaptions(videoId, durationSec);
@@ -604,8 +635,12 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             };
         }
         this.logger.log(`No captions for ${videoId} — using Whisper STT`);
-        const audioPath = await this.downloadAudio(youtubeUrl, workDir);
-        const whisperTranscript = await this.transcribeWithWhisper(audioPath);
+        const cachedAudio = (0, fs_1.readdirSync)(workDir).find((file) => /^audio\.(mp3|m4a|webm|opus|wav)$/i.test(file) &&
+            (0, fs_1.statSync)((0, path_1.join)(workDir, file)).size > 0);
+        const audioPath = cachedAudio
+            ? (0, path_1.join)(workDir, cachedAudio)
+            : await this.downloadAudio(youtubeUrl, workDir);
+        const whisperTranscript = await this.transcribeWithWhisper(audioPath, durationSec);
         const normalized = whisperTranscript.segments.map((seg) => ({
             start: seg.start,
             end: seg.end || Math.min(durationSec, seg.start + 4),
@@ -695,9 +730,18 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         const sentenceParts = this.splitMultiSentence(collapsed);
         const utterances = this.mergeIntoUtterances(sentenceParts);
         const aligned = this.alignSegmentWindows(utterances, durationSec).filter((seg) => seg.en.trim().length > 0);
-        return wordTimings.length
+        const timed = wordTimings.length
             ? this.attachWordTimings(aligned, wordTimings)
             : aligned;
+        return this.separateOverlappingSegments(this.splitLongUtterances(timed)).map((segment) => {
+            if (segment.words?.some((word) => !Number.isFinite(word.start) ||
+                !Number.isFinite(word.end) ||
+                word.end <= word.start ||
+                word.start < segment.start - 0.001 ||
+                word.end > segment.end + 0.001))
+                return { ...segment, words: this.estimateWordTimings(segment) };
+            return segment;
+        });
     }
     wordCount(text) {
         return text.split(/\s+/).filter(Boolean).length;
@@ -757,7 +801,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                 lastWords.every((word, index) => word === nextWords[index]);
             const oneContainsTheOther = containsSequence(nextWords, lastWords) ||
                 containsSequence(lastWords, nextWords);
-            const isExtension = sameText ||
+            const isExtension = (sameText && (!this.endsUtterance(last.en) || seg.start < last.end)) ||
                 (oneContainsTheOther &&
                     (!this.endsUtterance(last.en) || seg.start <= last.end));
             if (overlaps && isExtension) {
@@ -771,7 +815,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         return out;
     }
     mergeIntoUtterances(segments) {
-        const { pauseBreakSec, timestampEpsilonSec } = TRANSCRIPT_RULES;
+        const { pauseBreakSec, timestampEpsilonSec } = exports.TRANSCRIPT_RULES;
         const merged = [];
         for (const seg of segments) {
             const last = merged[merged.length - 1];
@@ -786,6 +830,11 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                 continue;
             }
             const joined = this.mergeTwoSegments(last, seg);
+            if (this.wordCount(joined.en) > exports.TRANSCRIPT_RULES.maxWords ||
+                joined.end - joined.start > exports.TRANSCRIPT_RULES.maxDurationSec) {
+                merged.push({ ...seg });
+                continue;
+            }
             last.start = joined.start;
             last.end = joined.end;
             last.en = joined.en;
@@ -797,18 +846,25 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         const sentenceSegmenter = new Intl.Segmenter('en', {
             granularity: 'sentence',
         });
-        for (const seg of segments) {
+        for (const [index, source] of segments.entries()) {
+            const nextStart = segments[index + 1]?.start;
+            const seg = {
+                ...source,
+                end: nextStart != null && nextStart > source.start + 0.05
+                    ? Math.min(source.end, nextStart)
+                    : source.end,
+            };
             const parts = Array.from(sentenceSegmenter.segment(seg.en), (part) => part.segment.trim()).filter(Boolean);
             if (parts.length <= 1) {
                 out.push({ ...seg });
                 continue;
             }
-            const totalDur = Math.max(0.45, seg.end - seg.start);
+            const totalDur = Math.max(0, seg.end - seg.start);
             const totalChars = parts.reduce((sum, part) => sum + part.length, 0) || 1;
             let cursor = seg.start;
             parts.forEach((part, index) => {
                 const share = part.length / totalChars;
-                const dur = Math.max(0.4, totalDur * share);
+                const dur = totalDur * share;
                 const end = index === parts.length - 1
                     ? seg.end
                     : Math.min(seg.end, cursor + dur);
@@ -817,6 +873,92 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             });
         }
         return out;
+    }
+    splitLongUtterances(segments) {
+        return segments.flatMap((segment) => {
+            const tokens = segment.en.split(/\s+/).filter(Boolean);
+            if (tokens.length <= exports.TRANSCRIPT_RULES.maxWords &&
+                (segment.end - segment.start <= exports.TRANSCRIPT_RULES.maxDurationSec ||
+                    tokens.length < 8))
+                return [segment];
+            const words = segment.words?.length === tokens.length
+                ? segment.words
+                : this.estimateWordTimings(segment);
+            const parts = [];
+            let first = 0;
+            while (first < tokens.length) {
+                let last = first + 1;
+                while (last < tokens.length &&
+                    last - first < exports.TRANSCRIPT_RULES.maxWords &&
+                    words[last].end - words[first].start <=
+                        exports.TRANSCRIPT_RULES.maxDurationSec)
+                    last++;
+                if (last < tokens.length) {
+                    const minimum = first + Math.max(6, Math.floor((last - first) / 2));
+                    for (let candidate = last; candidate >= minimum; candidate--) {
+                        if (/[,;:]$/.test(tokens[candidate - 1]) ||
+                            words[candidate].start - words[candidate - 1].end >= 0.25 ||
+                            /^(?:but|so|because|although|when|while|if|then)$/i.test(tokens[candidate])) {
+                            last = candidate;
+                            break;
+                        }
+                    }
+                }
+                const slice = words.slice(first, last);
+                parts.push({
+                    start: slice[0].start,
+                    end: last === tokens.length
+                        ? Math.max(slice.at(-1).end, segment.end)
+                        : slice.at(-1).end,
+                    en: tokens.slice(first, last).join(' '),
+                    words: slice,
+                });
+                first = last;
+            }
+            return parts;
+        });
+    }
+    separateOverlappingSegments(segments) {
+        const windows = segments.map(({ start, end }) => ({ start, end }));
+        for (let index = 1; index < windows.length; index++) {
+            const previous = windows[index - 1];
+            const current = windows[index];
+            if (previous.end <= current.start)
+                continue;
+            const overlapStart = Math.max(previous.start, current.start);
+            const overlapEnd = Math.min(previous.end, current.end);
+            if (overlapEnd > overlapStart) {
+                const boundary = (overlapStart + overlapEnd) / 2;
+                previous.end = boundary;
+                current.start = boundary;
+            }
+            else {
+                const start = previous.start;
+                const end = Math.max(previous.end, current.end);
+                previous.start = start;
+                previous.end = current.start = (start + end) / 2;
+                current.end = end;
+            }
+        }
+        return segments.map((segment, index) => {
+            const window = windows[index];
+            if (window.start === segment.start && window.end === segment.end)
+                return segment;
+            const scale = (window.end - window.start) / (segment.end - segment.start);
+            return {
+                ...segment,
+                ...window,
+                ...(segment.words?.length
+                    ? {
+                        words: segment.words.map((word) => ({
+                            ...word,
+                            start: window.start + (word.start - segment.start) * scale,
+                            end: window.start + (word.end - segment.start) * scale,
+                        })),
+                    }
+                    : {}),
+            };
+        });
     }
     alignSegmentWindows(segments, durationSec) {
         const sorted = [...segments].sort((a, b) => a.start - b.start || a.end - b.end);
@@ -830,8 +972,8 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             let end = Math.max(seg.end, minEnd);
             if (!isLast) {
                 const gap = nextStart - seg.end;
-                if (gap + TRANSCRIPT_RULES.timestampEpsilonSec >=
-                    TRANSCRIPT_RULES.pauseBreakSec) {
+                if (gap + exports.TRANSCRIPT_RULES.timestampEpsilonSec >=
+                    exports.TRANSCRIPT_RULES.pauseBreakSec) {
                     end = Math.min(seg.end, nextStart - 0.04);
                 }
                 else {
@@ -847,6 +989,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
     }
     attachWordTimings(segments, rawWords) {
         const words = [...rawWords].sort((a, b) => a.start - b.start || a.end - b.end);
+        let consumedUntil = -Infinity;
         const mappedSegments = segments.map((segment, index) => {
             const previousStart = segments[index - 1]?.start;
             const nextEnd = segments[index + 1]?.end;
@@ -854,14 +997,17 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             const upperBound = (nextEnd ?? segment.end + 1) + 0.1;
             const candidates = words.filter((word) => {
                 const midpoint = (word.start + word.end) / 2;
-                return midpoint >= lowerBound && midpoint <= upperBound;
+                return (midpoint >= Math.max(lowerBound, consumedUntil) &&
+                    midpoint <= upperBound);
             });
             const mapped = this.mapWordsToSegment(segment, candidates);
+            const timings = mapped.length
+                ? this.stabilizeWordTimingWindows(mapped, segment.end)
+                : this.estimateWordTimings(segment);
+            consumedUntil = Math.max(consumedUntil, timings.at(-1)?.end ?? segment.end);
             return {
                 ...segment,
-                words: mapped.length
-                    ? this.stabilizeWordTimingWindows(mapped, segment.end)
-                    : this.estimateWordTimings(segment),
+                words: timings,
             };
         });
         return mappedSegments.map((segment, index) => {
@@ -871,7 +1017,12 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             const lastWordEnd = segment.words[segment.words.length - 1].end;
             const nextWordStart = mappedSegments[index + 1]?.words?.[0]?.start;
             const end = nextWordStart != null
-                ? Math.max(lastWordEnd, nextWordStart - 0.04)
+                ? nextWordStart -
+                    lastWordEnd +
+                    exports.TRANSCRIPT_RULES.timestampEpsilonSec >=
+                    exports.TRANSCRIPT_RULES.pauseBreakSec
+                    ? lastWordEnd
+                    : Math.max(lastWordEnd, nextWordStart - 0.04)
                 : Math.max(lastWordEnd, segment.end);
             return {
                 ...segment,
@@ -964,7 +1115,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         const words = segment.en.split(/\s+/).filter(Boolean);
         const weights = words.map((word) => Math.max(1, word.replace(/[^a-z0-9]+/gi, '').length));
         const totalWeight = weights.reduce((sum, weight) => sum + weight, 0) || 1;
-        const duration = Math.max(0.12, segment.end - segment.start);
+        const duration = Math.max(Number.EPSILON, segment.end - segment.start);
         let cursor = segment.start;
         return words.map((text, index) => {
             const end = index === words.length - 1
@@ -975,7 +1126,7 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             return timing;
         });
     }
-    async translateSegments(segments) {
+    async translateSegments(segments, workDir, onProgress) {
         this.ensureOpenAi();
         if (!segments.length)
             return [];
@@ -984,7 +1135,49 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         for (let i = 0; i < segments.length; i += batchSize) {
             batches.push(segments.slice(i, i + batchSize));
         }
-        const translatedBatches = await this.runWithConcurrency(batches, this.translationConcurrency(), (batch) => this.translateBatch(batch));
+        const cacheDirectory = workDir
+            ? (0, path_1.join)(workDir, `translations-v${exports.DUBBED_PIPELINE_VERSION}`)
+            : undefined;
+        if (cacheDirectory)
+            (0, fs_1.mkdirSync)(cacheDirectory, { recursive: true });
+        let completed = 0;
+        const translatedBatches = await this.runWithConcurrency(batches, this.translationConcurrency(), async (batch) => {
+            const key = (0, crypto_1.createHash)('sha256')
+                .update(JSON.stringify(batch))
+                .digest('hex');
+            const cachePath = cacheDirectory
+                ? (0, path_1.join)(cacheDirectory, `${key}.json`)
+                : undefined;
+            const valid = (rows) => Array.isArray(rows) &&
+                rows.length === batch.length &&
+                rows.every((row, index) => row.en === batch[index].en &&
+                    row.start === batch[index].start &&
+                    row.end === batch[index].end &&
+                    typeof row.vi === 'string' &&
+                    row.vi.trim().length > 0);
+            let rows;
+            if (cachePath && (0, fs_1.existsSync)(cachePath)) {
+                try {
+                    const saved = JSON.parse((0, fs_1.readFileSync)(cachePath, 'utf8'));
+                    if (valid(saved))
+                        rows = saved;
+                }
+                catch {
+                }
+            }
+            if (!rows) {
+                rows = await this.translateBatch(batch);
+                if (!valid(rows))
+                    throw new Error('Incomplete transcript translation batch');
+                if (cachePath) {
+                    const temporary = `${cachePath}.${(0, crypto_1.randomUUID)()}.tmp`;
+                    (0, fs_1.writeFileSync)(temporary, JSON.stringify(rows), 'utf8');
+                    (0, fs_1.renameSync)(temporary, cachePath);
+                }
+            }
+            onProgress?.(++completed, batches.length);
+            return rows;
+        });
         return translatedBatches.flat();
     }
     async translateBatch(batch) {
@@ -1043,14 +1236,25 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
             return [];
         const results = new Array(items.length);
         let nextIndex = 0;
+        let failed = false;
+        let firstError;
         const workerCount = Math.min(items.length, Math.max(1, Math.floor(concurrency)));
         await Promise.all(Array.from({ length: workerCount }, async () => {
-            while (nextIndex < items.length) {
+            while (nextIndex < items.length && !failed) {
                 const index = nextIndex;
                 nextIndex += 1;
-                results[index] = await worker(items[index], index);
+                try {
+                    results[index] = await worker(items[index], index);
+                }
+                catch (error) {
+                    if (!failed)
+                        firstError = error;
+                    failed = true;
+                }
             }
         }));
+        if (failed)
+            throw firstError;
         return results;
     }
     async translateOne(text) {
@@ -1316,7 +1520,73 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
         }
         return (0, path_1.join)(workDir, files[0]);
     }
-    async transcribeWithWhisper(audioPath) {
+    async createWhisperChunk(audioPath, offset, seconds, output) {
+        await execFileAsync(this.resolveFfmpegPath(), [
+            '-y',
+            '-ss',
+            String(offset),
+            '-i',
+            audioPath,
+            '-t',
+            String(seconds),
+            '-vn',
+            '-ac',
+            '1',
+            '-ar',
+            '16000',
+            '-c:a',
+            'pcm_s16le',
+            output,
+        ], { timeout: 120_000, maxBuffer: 1024 * 1024 });
+    }
+    async transcribeWithWhisper(audioPath, durationSec) {
+        const audio = (0, fs_1.statSync)(audioPath);
+        const chunkSeconds = audio.size > 20 * 1024 * 1024 ? 600 : durationSec;
+        const cacheDirectory = (0, path_1.join)((0, path_1.dirname)(audioPath), 'whisper-v1');
+        (0, fs_1.mkdirSync)(cacheDirectory, { recursive: true });
+        const segments = [];
+        const words = [];
+        for (let offset = 0; offset < durationSec; offset += chunkSeconds) {
+            const seconds = Math.min(chunkSeconds, durationSec - offset);
+            const key = (0, crypto_1.createHash)('sha256')
+                .update(`${audio.size}:${audio.mtimeMs}:${offset}:${seconds}`)
+                .digest('hex');
+            const cachePath = (0, path_1.join)(cacheDirectory, `${key}.json`);
+            let result;
+            if ((0, fs_1.existsSync)(cachePath)) {
+                try {
+                    const saved = JSON.parse((0, fs_1.readFileSync)(cachePath, 'utf8'));
+                    if (Array.isArray(saved.segments) && Array.isArray(saved.words))
+                        result = saved;
+                }
+                catch {
+                }
+            }
+            if (!result) {
+                const chunkPath = (0, path_1.join)(cacheDirectory, `${key}.wav`);
+                if (chunkSeconds < durationSec)
+                    await this.createWhisperChunk(audioPath, offset, seconds, chunkPath);
+                result = await this.transcribeAudioFile(chunkSeconds < durationSec ? chunkPath : audioPath);
+                const temporary = `${cachePath}.${(0, crypto_1.randomUUID)()}.tmp`;
+                (0, fs_1.writeFileSync)(temporary, JSON.stringify(result), 'utf8');
+                (0, fs_1.renameSync)(temporary, cachePath);
+                if (chunkSeconds < durationSec)
+                    (0, fs_1.rmSync)(chunkPath, { force: true });
+            }
+            const shift = (items) => items
+                .map((item) => ({
+                ...item,
+                start: offset + Math.max(0, item.start),
+                end: Math.min(offset + seconds, offset + item.end),
+            }))
+                .filter((item) => item.end > item.start);
+            segments.push(...shift(result.segments));
+            words.push(...shift(result.words));
+            this.logger.log(`Whisper ${Math.min(offset + seconds, durationSec)}/${durationSec} seconds complete`);
+        }
+        return { segments, words };
+    }
+    async transcribeAudioFile(audioPath) {
         this.ensureOpenAi();
         const result = await this.openai.audio.transcriptions.create({
             file: (0, fs_1.createReadStream)(audioPath),
@@ -1406,8 +1676,8 @@ let VideoTranslateService = VideoTranslateService_1 = class VideoTranslateServic
                     (previousWord &&
                         word.start -
                             previousWord.end +
-                            TRANSCRIPT_RULES.timestampEpsilonSec >=
-                            TRANSCRIPT_RULES.pauseBreakSec)) {
+                            exports.TRANSCRIPT_RULES.timestampEpsilonSec >=
+                            exports.TRANSCRIPT_RULES.pauseBreakSec)) {
                     groups.push([word]);
                 }
                 else {

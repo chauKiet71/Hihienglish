@@ -8,20 +8,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategoriesController = void 0;
 const common_1 = require("@nestjs/common");
 const categories_service_1 = require("./categories.service");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
 let CategoriesController = class CategoriesController {
     categoriesService;
-    constructor(categoriesService) {
+    cache;
+    constructor(categoriesService, cache) {
         this.categoriesService = categoriesService;
+        this.cache = cache;
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.categories, public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => categoriesService.findAll(), true);
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.popularCategories, public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => categoriesService.findPopular(), true);
     }
     findAll() {
-        return this.categoriesService.findAll();
+        return (this.cache?.getOrLoad(public_catalog_keys_1.PublicCatalogKeys.categories, public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => this.categoriesService.findAll()) ?? this.categoriesService.findAll());
     }
     findPopular() {
-        return this.categoriesService.findPopular();
+        return (this.cache?.getOrLoad(public_catalog_keys_1.PublicCatalogKeys.popularCategories, public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => this.categoriesService.findPopular()) ?? this.categoriesService.findPopular());
     }
 };
 exports.CategoriesController = CategoriesController;
@@ -39,6 +48,8 @@ __decorate([
 ], CategoriesController.prototype, "findPopular", null);
 exports.CategoriesController = CategoriesController = __decorate([
     (0, common_1.Controller)('categories'),
-    __metadata("design:paramtypes", [categories_service_1.CategoriesService])
+    __param(1, (0, common_1.Optional)()),
+    __metadata("design:paramtypes", [categories_service_1.CategoriesService,
+        public_catalog_cache_service_1.PublicCatalogCacheService])
 ], CategoriesController);
 //# sourceMappingURL=categories.controller.js.map

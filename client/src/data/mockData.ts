@@ -1,16 +1,7 @@
-import { getFeaturedLessons } from './lessons';
+import homeFeatured from './homeFeatured.json';
 export { categories } from './categories';
 
-export const featuredLessons = getFeaturedLessons().map(
-  ({ id, title, duration, level, thumbnailUrl, topic }) => ({
-    id,
-    title,
-    duration,
-    level,
-    thumbnailUrl,
-    topic,
-  }),
-);
+export const featuredLessons = homeFeatured;
 
 export const historyItems = [
   { id: 'lesson-79', title: 'Never Give Up', status: 'COMPLETED', topic: 'Education', level: 'Intermediate', duration: 60, progress: 100, lastListened: 'Hôm nay, 09:30', isFavorite: true, thumbnailUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=120&h=80&fit=crop' },

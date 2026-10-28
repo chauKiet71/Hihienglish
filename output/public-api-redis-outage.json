@@ -1,0 +1,26 @@
+{
+  "outage": {
+    "/api/podcasts/catalog": {
+      "status": 200,
+      "totalMs": 814.9802000000001,
+      "bytes": 44809
+    },
+    "/api/categories": {
+      "status": 200,
+      "totalMs": 3.0799999999999272,
+      "bytes": 6907
+    },
+    "/api/lessons?featured=true": {
+      "status": 200,
+      "totalMs": 4.510299999999916,
+      "bytes": 72736
+    }
+  },
+  "recovery": {
+    "status": 200,
+    "totalMs": 44.483799999999974,
+    "bytes": 44809,
+    "cacheTtlMs": 294192,
+    "compressedCache": true
+  }
+}

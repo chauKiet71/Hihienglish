@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseFeaturedCaptions = parseFeaturedCaptions;
+exports.selectFeaturedCaptionTrack = selectFeaturedCaptionTrack;
 function parseFeaturedCaptions(input, durationSec) {
     const events = input?.events;
     if (!Array.isArray(events))
@@ -26,5 +27,16 @@ function parseFeaturedCaptions(input, durationSec) {
     if (durationSec > 60 && (cues.at(-1)?.end ?? 0) < durationSec / 2)
         return [];
     return cues;
+}
+function selectFeaturedCaptionTrack(tracks) {
+    const score = (cues) => {
+        const text = cues.map((cue) => cue.en).join(' ');
+        const words = text.split(/\s+/).filter(Boolean).length;
+        const stops = text.match(/[.!?…]["')\]]?(?=\s|$)/g)?.length ?? 0;
+        return stops / Math.max(1, words);
+    };
+    return (tracks
+        .filter((track) => track.length)
+        .sort((a, b) => score(b) - score(a))[0] ?? []);
 }
 //# sourceMappingURL=featured-video-captions.js.map

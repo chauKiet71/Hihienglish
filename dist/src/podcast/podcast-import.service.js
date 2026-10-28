@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var PodcastImportService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PodcastImportService = void 0;
@@ -15,6 +18,8 @@ const common_1 = require("@nestjs/common");
 const crypto_1 = require("crypto");
 const prisma_service_1 = require("../prisma/prisma.service");
 const youtube_catalog_service_1 = require("./youtube-catalog.service");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
 const jobSelect = {
     id: true,
     channelId: true,
@@ -31,13 +36,15 @@ const jobSelect = {
 let PodcastImportService = PodcastImportService_1 = class PodcastImportService {
     prisma;
     youtube;
+    cache;
     logger = new common_1.Logger(PodcastImportService_1.name);
     timer;
     running = false;
     stopped = false;
-    constructor(prisma, youtube) {
+    constructor(prisma, youtube, cache) {
         this.prisma = prisma;
         this.youtube = youtube;
+        this.cache = cache;
     }
     onModuleInit() {
         this.timer = setInterval(() => void this.drain(), 2000);
@@ -100,7 +107,7 @@ let PodcastImportService = PodcastImportService_1 = class PodcastImportService {
         return this.publicJob(row);
     }
     async commit(id, ids) {
-        return this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
             const job = await tx.podcastImportJob.findUnique({ where: { id } });
             if (!job)
                 throw new common_1.NotFoundException('Không tìm thấy phiên nhập.');
@@ -150,6 +157,8 @@ let PodcastImportService = PodcastImportService_1 = class PodcastImportService {
             });
             return this.publicJob(saved);
         }, { maxWait: 15_000, timeout: 20_000 });
+        await this.cache?.invalidate(public_catalog_keys_1.PublicCatalogKeys.podcasts);
+        return result;
     }
     async drain() {
         if (this.running || this.stopped)
@@ -295,7 +304,9 @@ let PodcastImportService = PodcastImportService_1 = class PodcastImportService {
 exports.PodcastImportService = PodcastImportService;
 exports.PodcastImportService = PodcastImportService = PodcastImportService_1 = __decorate([
     (0, common_1.Injectable)(),
+    __param(2, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        youtube_catalog_service_1.YoutubeCatalogService])
+        youtube_catalog_service_1.YoutubeCatalogService,
+        public_catalog_cache_service_1.PublicCatalogCacheService])
 ], PodcastImportService);
 //# sourceMappingURL=podcast-import.service.js.map

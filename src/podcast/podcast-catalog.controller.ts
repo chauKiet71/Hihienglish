@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Optional,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
@@ -19,12 +20,30 @@ import {
   CreatePodcastImportDto,
   PodcastVisibilityDto,
 } from './dto/catalog.dto';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
+import {
+  PublicCatalogKeys,
+  PODCAST_CATALOG_TTL_MS,
+} from '../public-cache/public-catalog.keys';
 
 @Controller('podcasts')
 export class PodcastCatalogController {
-  constructor(private readonly catalog: PodcastCatalogService) {}
+  constructor(
+    private readonly catalog: PodcastCatalogService,
+    @Optional() private readonly cache?: PublicCatalogCacheService,
+  ) {
+    cache?.register(PublicCatalogKeys.podcasts, PODCAST_CATALOG_TTL_MS, () =>
+      catalog.list(),
+    );
+  }
   @Get('catalog') @Header('Cache-Control', 'no-store') list() {
-    return this.catalog.list();
+    return (
+      this.cache?.getOrLoad(
+        PublicCatalogKeys.podcasts,
+        PODCAST_CATALOG_TTL_MS,
+        () => this.catalog.list(),
+      ) ?? this.catalog.list()
+    );
   }
 }
 

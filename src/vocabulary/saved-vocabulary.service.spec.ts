@@ -217,6 +217,27 @@ describe('personal saved vocabulary', () => {
     });
     expect(await service.replay('alice', 'word', 'source')).toEqual({ href });
   });
+  it('keeps the owned replay range when podcast subtitles have been re-segmented', async () => {
+    const { service, prisma, featured } = setup();
+    featured.getTranscript.mockImplementation(() => {
+      throw new Error('The old subtitle boundaries no longer exist');
+    });
+    prisma.savedVocabularySource.findFirst.mockResolvedValue({
+      id: 'source',
+      sourceType: 'featured-video',
+      sourceId: 'mgfBmnD04Q8',
+      startTime: 461.772,
+      endTime: 620.665,
+    });
+
+    expect(await service.replay('alice', 'word', 'source')).toEqual({
+      href: '/kenh/volka-english/video/mgfBmnD04Q8?t=461.772&end=620.665',
+    });
+    expect(prisma.savedVocabularySource.findFirst).toHaveBeenCalledWith({
+      where: { id: 'source', wordId: 'word', word: { userId: 'alice' } },
+    });
+    expect(featured.getTranscript).not.toHaveBeenCalled();
+  });
   it('returns forgotten mastered words to learning with an early review', async () => {
     const { service, prisma } = setup();
     await service.review('alice', 'word', {

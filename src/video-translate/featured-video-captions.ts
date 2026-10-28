@@ -31,3 +31,20 @@ export function parseFeaturedCaptions(input: unknown, durationSec: number) {
   if (durationSec > 60 && (cues.at(-1)?.end ?? 0) < durationSec / 2) return [];
   return cues;
 }
+
+/** Prefer sentence punctuation over an auto-translated English track's locale. */
+export function selectFeaturedCaptionTrack(
+  tracks: Array<Array<{ start: number; end: number; en: string }>>,
+) {
+  const score = (cues: Array<{ en: string }>) => {
+    const text = cues.map((cue) => cue.en).join(' ');
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const stops = text.match(/[.!?…]["')\]]?(?=\s|$)/g)?.length ?? 0;
+    return stops / Math.max(1, words);
+  };
+  return (
+    tracks
+      .filter((track) => track.length)
+      .sort((a, b) => score(b) - score(a))[0] ?? []
+  );
+}

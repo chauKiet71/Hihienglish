@@ -306,12 +306,17 @@ export class SavedVocabularyService {
       where: { id: sourceId, wordId: id, word: { userId } },
     });
     if (!source) throw new NotFoundException('Không tìm thấy nguồn của từ.');
-    await this.resolveSource(userId, {
-      type: source.sourceType as VocabularySourceDto['type'],
-      id: source.sourceId,
-      startTime: source.startTime,
-      endTime: source.endTime,
-    });
+    // Owned saved video sources keep their original replay range after a
+    // subtitle re-segmentation. The catalog/player still enforce availability
+    // and Premium access; a current subtitle boundary is not required to seek.
+    if (source.sourceType !== 'featured-video') {
+      await this.resolveSource(userId, {
+        type: source.sourceType as VocabularySourceDto['type'],
+        id: source.sourceId,
+        startTime: source.startTime,
+        endTime: source.endTime,
+      });
+    }
     const query = `t=${source.startTime}&end=${source.endTime}`;
     const publicPath =
       source.sourceType === 'featured-video'

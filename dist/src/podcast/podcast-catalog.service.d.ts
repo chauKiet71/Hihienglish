@@ -2,10 +2,12 @@ import { OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { YoutubeCatalogService } from './youtube-catalog.service';
 import type { CatalogChannel } from './catalog.types';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
 export declare class PodcastCatalogService implements OnModuleInit {
     private readonly prisma;
     private readonly youtube;
-    constructor(prisma: PrismaService, youtube: YoutubeCatalogService);
+    private readonly cache?;
+    constructor(prisma: PrismaService, youtube: YoutubeCatalogService, cache?: PublicCatalogCacheService | undefined);
     onModuleInit(): Promise<void>;
     list(admin?: boolean): Promise<CatalogChannel[]>;
     private publicVideo;

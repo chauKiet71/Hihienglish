@@ -1,7 +1,9 @@
 import { CategoriesService } from './categories.service';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
 export declare class CategoriesController {
     private categoriesService;
-    constructor(categoriesService: CategoriesService);
+    private cache?;
+    constructor(categoriesService: CategoriesService, cache?: PublicCatalogCacheService | undefined);
     findAll(): Promise<{
         id: string;
         name: string;

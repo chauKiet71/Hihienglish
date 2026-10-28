@@ -1,0 +1,50 @@
+ca32a93c70d065e64280ae491f4a01b6
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LessonAccessService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+let LessonAccessService = class LessonAccessService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async getAccessMap() {
+        const rows = await this.prisma.lessonAccess.findMany({
+            select: { lessonId: true, isLocked: true },
+        });
+        return Object.fromEntries(rows.map((row) => [row.lessonId, row.isLocked]));
+    }
+    async getLockedLessonIds() {
+        const rows = await this.prisma.lessonAccess.findMany({
+            where: { isLocked: true },
+            select: { lessonId: true },
+        });
+        return rows.map((row) => row.lessonId);
+    }
+    async setLocked(lessonId, isLocked) {
+        const row = await this.prisma.lessonAccess.upsert({
+            where: { lessonId },
+            create: { lessonId, isLocked },
+            update: { isLocked },
+            select: { lessonId: true, isLocked: true, updatedAt: true },
+        });
+        return row;
+    }
+};
+exports.LessonAccessService = LessonAccessService;
+exports.LessonAccessService = LessonAccessService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof prisma_service_1.PrismaService !== "undefined" && prisma_service_1.PrismaService) === "function" ? _a : Object])
+], LessonAccessService);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcbGVzc29uc1xcbGVzc29uLWFjY2Vzcy5zZXJ2aWNlLnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7QUFBQSwyQ0FBNEM7QUFDNUMsNkRBQXlEO0FBR2xELElBQU0sbUJBQW1CLEdBQXpCLE1BQU0sbUJBQW1CO0lBQ1Y7SUFBcEIsWUFBb0IsTUFBcUI7UUFBckIsV0FBTSxHQUFOLE1BQU0sQ0FBZTtJQUFHLENBQUM7SUFFN0MsS0FBSyxDQUFDLFlBQVk7UUFDaEIsTUFBTSxJQUFJLEdBQUcsTUFBTSxJQUFJLENBQUMsTUFBTSxDQUFDLFlBQVksQ0FBQyxRQUFRLENBQUM7WUFDbkQsTUFBTSxFQUFFLEVBQUUsUUFBUSxFQUFFLElBQUksRUFBRSxRQUFRLEVBQUUsSUFBSSxFQUFFO1NBQzNDLENBQUMsQ0FBQztRQUVILE9BQU8sTUFBTSxDQUFDLFdBQVcsQ0FBQyxJQUFJLENBQUMsR0FBRyxDQUFDLENBQUMsR0FBRyxFQUFFLEVBQUUsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxRQUFRLEVBQUUsR0FBRyxDQUFDLFFBQVEsQ0FBQyxDQUFDLENBQUMsQ0FBQztJQUM3RSxDQUFDO0lBRUQsS0FBSyxDQUFDLGtCQUFrQjtRQUN0QixNQUFNLElBQUksR0FBRyxNQUFNLElBQUksQ0FBQyxNQUFNLENBQUMsWUFBWSxDQUFDLFFBQVEsQ0FBQztZQUNuRCxLQUFLLEVBQUUsRUFBRSxRQUFRLEVBQUUsSUFBSSxFQUFFO1lBQ3pCLE1BQU0sRUFBRSxFQUFFLFFBQVEsRUFBRSxJQUFJLEVBQUU7U0FDM0IsQ0FBQyxDQUFDO1FBQ0gsT0FBTyxJQUFJLENBQUMsR0FBRyxDQUFDLENBQUMsR0FBRyxFQUFFLEVBQUUsQ0FBQyxHQUFHLENBQUMsUUFBUSxDQUFDLENBQUM7SUFDekMsQ0FBQztJQUVELEtBQUssQ0FBQyxTQUFTLENBQUMsUUFBZ0IsRUFBRSxRQUFpQjtRQUNqRCxNQUFNLEdBQUcsR0FBRyxNQUFNLElBQUksQ0FBQyxNQUFNLENBQUMsWUFBWSxDQUFDLE1BQU0sQ0FBQztZQUNoRCxLQUFLLEVBQUUsRUFBRSxRQUFRLEVBQUU7WUFDbkIsTUFBTSxFQUFFLEVBQUUsUUFBUSxFQUFFLFFBQVEsRUFBRTtZQUM5QixNQUFNLEVBQUUsRUFBRSxRQUFRLEVBQUU7WUFDcEIsTUFBTSxFQUFFLEVBQUUsUUFBUSxFQUFFLElBQUksRUFBRSxRQUFRLEVBQUUsSUFBSSxFQUFFLFNBQVMsRUFBRSxJQUFJLEVBQUU7U0FDNUQsQ0FBQyxDQUFDO1FBRUgsT0FBTyxHQUFHLENBQUM7SUFDYixDQUFDO0NBQ0YsQ0FBQTtBQTdCWSxrREFBbUI7OEJBQW5CLG1CQUFtQjtJQUQvQixJQUFBLG1CQUFVLEdBQUU7eURBRWlCLDhCQUFhLG9CQUFiLDhCQUFhO0dBRDlCLG1CQUFtQixDQTZCL0IiLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcbGVzc29uc1xcbGVzc29uLWFjY2Vzcy5zZXJ2aWNlLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IEluamVjdGFibGUgfSBmcm9tICdAbmVzdGpzL2NvbW1vbic7XHJcbmltcG9ydCB7IFByaXNtYVNlcnZpY2UgfSBmcm9tICcuLi9wcmlzbWEvcHJpc21hLnNlcnZpY2UnO1xyXG5cclxuQEluamVjdGFibGUoKVxyXG5leHBvcnQgY2xhc3MgTGVzc29uQWNjZXNzU2VydmljZSB7XHJcbiAgY29uc3RydWN0b3IocHJpdmF0ZSBwcmlzbWE6IFByaXNtYVNlcnZpY2UpIHt9XHJcblxyXG4gIGFzeW5jIGdldEFjY2Vzc01hcCgpOiBQcm9taXNlPFJlY29yZDxzdHJpbmcsIGJvb2xlYW4+PiB7XHJcbiAgICBjb25zdCByb3dzID0gYXdhaXQgdGhpcy5wcmlzbWEubGVzc29uQWNjZXNzLmZpbmRNYW55KHtcclxuICAgICAgc2VsZWN0OiB7IGxlc3NvbklkOiB0cnVlLCBpc0xvY2tlZDogdHJ1ZSB9LFxyXG4gICAgfSk7XHJcblxyXG4gICAgcmV0dXJuIE9iamVjdC5mcm9tRW50cmllcyhyb3dzLm1hcCgocm93KSA9PiBbcm93Lmxlc3NvbklkLCByb3cuaXNMb2NrZWRdKSk7XHJcbiAgfVxyXG5cclxuICBhc3luYyBnZXRMb2NrZWRMZXNzb25JZHMoKTogUHJvbWlzZTxzdHJpbmdbXT4ge1xyXG4gICAgY29uc3Qgcm93cyA9IGF3YWl0IHRoaXMucHJpc21hLmxlc3NvbkFjY2Vzcy5maW5kTWFueSh7XHJcbiAgICAgIHdoZXJlOiB7IGlzTG9ja2VkOiB0cnVlIH0sXHJcbiAgICAgIHNlbGVjdDogeyBsZXNzb25JZDogdHJ1ZSB9LFxyXG4gICAgfSk7XHJcbiAgICByZXR1cm4gcm93cy5tYXAoKHJvdykgPT4gcm93Lmxlc3NvbklkKTtcclxuICB9XHJcblxyXG4gIGFzeW5jIHNldExvY2tlZChsZXNzb25JZDogc3RyaW5nLCBpc0xvY2tlZDogYm9vbGVhbikge1xyXG4gICAgY29uc3Qgcm93ID0gYXdhaXQgdGhpcy5wcmlzbWEubGVzc29uQWNjZXNzLnVwc2VydCh7XHJcbiAgICAgIHdoZXJlOiB7IGxlc3NvbklkIH0sXHJcbiAgICAgIGNyZWF0ZTogeyBsZXNzb25JZCwgaXNMb2NrZWQgfSxcclxuICAgICAgdXBkYXRlOiB7IGlzTG9ja2VkIH0sXHJcbiAgICAgIHNlbGVjdDogeyBsZXNzb25JZDogdHJ1ZSwgaXNMb2NrZWQ6IHRydWUsIHVwZGF0ZWRBdDogdHJ1ZSB9LFxyXG4gICAgfSk7XHJcblxyXG4gICAgcmV0dXJuIHJvdztcclxuICB9XHJcbn1cclxuIl0sInZlcnNpb24iOjN9

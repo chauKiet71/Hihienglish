@@ -1,0 +1,82 @@
+[
+  {
+    "id": "lesson-02",
+    "title": "Tại sân bay",
+    "duration": 28,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=340&fit=crop",
+    "topic": "Du lịch & Khám phá"
+  },
+  {
+    "id": "lesson-03",
+    "title": "Đặt phòng khách sạn",
+    "duration": 31,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&h=340&fit=crop",
+    "topic": "Du lịch & Khám phá"
+  },
+  {
+    "id": "lesson-11",
+    "title": "Thói quen buổi sáng",
+    "duration": 26,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=340&fit=crop",
+    "topic": "Cuộc sống hằng ngày"
+  },
+  {
+    "id": "lesson-12",
+    "title": "Tại quán cà phê",
+    "duration": 33,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=340&fit=crop",
+    "topic": "Cuộc sống hằng ngày"
+  },
+  {
+    "id": "lesson-13",
+    "title": "Đi siêu thị",
+    "duration": 34,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=600&h=340&fit=crop",
+    "topic": "Cuộc sống hằng ngày"
+  },
+  {
+    "id": "lesson-15",
+    "title": "Kế hoạch cuối tuần",
+    "duration": 33,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=340&fit=crop",
+    "topic": "Cuộc sống hằng ngày"
+  },
+  {
+    "id": "lesson-22",
+    "title": "Ngày đầu tiên đi làm",
+    "duration": 69,
+    "level": "BEGINNER",
+    "thumbnailUrl": "/images/lessons/lesson-22-first-day-work.png",
+    "topic": "Công việc & Sự nghiệp"
+  },
+  {
+    "id": "lesson-23",
+    "title": "Họp nhóm",
+    "duration": 53,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=340&fit=crop",
+    "topic": "Công việc & Sự nghiệp"
+  },
+  {
+    "id": "lesson-31",
+    "title": "Đọc tin tức",
+    "duration": 43,
+    "level": "BEGINNER",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&h=340&fit=crop",
+    "topic": "Tin tức & Xã hội"
+  },
+  {
+    "id": "lesson-33",
+    "title": "Sự kiện cộng đồng",
+    "duration": 45,
+    "level": "BEGINNER",
+    "thumbnailUrl": "/images/lessons/lesson-33-community-event.png",
+    "topic": "Tin tức & Xã hội"
+  }
+]

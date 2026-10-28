@@ -1,0 +1,71 @@
+faf380260dfee757c4a12cece430db6c
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PodcastAccessController = void 0;
+const common_1 = require("@nestjs/common");
+const admin_guard_1 = require("../auth/admin.guard");
+const current_user_decorator_1 = require("../auth/current-user.decorator");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const optional_jwt_auth_guard_1 = require("../auth/optional-jwt-auth.guard");
+const update_podcast_access_dto_1 = require("./dto/update-podcast-access.dto");
+const podcast_access_service_1 = require("./podcast-access.service");
+let PodcastAccessController = class PodcastAccessController {
+    access;
+    constructor(access) {
+        this.access = access;
+    }
+    getAccessMap() {
+        return this.access.getAccessMap();
+    }
+    getPlaybackAccess(videoId, user) {
+        return this.access.getPlaybackAccess(videoId, user);
+    }
+    setAccess(videoId, dto) {
+        return this.access.setAccess(videoId, dto.isPremium, dto.previewSeconds);
+    }
+};
+exports.PodcastAccessController = PodcastAccessController;
+__decorate([
+    (0, common_1.Get)('access'),
+    (0, common_1.Header)('Cache-Control', 'no-store'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PodcastAccessController.prototype, "getAccessMap", null);
+__decorate([
+    (0, common_1.Get)(':videoId/access'),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
+    (0, common_1.Header)('Cache-Control', 'private, no-store'),
+    __param(0, (0, common_1.Param)('videoId')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PodcastAccessController.prototype, "getPlaybackAccess", null);
+__decorate([
+    (0, common_1.Put)(':videoId/access'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
+    __param(0, (0, common_1.Param)('videoId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, typeof (_b = typeof update_podcast_access_dto_1.UpdatePodcastAccessDto !== "undefined" && update_podcast_access_dto_1.UpdatePodcastAccessDto) === "function" ? _b : Object]),
+    __metadata("design:returntype", void 0)
+], PodcastAccessController.prototype, "setAccess", null);
+exports.PodcastAccessController = PodcastAccessController = __decorate([
+    (0, common_1.Controller)('podcasts'),
+    __metadata("design:paramtypes", [typeof (_a = typeof podcast_access_service_1.PodcastAccessService !== "undefined" && podcast_access_service_1.PodcastAccessService) === "function" ? _a : Object])
+], PodcastAccessController);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xccG9kY2FzdFxccG9kY2FzdC1hY2Nlc3MuY29udHJvbGxlci50cyIsIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsMkNBUXdCO0FBQ3hCLHFEQUFpRDtBQUNqRCwyRUFBNkQ7QUFDN0QsMkRBQXNEO0FBQ3RELDZFQUF1RTtBQUN2RSwrRUFBeUU7QUFDekUscUVBR2tDO0FBRzNCLElBQU0sdUJBQXVCLEdBQTdCLE1BQU0sdUJBQXVCO0lBQ0w7SUFBN0IsWUFBNkIsTUFBNEI7UUFBNUIsV0FBTSxHQUFOLE1BQU0sQ0FBc0I7SUFBRyxDQUFDO0lBSTdELFlBQVk7UUFDVixPQUFPLElBQUksQ0FBQyxNQUFNLENBQUMsWUFBWSxFQUFFLENBQUM7SUFDcEMsQ0FBQztJQUtELGlCQUFpQixDQUNHLE9BQWUsRUFDbEIsSUFBMEI7UUFFekMsT0FBTyxJQUFJLENBQUMsTUFBTSxDQUFDLGlCQUFpQixDQUFDLE9BQU8sRUFBRSxJQUFJLENBQUMsQ0FBQztJQUN0RCxDQUFDO0lBSUQsU0FBUyxDQUNXLE9BQWUsRUFDekIsR0FBMkI7UUFFbkMsT0FBTyxJQUFJLENBQUMsTUFBTSxDQUFDLFNBQVMsQ0FBQyxPQUFPLEVBQUUsR0FBRyxDQUFDLFNBQVMsRUFBRSxHQUFHLENBQUMsY0FBYyxDQUFDLENBQUM7SUFDM0UsQ0FBQztDQUNGLENBQUE7QUEzQlksMERBQXVCO0FBS2xDO0lBRkMsSUFBQSxZQUFHLEVBQUMsUUFBUSxDQUFDO0lBQ2IsSUFBQSxlQUFNLEVBQUMsZUFBZSxFQUFFLFVBQVUsQ0FBQzs7OzsyREFHbkM7QUFLRDtJQUhDLElBQUEsWUFBRyxFQUFDLGlCQUFpQixDQUFDO0lBQ3RCLElBQUEsa0JBQVMsRUFBQyw4Q0FBb0IsQ0FBQztJQUMvQixJQUFBLGVBQU0sRUFBQyxlQUFlLEVBQUUsbUJBQW1CLENBQUM7SUFFMUMsV0FBQSxJQUFBLGNBQUssRUFBQyxTQUFTLENBQUMsQ0FBQTtJQUNoQixXQUFBLElBQUEsb0NBQVcsR0FBRSxDQUFBOzs7O2dFQUdmO0FBSUQ7SUFGQyxJQUFBLFlBQUcsRUFBQyxpQkFBaUIsQ0FBQztJQUN0QixJQUFBLGtCQUFTLEVBQUMsNkJBQVksRUFBRSx3QkFBVSxDQUFDO0lBRWpDLFdBQUEsSUFBQSxjQUFLLEVBQUMsU0FBUyxDQUFDLENBQUE7SUFDaEIsV0FBQSxJQUFBLGFBQUksR0FBRSxDQUFBOztpRUFBTSxrREFBc0Isb0JBQXRCLGtEQUFzQjs7d0RBR3BDO2tDQTFCVSx1QkFBdUI7SUFEbkMsSUFBQSxtQkFBVSxFQUFDLFVBQVUsQ0FBQzt5REFFZ0IsNkNBQW9CLG9CQUFwQiw2Q0FBb0I7R0FEOUMsdUJBQXVCLENBMkJuQyIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJEOlxcQ29kZVxcSGloaUVuZ2xpc2hcXDIxdGg5XFxIaWhpZW5nbGlzaFxcc3JjXFxwb2RjYXN0XFxwb2RjYXN0LWFjY2Vzcy5jb250cm9sbGVyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7XG4gIEJvZHksXG4gIENvbnRyb2xsZXIsXG4gIEdldCxcbiAgSGVhZGVyLFxuICBQYXJhbSxcbiAgUHV0LFxuICBVc2VHdWFyZHMsXG59IGZyb20gJ0BuZXN0anMvY29tbW9uJztcbmltcG9ydCB7IEFkbWluR3VhcmQgfSBmcm9tICcuLi9hdXRoL2FkbWluLmd1YXJkJztcbmltcG9ydCB7IEN1cnJlbnRVc2VyIH0gZnJvbSAnLi4vYXV0aC9jdXJyZW50LXVzZXIuZGVjb3JhdG9yJztcbmltcG9ydCB7IEp3dEF1dGhHdWFyZCB9IGZyb20gJy4uL2F1dGgvand0LWF1dGguZ3VhcmQnO1xuaW1wb3J0IHsgT3B0aW9uYWxKd3RBdXRoR3VhcmQgfSBmcm9tICcuLi9hdXRoL29wdGlvbmFsLWp3dC1hdXRoLmd1YXJkJztcbmltcG9ydCB7IFVwZGF0ZVBvZGNhc3RBY2Nlc3NEdG8gfSBmcm9tICcuL2R0by91cGRhdGUtcG9kY2FzdC1hY2Nlc3MuZHRvJztcbmltcG9ydCB7XG4gIFBvZGNhc3RBY2Nlc3NTZXJ2aWNlLFxuICB0eXBlIFBvZGNhc3RWaWV3ZXIsXG59IGZyb20gJy4vcG9kY2FzdC1hY2Nlc3Muc2VydmljZSc7XG5cbkBDb250cm9sbGVyKCdwb2RjYXN0cycpXG5leHBvcnQgY2xhc3MgUG9kY2FzdEFjY2Vzc0NvbnRyb2xsZXIge1xuICBjb25zdHJ1Y3Rvcihwcml2YXRlIHJlYWRvbmx5IGFjY2VzczogUG9kY2FzdEFjY2Vzc1NlcnZpY2UpIHt9XG5cbiAgQEdldCgnYWNjZXNzJylcbiAgQEhlYWRlcignQ2FjaGUtQ29udHJvbCcsICduby1zdG9yZScpXG4gIGdldEFjY2Vzc01hcCgpIHtcbiAgICByZXR1cm4gdGhpcy5hY2Nlc3MuZ2V0QWNjZXNzTWFwKCk7XG4gIH1cblxuICBAR2V0KCc6dmlkZW9JZC9hY2Nlc3MnKVxuICBAVXNlR3VhcmRzKE9wdGlvbmFsSnd0QXV0aEd1YXJkKVxuICBASGVhZGVyKCdDYWNoZS1Db250cm9sJywgJ3ByaXZhdGUsIG5vLXN0b3JlJylcbiAgZ2V0UGxheWJhY2tBY2Nlc3MoXG4gICAgQFBhcmFtKCd2aWRlb0lkJykgdmlkZW9JZDogc3RyaW5nLFxuICAgIEBDdXJyZW50VXNlcigpIHVzZXI6IFBvZGNhc3RWaWV3ZXIgfCBudWxsLFxuICApIHtcbiAgICByZXR1cm4gdGhpcy5hY2Nlc3MuZ2V0UGxheWJhY2tBY2Nlc3ModmlkZW9JZCwgdXNlcik7XG4gIH1cblxuICBAUHV0KCc6dmlkZW9JZC9hY2Nlc3MnKVxuICBAVXNlR3VhcmRzKEp3dEF1dGhHdWFyZCwgQWRtaW5HdWFyZClcbiAgc2V0QWNjZXNzKFxuICAgIEBQYXJhbSgndmlkZW9JZCcpIHZpZGVvSWQ6IHN0cmluZyxcbiAgICBAQm9keSgpIGR0bzogVXBkYXRlUG9kY2FzdEFjY2Vzc0R0byxcbiAgKSB7XG4gICAgcmV0dXJuIHRoaXMuYWNjZXNzLnNldEFjY2Vzcyh2aWRlb0lkLCBkdG8uaXNQcmVtaXVtLCBkdG8ucHJldmlld1NlY29uZHMpO1xuICB9XG59XG4iXSwidmVyc2lvbiI6M30=

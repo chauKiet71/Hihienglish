@@ -77,7 +77,44 @@ export function fetchSpeakingHistory(force = false) {
 export function prefetchAppFeatures(
   isAuthenticated: boolean,
   authReady = true,
+  priority?: { pathname: string; critical: boolean },
 ) {
+  if (priority?.critical) {
+    const path = priority.pathname;
+    if (path === '/')
+      return Promise.allSettled([
+        api.getPodcastCatalog(),
+        api.getLessonAccessMap(),
+      ]);
+    if (
+      path.startsWith('/podcast') ||
+      path.startsWith('/postcast') ||
+      path.startsWith('/kenh')
+    )
+      return Promise.allSettled([
+        api.getPodcastCatalog(),
+        api.getPodcastAccessMap(),
+      ]);
+    if (path.startsWith('/kham-pha') || path.startsWith('/bai-hoc'))
+      return Promise.allSettled([api.getLessonAccessMap()]);
+    if (path.startsWith('/tu-vung'))
+      return Promise.allSettled(
+        authReady && isAuthenticated ? [api.getSavedVocabulary()] : [],
+      );
+    if (path.startsWith('/video-cua-toi') || path.startsWith('/dich-video'))
+      return Promise.allSettled(
+        authReady
+          ? [api.listVideoTranslateJobs(), api.getVideoTranslateQuota()]
+          : [],
+      );
+    if (path.startsWith('/nang-cap'))
+      return Promise.allSettled([fetchActivePackages()]);
+    if (path.startsWith('/ca-nhan'))
+      return Promise.allSettled(
+        authReady && isAuthenticated ? [fetchLessonStats()] : [],
+      );
+    return Promise.allSettled([]);
+  }
   const tasks: Promise<unknown>[] = [
     fetchActivePackages(),
     api.getLessonAccessMap(),

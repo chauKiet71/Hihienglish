@@ -1,0 +1,27 @@
+4c2432be91811f45754e2f774863ce3a
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AdminGuard = void 0;
+const common_1 = require("@nestjs/common");
+const client_1 = require("@prisma/client");
+let AdminGuard = class AdminGuard {
+    canActivate(context) {
+        const user = context.switchToHttp().getRequest()
+            .user;
+        if (user?.role !== client_1.UserRole.ADMIN) {
+            throw new common_1.ForbiddenException('Chỉ quản trị viên mới được truy cập');
+        }
+        return true;
+    }
+};
+exports.AdminGuard = AdminGuard;
+exports.AdminGuard = AdminGuard = __decorate([
+    (0, common_1.Injectable)()
+], AdminGuard);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiRDpcXENvZGVcXEhpaGlFbmdsaXNoXFwyMXRoOVxcSGloaWVuZ2xpc2hcXHNyY1xcYXV0aFxcYWRtaW4uZ3VhcmQudHMiLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7O0FBQUEsMkNBS3dCO0FBQ3hCLDJDQUEwQztBQUduQyxJQUFNLFVBQVUsR0FBaEIsTUFBTSxVQUFVO0lBQ3JCLFdBQVcsQ0FBQyxPQUF5QjtRQUNuQyxNQUFNLElBQUksR0FBRyxPQUFPLENBQUMsWUFBWSxFQUFFLENBQUMsVUFBVSxFQUFrQzthQUM3RSxJQUFJLENBQUM7UUFFUixJQUFJLElBQUksRUFBRSxJQUFJLEtBQUssaUJBQVEsQ0FBQyxLQUFLLEVBQUUsQ0FBQztZQUNsQyxNQUFNLElBQUksMkJBQWtCLENBQUMscUNBQXFDLENBQUMsQ0FBQztRQUN0RSxDQUFDO1FBRUQsT0FBTyxJQUFJLENBQUM7SUFDZCxDQUFDO0NBQ0YsQ0FBQTtBQVhZLGdDQUFVO3FCQUFWLFVBQVU7SUFEdEIsSUFBQSxtQkFBVSxHQUFFO0dBQ0EsVUFBVSxDQVd0QiIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJEOlxcQ29kZVxcSGloaUVuZ2xpc2hcXDIxdGg5XFxIaWhpZW5nbGlzaFxcc3JjXFxhdXRoXFxhZG1pbi5ndWFyZC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQge1xyXG4gIENhbkFjdGl2YXRlLFxyXG4gIEV4ZWN1dGlvbkNvbnRleHQsXHJcbiAgRm9yYmlkZGVuRXhjZXB0aW9uLFxyXG4gIEluamVjdGFibGUsXHJcbn0gZnJvbSAnQG5lc3Rqcy9jb21tb24nO1xyXG5pbXBvcnQgeyBVc2VyUm9sZSB9IGZyb20gJ0BwcmlzbWEvY2xpZW50JztcclxuXHJcbkBJbmplY3RhYmxlKClcclxuZXhwb3J0IGNsYXNzIEFkbWluR3VhcmQgaW1wbGVtZW50cyBDYW5BY3RpdmF0ZSB7XHJcbiAgY2FuQWN0aXZhdGUoY29udGV4dDogRXhlY3V0aW9uQ29udGV4dCk6IGJvb2xlYW4ge1xyXG4gICAgY29uc3QgdXNlciA9IGNvbnRleHQuc3dpdGNoVG9IdHRwKCkuZ2V0UmVxdWVzdDx7IHVzZXI/OiB7IHJvbGU/OiBVc2VyUm9sZSB9IH0+KClcclxuICAgICAgLnVzZXI7XHJcblxyXG4gICAgaWYgKHVzZXI/LnJvbGUgIT09IFVzZXJSb2xlLkFETUlOKSB7XHJcbiAgICAgIHRocm93IG5ldyBGb3JiaWRkZW5FeGNlcHRpb24oJ0No4buJIHF14bqjbiB0cuG7iyB2acOqbiBt4bubaSDEkcaw4bujYyB0cnV5IGPhuq1wJyk7XHJcbiAgICB9XHJcblxyXG4gICAgcmV0dXJuIHRydWU7XHJcbiAgfVxyXG59XHJcbiJdLCJ2ZXJzaW9uIjozfQ==

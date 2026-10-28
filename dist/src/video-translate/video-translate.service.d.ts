@@ -3,7 +3,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare const FREE_VIDEO_TRANSLATE_PER_DAY = 3;
 export declare const DEFAULT_MAX_SECONDS_FREE = 600;
 export declare const DEFAULT_MAX_SECONDS_PREMIUM = 1200;
-export declare const DUBBED_PIPELINE_VERSION = 13;
+export declare const DUBBED_PIPELINE_VERSION = 16;
+export declare const TRANSCRIPT_RULES: {
+    readonly pauseBreakSec: 0.5;
+    readonly timestampEpsilonSec: 0.001;
+    readonly maxWords: 40;
+    readonly maxDurationSec: 18;
+};
 export type VideoWordTiming = {
     text: string;
     start: number;
@@ -170,7 +176,7 @@ export declare class VideoTranslateService {
     private resolveMediaPath;
     private extractUploadThumbnail;
     private prepareAudioForWhisper;
-    prepareFeaturedTranscript(videoId: string, durationSec: number, workDir: string): Promise<VideoSegment[]>;
+    prepareFeaturedTranscript(videoId: string, durationSec: number, workDir: string, onProgress?: (completedBatches: number, totalBatches: number) => void): Promise<VideoSegment[]>;
     private getTimedTranscript;
     private tryFetchCaptions;
     private cleanCaptionText;
@@ -183,6 +189,8 @@ export declare class VideoTranslateService {
     private collapseRollingCaptions;
     private mergeIntoUtterances;
     private splitMultiSentence;
+    private splitLongUtterances;
+    private separateOverlappingSegments;
     private alignSegmentWindows;
     private attachWordTimings;
     private mapWordsToSegment;
@@ -200,7 +208,9 @@ export declare class VideoTranslateService {
     private synthesizeElevenLabs;
     private synthesizeOpenAiTts;
     private downloadAudio;
+    private createWhisperChunk;
     private transcribeWithWhisper;
+    private transcribeAudioFile;
     private buildWhisperTimedSegments;
     private splitWhisperSegmentsAtInternalPauses;
     private fetchVideoMeta;

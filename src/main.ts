@@ -8,6 +8,7 @@ import express, {
   type Response,
   type NextFunction,
 } from 'express';
+import compression from 'compression';
 import { AppModule } from './app.module';
 import { syncDatabaseSchema } from './prisma/database-sync';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -18,6 +19,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
   app.useWebSocketAdapter(new WsAdapter(app));
   app.setGlobalPrefix('api');
+  app.use(
+    compression({
+      threshold: 1024,
+      filter: (req, res) =>
+        !req.url.startsWith('/media/') && compression.filter(req, res),
+    }),
+  );
 
   const corsOrigins = new Set([
     'https://www.hihienglish.com',

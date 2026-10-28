@@ -26,6 +26,7 @@ const vocabulary_module_1 = require("./vocabulary/vocabulary.module");
 const speaking_module_1 = require("./speaking/speaking.module");
 const video_translate_module_1 = require("./video-translate/video-translate.module");
 const admin_module_1 = require("./admin/admin.module");
+const public_catalog_cache_module_1 = require("./public-cache/public-catalog-cache.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,6 +34,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            public_catalog_cache_module_1.PublicCatalogCacheModule,
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (0, path_1.join)(process.cwd(), 'public'),
                 exclude: ['/api/*path', '/media/*path'],

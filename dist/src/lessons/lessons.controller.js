@@ -20,12 +20,21 @@ const current_user_decorator_1 = require("../auth/current-user.decorator");
 const lessons_service_1 = require("./lessons.service");
 const lesson_access_service_1 = require("./lesson-access.service");
 const update_lesson_access_dto_1 = require("./dto/update-lesson-access.dto");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
+const content_catalog_1 = require("../catalog/content-catalog");
 let LessonsController = class LessonsController {
     lessonsService;
     lessonAccessService;
-    constructor(lessonsService, lessonAccessService) {
+    cache;
+    constructor(lessonsService, lessonAccessService, cache) {
         this.lessonsService = lessonsService;
         this.lessonAccessService = lessonAccessService;
+        this.cache = cache;
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.lessons(), public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => lessonsService.findAll(), true);
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.lessons(true), public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => lessonsService.findAll({ featured: true }), true);
+        for (const category of (0, content_catalog_1.listCatalogCategories)())
+            cache?.register(public_catalog_keys_1.PublicCatalogKeys.lessons(false, category.id), public_catalog_keys_1.LESSON_CATALOG_TTL_MS, () => lessonsService.findAll({ categoryId: category.id }), true);
     }
     getAccessMap() {
         return this.lessonAccessService.getAccessMap();
@@ -34,10 +43,14 @@ let LessonsController = class LessonsController {
         return this.lessonAccessService.setLocked(lessonId, dto.isLocked);
     }
     findAll(featured, categoryId) {
-        return this.lessonsService.findAll({
+        const load = () => this.lessonsService.findAll({
             featured: featured === 'true',
             categoryId,
         });
+        if (categoryId &&
+            !(0, content_catalog_1.listCatalogCategories)().some((category) => category.id === categoryId))
+            return load();
+        return (this.cache?.getOrLoad(public_catalog_keys_1.PublicCatalogKeys.lessons(featured === 'true', categoryId), public_catalog_keys_1.LESSON_CATALOG_TTL_MS, load) ?? load());
     }
     getMyStats(user) {
         return this.lessonsService.getHistoryStats(user.id);
@@ -166,7 +179,9 @@ __decorate([
 ], LessonsController.prototype, "findOne", null);
 exports.LessonsController = LessonsController = __decorate([
     (0, common_1.Controller)('lessons'),
+    __param(2, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [lessons_service_1.LessonsService,
-        lesson_access_service_1.LessonAccessService])
+        lesson_access_service_1.LessonAccessService,
+        public_catalog_cache_service_1.PublicCatalogCacheService])
 ], LessonsController);
 //# sourceMappingURL=lessons.controller.js.map

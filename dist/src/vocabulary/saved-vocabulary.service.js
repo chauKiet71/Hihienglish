@@ -256,12 +256,14 @@ let SavedVocabularyService = class SavedVocabularyService {
         });
         if (!source)
             throw new common_1.NotFoundException('Không tìm thấy nguồn của từ.');
-        await this.resolveSource(userId, {
-            type: source.sourceType,
-            id: source.sourceId,
-            startTime: source.startTime,
-            endTime: source.endTime,
-        });
+        if (source.sourceType !== 'featured-video') {
+            await this.resolveSource(userId, {
+                type: source.sourceType,
+                id: source.sourceId,
+                startTime: source.startTime,
+                endTime: source.endTime,
+            });
+        }
         const query = `t=${source.startTime}&end=${source.endTime}`;
         const publicPath = source.sourceType === 'featured-video'
             ? (await this.catalog.findVideo(source.sourceId)).lessonPath

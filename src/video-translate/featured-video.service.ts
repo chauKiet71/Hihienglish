@@ -4,6 +4,7 @@ import { join } from 'path';
 import { PodcastCatalogService } from '../podcast/podcast-catalog.service';
 import {
   VideoTranslateService,
+  TRANSCRIPT_RULES,
   type VideoSegment,
 } from './video-translate.service';
 
@@ -31,8 +32,8 @@ export class FeaturedVideoService {
   private readTranscript(id: string): FeaturedVideoTranscript {
     const existing = this.lessons.get(id);
     if (existing) return existing;
-    const path = this.cachePath(id);
-    if (existsSync(path)) {
+    for (const path of [this.cachePath(id), this.cachePath(id, 2)]) {
+      if (!existsSync(path)) continue;
       try {
         const segments = JSON.parse(
           readFileSync(path, 'utf8'),
@@ -45,9 +46,24 @@ export class FeaturedVideoService {
               Number.isFinite(segment.start) &&
               Number.isFinite(segment.end) &&
               segment.end > segment.start &&
-              segment.start >= (segments[index - 1]?.start ?? 0) &&
+              segment.start >= (segments[index - 1]?.end ?? 0) - 0.001 &&
               typeof segment.en === 'string' &&
-              typeof segment.vi === 'string',
+              typeof segment.vi === 'string' &&
+              segment.en.trim().length > 0 &&
+              segment.vi.trim().length > 0 &&
+              (!segment.words ||
+                segment.words.every(
+                  (word) =>
+                    Number.isFinite(word.start) &&
+                    Number.isFinite(word.end) &&
+                    word.end > word.start &&
+                    word.start >= segment.start - 0.001 &&
+                    word.end <= segment.end + 0.001,
+                )) &&
+              segment.en.split(/\s+/).filter(Boolean).length <=
+                TRANSCRIPT_RULES.maxWords &&
+              (segment.end - segment.start <= TRANSCRIPT_RULES.maxDurationSec ||
+                segment.en.split(/\s+/).filter(Boolean).length < 8),
           )
         ) {
           const result: FeaturedVideoTranscript = {
@@ -111,13 +127,13 @@ export class FeaturedVideoService {
     void this.catalog.setTranscriptStatus(id, status).catch(() => {});
   }
 
-  private cachePath(id: string) {
+  private cachePath(id: string, version = 3) {
     return join(
       process.cwd(),
       'storage',
       'featured-videos',
       id,
-      'transcript-v2.json',
+      `transcript-v${version}.json`,
     );
   }
 }

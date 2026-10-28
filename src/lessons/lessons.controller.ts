@@ -7,6 +7,7 @@ import {
   Put,
   Query,
   UseGuards,
+  Optional,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
@@ -14,13 +15,40 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { LessonsService } from './lessons.service';
 import { LessonAccessService } from './lesson-access.service';
 import { UpdateLessonAccessDto } from './dto/update-lesson-access.dto';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
+import {
+  PublicCatalogKeys,
+  LESSON_CATALOG_TTL_MS,
+} from '../public-cache/public-catalog.keys';
+import { listCatalogCategories } from '../catalog/content-catalog';
 
 @Controller('lessons')
 export class LessonsController {
   constructor(
     private lessonsService: LessonsService,
     private lessonAccessService: LessonAccessService,
-  ) {}
+    @Optional() private cache?: PublicCatalogCacheService,
+  ) {
+    cache?.register(
+      PublicCatalogKeys.lessons(),
+      LESSON_CATALOG_TTL_MS,
+      () => lessonsService.findAll(),
+      true,
+    );
+    cache?.register(
+      PublicCatalogKeys.lessons(true),
+      LESSON_CATALOG_TTL_MS,
+      () => lessonsService.findAll({ featured: true }),
+      true,
+    );
+    for (const category of listCatalogCategories())
+      cache?.register(
+        PublicCatalogKeys.lessons(false, category.id),
+        LESSON_CATALOG_TTL_MS,
+        () => lessonsService.findAll({ categoryId: category.id }),
+        true,
+      );
+  }
 
   @Get('access')
   getAccessMap() {
@@ -41,10 +69,23 @@ export class LessonsController {
     @Query('featured') featured?: string,
     @Query('categoryId') categoryId?: string,
   ) {
-    return this.lessonsService.findAll({
-      featured: featured === 'true',
-      categoryId,
-    });
+    const load = () =>
+      this.lessonsService.findAll({
+        featured: featured === 'true',
+        categoryId,
+      });
+    if (
+      categoryId &&
+      !listCatalogCategories().some((category) => category.id === categoryId)
+    )
+      return load();
+    return (
+      this.cache?.getOrLoad(
+        PublicCatalogKeys.lessons(featured === 'true', categoryId),
+        LESSON_CATALOG_TTL_MS,
+        load,
+      ) ?? load()
+    );
   }
 
   @Get('me/stats')

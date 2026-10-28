@@ -1,0 +1,84 @@
+{
+  "measuredAt": "2026-10-27T16:13:32.116Z",
+  "environment": "Local Windows, existing PostgreSQL, Redis Docker localhost:6380; old app :3004 vs compiled app :3101",
+  "podcasts": {
+    "beforeMedianTtfbMs": 517.1229000000001,
+    "afterMedianTtfbMs": 3.81519999999999,
+    "uncachedBytes": 44809,
+    "gzipWireBytes": 9726,
+    "payloadEqual": true,
+    "sha256": "36f3c0e61988887674e36cb6f32f2a9584cedac8957a75b88dccf5c87cade10e",
+    "byteEqual": true
+  },
+  "bundle": {
+    "before": {
+      "entry": "/assets/index-CTHJ94cz.js",
+      "bytes": 1535443,
+      "gzipBytes": 410877
+    },
+    "after": {
+      "entry": "/assets/index-CZtIGd5I.js",
+      "bytes": 307313,
+      "gzipBytes": 96219
+    },
+    "entryByteReductionPercent": 80,
+    "gzipReductionPercent": 77,
+    "htmlModulePreloads": []
+  },
+  "redisIntegration": {
+    "sharedRequests": 30,
+    "sourceLoads": 1,
+    "crossProcessInvalidation": "passed",
+    "ttlExpiry": "passed",
+    "corruptPayload": "passed",
+    "a": {
+      "configured": true,
+      "connected": true,
+      "hits": 1,
+      "misses": 4,
+      "loads": 4,
+      "errors": 0
+    },
+    "b": {
+      "configured": true,
+      "connected": true,
+      "hits": 1,
+      "misses": 2,
+      "loads": 2,
+      "errors": 0
+    }
+  },
+  "outage": {
+    "outage": {
+      "/api/podcasts/catalog": {
+        "status": 200,
+        "totalMs": 814.9802000000001,
+        "bytes": 44809
+      },
+      "/api/categories": {
+        "status": 200,
+        "totalMs": 3.0799999999999272,
+        "bytes": 6907
+      },
+      "/api/lessons?featured=true": {
+        "status": 200,
+        "totalMs": 4.510299999999916,
+        "bytes": 72736
+      }
+    },
+    "recovery": {
+      "status": 200,
+      "totalMs": 44.483799999999974,
+      "bytes": 44809,
+      "cacheTtlMs": 294192,
+      "compressedCache": true
+    }
+  },
+  "freePremiumCheck": {
+    "status": 200,
+    "previewSeconds": 20,
+    "canListenFull": false,
+    "previewLimitSeconds": 20,
+    "cacheControl": "private, no-store"
+  }
+}

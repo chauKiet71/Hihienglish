@@ -7,11 +7,14 @@ import {
   OnModuleDestroy,
   OnModuleInit,
   ServiceUnavailableException,
+  Optional,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { YoutubeCatalogService } from './youtube-catalog.service';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
+import { PublicCatalogKeys } from '../public-cache/public-catalog.keys';
 import type {
   CatalogImportJob,
   ImportCandidate,
@@ -42,6 +45,7 @@ export class PodcastImportService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly prisma: PrismaService,
     private readonly youtube: YoutubeCatalogService,
+    @Optional() private readonly cache?: PublicCatalogCacheService,
   ) {}
 
   onModuleInit() {
@@ -123,7 +127,7 @@ export class PodcastImportService implements OnModuleInit, OnModuleDestroy {
   }
 
   async commit(id: string, ids: string[]) {
-    return this.prisma.$transaction(
+    const result = await this.prisma.$transaction(
       async (tx) => {
         const job = await tx.podcastImportJob.findUnique({ where: { id } });
         if (!job) throw new NotFoundException('Không tìm thấy phiên nhập.');
@@ -185,6 +189,8 @@ export class PodcastImportService implements OnModuleInit, OnModuleDestroy {
       },
       { maxWait: 15_000, timeout: 20_000 },
     );
+    await this.cache?.invalidate(PublicCatalogKeys.podcasts);
+    return result;
   }
 
   private async drain() {

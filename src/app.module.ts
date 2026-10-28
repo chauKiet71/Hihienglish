@@ -17,10 +17,12 @@ import { VocabularyModule } from './vocabulary/vocabulary.module';
 import { SpeakingModule } from './speaking/speaking.module';
 import { VideoTranslateModule } from './video-translate/video-translate.module';
 import { AdminModule } from './admin/admin.module';
+import { PublicCatalogCacheModule } from './public-cache/public-catalog-cache.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    PublicCatalogCacheModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'public'),
       exclude: ['/api/*path', '/media/*path'],

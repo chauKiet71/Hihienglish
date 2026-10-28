@@ -1,0 +1,15 @@
+{
+  "before": {
+    "entry": "/assets/index-CTHJ94cz.js",
+    "bytes": 1535443,
+    "gzipBytes": 410877
+  },
+  "after": {
+    "entry": "/assets/index-CZtIGd5I.js",
+    "bytes": 307313,
+    "gzipBytes": 96219
+  },
+  "entryByteReductionPercent": 80,
+  "gzipReductionPercent": 77,
+  "htmlModulePreloads": []
+}

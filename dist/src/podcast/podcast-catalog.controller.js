@@ -20,13 +20,18 @@ const podcast_catalog_service_1 = require("./podcast-catalog.service");
 const podcast_import_service_1 = require("./podcast-import.service");
 const youtube_catalog_service_1 = require("./youtube-catalog.service");
 const catalog_dto_1 = require("./dto/catalog.dto");
+const public_catalog_cache_service_1 = require("../public-cache/public-catalog-cache.service");
+const public_catalog_keys_1 = require("../public-cache/public-catalog.keys");
 let PodcastCatalogController = class PodcastCatalogController {
     catalog;
-    constructor(catalog) {
+    cache;
+    constructor(catalog, cache) {
         this.catalog = catalog;
+        this.cache = cache;
+        cache?.register(public_catalog_keys_1.PublicCatalogKeys.podcasts, public_catalog_keys_1.PODCAST_CATALOG_TTL_MS, () => catalog.list());
     }
     list() {
-        return this.catalog.list();
+        return (this.cache?.getOrLoad(public_catalog_keys_1.PublicCatalogKeys.podcasts, public_catalog_keys_1.PODCAST_CATALOG_TTL_MS, () => this.catalog.list()) ?? this.catalog.list());
     }
 };
 exports.PodcastCatalogController = PodcastCatalogController;
@@ -39,7 +44,9 @@ __decorate([
 ], PodcastCatalogController.prototype, "list", null);
 exports.PodcastCatalogController = PodcastCatalogController = __decorate([
     (0, common_1.Controller)('podcasts'),
-    __metadata("design:paramtypes", [podcast_catalog_service_1.PodcastCatalogService])
+    __param(1, (0, common_1.Optional)()),
+    __metadata("design:paramtypes", [podcast_catalog_service_1.PodcastCatalogService,
+        public_catalog_cache_service_1.PublicCatalogCacheService])
 ], PodcastCatalogController);
 let AdminPodcastCatalogController = class AdminPodcastCatalogController {
     catalog;

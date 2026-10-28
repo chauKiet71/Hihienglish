@@ -1,10 +1,12 @@
 import { LessonsService } from './lessons.service';
 import { LessonAccessService } from './lesson-access.service';
 import { UpdateLessonAccessDto } from './dto/update-lesson-access.dto';
+import { PublicCatalogCacheService } from '../public-cache/public-catalog-cache.service';
 export declare class LessonsController {
     private lessonsService;
     private lessonAccessService;
-    constructor(lessonsService: LessonsService, lessonAccessService: LessonAccessService);
+    private cache?;
+    constructor(lessonsService: LessonsService, lessonAccessService: LessonAccessService, cache?: PublicCatalogCacheService | undefined);
     getAccessMap(): Promise<Record<string, boolean>>;
     setAccess(lessonId: string, dto: UpdateLessonAccessDto): Promise<{
         updatedAt: Date;

@@ -45,6 +45,7 @@ const reply = (value: unknown) => ({
 const flush = async () => {
   await act(async () => {
     await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 5));
   });
 };
 
@@ -109,14 +110,22 @@ it('waits for authentication before loading private data, then pages reuse it', 
   useAuth.mockReturnValue({ user: null, loading: true } as ReturnType<
     typeof auth.useAuth
   >);
-  const view = render(<AppDataPrefetch />);
+  const view = render(
+    <MemoryRouter>
+      <AppDataPrefetch />
+    </MemoryRouter>,
+  );
   await flush();
   expect(requests).toHaveLength(4);
   setToken('account-a');
   useAuth.mockReturnValue({ user: { id: 'a' }, loading: false } as ReturnType<
     typeof auth.useAuth
   >);
-  view.rerender(<AppDataPrefetch />);
+  view.rerender(
+    <MemoryRouter>
+      <AppDataPrefetch />
+    </MemoryRouter>,
+  );
   await flush();
   expect(peekCache(PageDataKeys.savedVocabulary())).toEqual(library);
   await api.getSavedVocabulary({ search: '', status: 'all' });
