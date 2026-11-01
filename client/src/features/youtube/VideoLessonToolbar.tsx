@@ -43,7 +43,7 @@ export default function VideoLessonToolbar(props: Props) {
   return (
     <footer
       aria-label="Công cụ bài học"
-      className="z-50 shrink-0 border-t border-slate-100 bg-white/95 px-3 pb-[max(4px,env(safe-area-inset-bottom))] pt-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
+      className="absolute inset-x-0 bottom-0 z-50 border-t border-slate-100 bg-white/95 px-3 pb-[max(4px,env(safe-area-inset-bottom))] pt-1 backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95"
     >
       <div className="grid grid-cols-[repeat(4,minmax(0,1fr))_minmax(4.75rem,1.15fr)] items-stretch rounded-xl bg-slate-50 p-0.5 shadow-sm dark:bg-neutral-950">
         <div ref={speedRef} className="relative min-w-0">

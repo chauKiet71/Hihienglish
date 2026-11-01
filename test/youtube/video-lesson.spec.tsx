@@ -131,6 +131,38 @@ function renderLesson(id = 'ErP_AKE3riY') {
   );
 }
 
+it('keeps the lesson toolbar inside the visible mobile viewport', () => {
+  const originalViewport = Object.getOwnPropertyDescriptor(
+    window,
+    'visualViewport',
+  );
+  Object.defineProperty(window, 'visualViewport', {
+    configurable: true,
+    value: {
+      height: 640,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    },
+  });
+
+  try {
+    renderLesson();
+    const lessonViewport = screen.getByRole('main').firstElementChild;
+    expect((lessonViewport as HTMLElement).style.height).toBe('640px');
+    expect(lessonViewport?.classList.contains('overflow-hidden')).toBe(true);
+    const toolbar = screen.getByRole('contentinfo', {
+      name: 'Công cụ bài học',
+    });
+    expect(toolbar.classList.contains('absolute')).toBe(true);
+    expect(toolbar.classList.contains('bottom-0')).toBe(true);
+  } finally {
+    cleanup();
+    if (originalViewport)
+      Object.defineProperty(window, 'visualViewport', originalViewport);
+    else delete (window as { visualViewport?: VisualViewport }).visualViewport;
+  }
+});
+
 it('seeks the actual player when choosing a sentence and toggles translation', async () => {
   renderLesson();
   await screen.findByText('Bạn khỏe không?');

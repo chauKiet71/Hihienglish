@@ -34,6 +34,12 @@ import {
   usePodcastCatalog,
 } from '../podcast/usePodcastCatalog';
 
+function visibleViewportHeight() {
+  if (typeof window === 'undefined') return null;
+  const height = window.visualViewport?.height ?? window.innerHeight;
+  return Number.isFinite(height) && height > 0 ? Math.floor(height) : null;
+}
+
 export default function VideoLessonPage() {
   const catalog = usePodcastCatalog();
   const { videoId } = useParams<{ videoId: string }>();
@@ -78,6 +84,7 @@ export function VideoLesson({
   const previousSentenceRef = useRef(-1);
   const loopRef = useRef(false);
   const rateRef = useRef(1);
+  const [viewportHeight, setViewportHeight] = useState(visibleViewportHeight);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
@@ -195,6 +202,23 @@ export function VideoLesson({
   const activeIndex = visibleSegments.findLastIndex(
     (segment) => segment.start <= time + 0.05,
   );
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    const updateHeight = () => {
+      const nextHeight = visibleViewportHeight();
+      setViewportHeight((currentHeight) =>
+        currentHeight === nextHeight ? currentHeight : nextHeight,
+      );
+    };
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    viewport?.addEventListener('resize', updateHeight);
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      viewport?.removeEventListener('resize', updateHeight);
+    };
+  }, []);
 
   useEffect(() => {
     setSegments([]);
@@ -463,7 +487,12 @@ export function VideoLesson({
     <main className="bg-[#f8f9fb] text-[#142034] dark:bg-neutral-950 dark:text-neutral-100">
       <div
         inert={premiumOpen}
-        className="mx-auto flex h-dvh min-h-[600px] max-w-lg flex-col"
+        style={
+          viewportHeight === null
+            ? { height: '100svh' }
+            : { height: `${viewportHeight}px` }
+        }
+        className="relative mx-auto flex min-h-0 max-w-lg flex-col overflow-hidden"
       >
         <header className="relative flex min-h-13 shrink-0 items-center justify-center border-b border-slate-100 bg-white px-14 py-3 dark:border-neutral-800 dark:bg-neutral-900">
           <Link
@@ -602,7 +631,7 @@ export function VideoLesson({
           ref={listRef}
           aria-label="Phụ đề bài học"
           aria-busy={loading}
-          className={`min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 pt-4 ${previewLimit !== null ? 'pb-4' : 'pb-[45vh]'}`}
+          className={`min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-4 pt-4 ${previewLimit !== null ? 'pb-24' : 'pb-[45vh]'}`}
         >
           {loading && (
             <div
